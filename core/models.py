@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+
 class Espacio(models.Model):
 
     nombre = models.CharField(max_length=100)
@@ -14,3 +15,42 @@ class Espacio(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Evento(models.Model):
+
+    TIPO_CHOICES = [
+        ('boda', 'Boda'),
+        ('graduacion', 'Graduación'),
+        ('comunion', 'Comunión'),
+        ('gala', 'Gala'),
+        ('preboda', 'Preboda'),
+        ('otro', 'Otro'),
+    ]
+
+    CONCEPTO_CHOICES = [
+        ('cena', 'Cena'),
+        ('comida', 'Comida'),
+        ('almuerzo', 'Almuerzo'),
+        ('barbacoa', 'Barbacoa'),
+        ('cocktail', 'Cocktail'),
+        ('barra', 'Barra'),
+        ('ceremonia', 'Ceremonia'),
+        ('otro', 'Otro'),
+    ]
+
+    cliente = models.CharField(max_length=200)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    fecha = models.DateField()
+    espacios = models.ManyToManyField(Espacio, related_name='eventos')
+    concepto = models.CharField(max_length=20, choices=CONCEPTO_CHOICES)
+    personas = models.PositiveIntegerField()
+    notas = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Evento'
+        verbose_name_plural = 'Eventos'
+        ordering = ['fecha']
+
+    def __str__(self):
+        return f"{self.cliente} — {self.get_tipo_display()} — {self.fecha}"

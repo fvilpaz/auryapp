@@ -11,7 +11,7 @@
 
     <div class="bc-card">
       <div class="bc-card-icon">&#128197;</div>
-      <div class="bc-card-value">0</div>
+      <div class="bc-card-value">{{ total_eventos_mes }}</div>
       <div class="bc-card-label">Eventos</div>
       <div class="bc-card-sub">Este mes</div>
     </div>
@@ -35,8 +35,38 @@
       <div class="bc-card-value">{{ total_espacios }}</div>
       <div class="bc-card-label">Espacios</div>
       <div class="bc-card-sub">Todos activos</div>
-   </div>
+    </div>
 
+  </div>
+</div>
+
+<div class="bc-section">
+  <div class="bc-section-title">Próximos eventos</div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Espacios</th>
+          <th>Personas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evento in eventos_proximos %}
+        <tr>
+          <td>{{ evento.fecha|date:"d M" }}</td>
+          <td>{{ evento.cliente|default:"—" }}</td>
+          <td>{{ evento.get_tipo_display }}</td>
+          <td>{% for e in evento.espacios.all %}{{ e.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+          <td>{{ evento.personas }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay eventos próximos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
