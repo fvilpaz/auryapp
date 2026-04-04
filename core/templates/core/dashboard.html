@@ -32,11 +32,27 @@
 
     <div class="bc-card">
       <div class="bc-card-icon">&#127965;</div>
-      <div class="bc-card-value">4</div>
+      <div class="bc-card-value">{{ total_espacios }}</div>
       <div class="bc-card-label">Espacios</div>
       <div class="bc-card-sub">Todos activos</div>
-    </div>
+   </div>
 
+  </div>
+</div>
+
+<div class="bc-section">
+  <div class="bc-section-title">Puntos de venta</div>
+  <div class="bc-card-grid">
+    {% for espacio in espacios %}
+    <div class="bc-card">
+      <div class="bc-card-label">{{ espacio.nombre }}</div>
+      {% if espacio.activo %}
+        <span class="bc-badge bc-badge-green">Activo</span>
+      {% else %}
+        <span class="bc-badge bc-badge-gray">Inactivo</span>
+      {% endif %}
+    </div>
+    {% endfor %}
   </div>
 </div>
 
