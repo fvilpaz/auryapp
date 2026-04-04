@@ -1,0 +1,335 @@
+/* ============================================
+   BEACH CLUB — SISTEMA DE DISEÑO
+   Prefijo: bc-
+   Modificar aquí afecta a toda la app
+   ============================================ */
+
+/* --- Variables --- */
+:root {
+  --color-primary:     #1a6fc4;
+  --color-primary-dk:  #1557a0;
+  --color-accent:      #e8a020;
+  --color-success:     #1d9e75;
+  --color-danger:      #c0392b;
+  --color-warning:     #e8a020;
+  --color-bg:          #f0f2f5;
+  --color-surface:     #ffffff;
+  --color-border:      rgba(0, 0, 0, 0.08);
+  --color-text:        #1a1a2e;
+  --color-muted:       #6b7280;
+  --radius-sm:         6px;
+  --radius-md:         10px;
+  --radius-lg:         14px;
+  --navbar-h:          56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary:   #3b8fdf;
+    --color-bg:        #0f1117;
+    --color-surface:   #1c1f28;
+    --color-border:    rgba(255, 255, 255, 0.08);
+    --color-text:      #e8eaf0;
+    --color-muted:     #9ca3af;
+  }
+}
+
+/* --- Reset mínimo --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.bc-navbar {
+  background: var(--color-primary);
+  height: var(--navbar-h);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.bc-navbar-brand {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.bc-navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  flex-shrink: 0;
+}
+.bc-navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  list-style: none;
+}
+.bc-navbar-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.bc-navbar-nav a:hover,
+.bc-navbar-nav a.active { background: rgba(255, 255, 255, 0.15); color: #fff; }
+.bc-navbar-user {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+.bc-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.bc-section { margin-bottom: 28px; }
+.bc-section-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.bc-card {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+}
+.bc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.bc-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(26, 111, 196, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
+.bc-card-value {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+.bc-card-label {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 3px;
+}
+.bc-card-sub {
+  font-size: 11px;
+  color: var(--color-primary);
+  margin-top: 4px;
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.bc-alert {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  padding: 14px 16px;
+  border-left-width: 3px;
+  border-radius: 0;
+}
+.bc-alert-title {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.bc-alert-body { font-size: 12px; color: var(--color-muted); }
+.bc-alert.danger { border-left-color: var(--color-danger); }
+.bc-alert.danger .bc-alert-title { color: var(--color-danger); }
+.bc-alert.warning { border-left-color: var(--color-warning); }
+.bc-alert.warning .bc-alert-title { color: var(--color-warning); }
+.bc-alert.success { border-left-color: var(--color-success); }
+.bc-alert.success .bc-alert-title { color: var(--color-success); }
+
+/* ============================================
+   TABLA
+   ============================================ */
+.bc-table-wrapper {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.bc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.bc-table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  border-bottom: 0.5px solid var(--color-border);
+  background: var(--color-bg);
+}
+.bc-table tbody td { padding: 10px 14px; border-bottom: 0.5px solid var(--color-border); }
+.bc-table tbody tr:last-child td { border-bottom: none; }
+.bc-table tbody tr:hover { background: rgba(26, 111, 196, 0.03); }
+
+/* ============================================
+   BADGES
+   ============================================ */
+.bc-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.bc-badge-blue    { background: #e8f0fb; color: #1557a0; }
+.bc-badge-green   { background: #e1f5ee; color: #0f6e56; }
+.bc-badge-amber   { background: #faeeda; color: #854f0b; }
+.bc-badge-red     { background: #fcebeb; color: #a32d2d; }
+.bc-badge-gray    { background: #f1efe8; color: #5f5e5a; }
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+.bc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.bc-form-group { display: flex; flex-direction: column; gap: 4px; }
+.bc-form-group label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+.bc-form-group input,
+.bc-form-group select,
+.bc-form-group textarea {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.bc-form-group input:focus,
+.bc-form-group select:focus,
+.bc-form-group textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 111, 196, 0.12);
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.bc-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bc-btn-primary { background: var(--color-primary); color: #fff; }
+.bc-btn-primary:hover { opacity: 0.88; }
+.bc-btn-secondary { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
+.bc-btn-secondary:hover { background: var(--color-bg); }
+.bc-btn-danger { background: var(--color-danger); color: #fff; }
+.bc-btn-danger:hover { opacity: 0.88; }
+.bc-btn-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+/* ============================================
+   CHECKLIST
+   ============================================ */
+.bc-checklist { display: flex; flex-direction: column; gap: 6px; }
+.bc-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.bc-check-item:hover { background: var(--color-bg); }
+.bc-check-item.done { opacity: 0.5; text-decoration: line-through; color: var(--color-muted); }
+
+/* ============================================
+   MOBILE PORTRAIT
+   Solo aquí se permiten !important
+   ============================================ */
+@media (max-width: 480px) and (orientation: portrait) {
+  .bc-card-grid { grid-template-columns: 1fr 1fr !important; }
+  .bc-form-grid { grid-template-columns: 1fr !important; }
+  .bc-page { padding: 16px !important; }
+  .bc-navbar { padding: 0 16px !important; }
+}
