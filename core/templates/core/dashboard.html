@@ -25,9 +25,9 @@
 
     <div class="bc-card">
       <div class="bc-card-icon">&#128100;</div>
-      <div class="bc-card-value">0</div>
+      <div class="bc-card-value">{{ total_personal }}</div>
       <div class="bc-card-label">Personal</div>
-      <div class="bc-card-sub">Sin datos aún</div>
+      <div class="bc-card-sub">Activos</div>
     </div>
 
     <div class="bc-card">
@@ -76,11 +76,14 @@
     {% for espacio in espacios %}
     <div class="bc-card">
       <div class="bc-card-label">{{ espacio.nombre }}</div>
-      {% if espacio.activo %}
-        <span class="bc-badge bc-badge-green">Activo</span>
-      {% else %}
-        <span class="bc-badge bc-badge-gray">Inactivo</span>
-      {% endif %}
+      {% with turnos_espacio=turnos_hoy|dictsort:"empleado.nombre" %}
+        {% for turno in turnos_hoy %}
+          {% if turno.espacio == espacio %}
+            <div class="bc-card-sub">👤 {{ turno.empleado.nombre }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+      <div class="bc-card-sub">Sin asignación hoy</div>
     </div>
     {% endfor %}
   </div>
