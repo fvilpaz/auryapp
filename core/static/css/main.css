@@ -417,5 +417,5 @@ body {
   .bc-form-grid { grid-template-columns: 1fr !important; }
   .bc-page { padding: 16px !important; }
   .bc-navbar { padding: 0 16px !important; }
-  .bc-card-dock .bc-card { flex: 0 0 85px !important; }
+  .bc-card-dock .bc-card { flex: 0 0 85vw !important; }
 }
