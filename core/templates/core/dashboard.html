@@ -76,14 +76,21 @@
     {% for espacio in espacios %}
     <div class="bc-card">
       <div class="bc-card-label">{{ espacio.nombre }}</div>
-      {% with turnos_espacio=turnos_hoy|dictsort:"empleado.nombre" %}
-        {% for turno in turnos_hoy %}
-          {% if turno.espacio == espacio %}
-            <div class="bc-card-sub">👤 {{ turno.empleado.nombre }}</div>
+      {% for turno in turnos_hoy %}
+        {% if turno.espacio == espacio %}
+          <div class="bc-card-sub">👤 {{ turno.empleado.nombre }}</div>
+        {% endif %}
+      {% endfor %}
+      <div style="margin-top:8px; width:100%;">
+        {% for tarea in tareas_apertura %}
+          {% if tarea.espacio == espacio %}
+            <div class="bc-check-item">
+              <div class="bc-check-box"></div>
+              {{ tarea.nombre }}
+            </div>
           {% endif %}
         {% endfor %}
-      {% endwith %}
-      <div class="bc-card-sub">Sin asignación hoy</div>
+      </div>
     </div>
     {% endfor %}
   </div>
