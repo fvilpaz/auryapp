@@ -1,6 +1,7 @@
+import sys
+sys.path.insert(0, '/home/nando/code/github/auryapp')
 import os
 import django
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'beachclub.settings')
 django.setup()
 

@@ -142,38 +142,52 @@ body {
   background: var(--color-surface);
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 16px 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 160px;
 }
 .bc-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
+.bc-card-dock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
 .bc-card-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
-  background: rgba(26, 111, 196, 0.1);
+  border: 1.5px solid var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+  font-size: 22px;
   color: var(--color-primary);
+  align-self: center;
 }
 .bc-card-value {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1;
+  align-self: center;
 }
 .bc-card-label {
-  font-size: 12px;
-  color: var(--color-muted);
-  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  align-self: center;
 }
 .bc-card-sub {
   font-size: 11px;
   color: var(--color-primary);
-  margin-top: 4px;
+  align-self: center;
 }
 
 /* ============================================
@@ -205,30 +219,50 @@ body {
    TABLA
    ============================================ */
 .bc-table-wrapper {
-  background: var(--color-surface);
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .bc-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  min-width: 500px;
+  white-space: nowrap;
+}
+.bc-table thead {
+  background: var(--color-primary);
 }
 .bc-table thead th {
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--color-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 10px 14px;
-  border-bottom: 0.5px solid var(--color-border);
-  background: var(--color-bg);
+  color: #ffffff;
+  padding: 12px 16px;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
 }
-.bc-table tbody td { padding: 10px 14px; border-bottom: 0.5px solid var(--color-border); }
-.bc-table tbody tr:last-child td { border-bottom: none; }
-.bc-table tbody tr:hover { background: rgba(26, 111, 196, 0.03); }
+.bc-table tbody tr {
+  border-bottom: 0.5px solid var(--color-border);
+  transition: background 0.1s;
+}
+.bc-table tbody tr:last-child {
+  border-bottom: none;
+}
+.bc-table tbody tr:hover {
+  background: rgba(26, 111, 196, 0.04);
+}
+.bc-table tbody td {
+  padding: 10px 16px;
+  color: var(--color-text);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.bc-table tbody td.wrap {
+  white-space: normal;
+}
 
 /* ============================================
    BADGES
@@ -324,12 +358,38 @@ body {
 .bc-check-item.done { opacity: 0.5; text-decoration: line-through; color: var(--color-muted); }
 
 /* ============================================
-   MOBILE PORTRAIT
+   RESPONSIVE
    Solo aquí se permiten !important
    ============================================ */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .bc-card-dock {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Móvil landscape y pequeño */
+@media (max-width: 640px) {
+  .bc-card-dock {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  .bc-card-dock::-webkit-scrollbar { display: none; }
+  .bc-card-dock .bc-card {
+    flex: 0 0 160px;
+    scroll-snap-align: start;
+  }
+}
+
+/* Móvil portrait */
 @media (max-width: 480px) and (orientation: portrait) {
   .bc-card-grid { grid-template-columns: 1fr 1fr !important; }
   .bc-form-grid { grid-template-columns: 1fr !important; }
   .bc-page { padding: 16px !important; }
   .bc-navbar { padding: 0 16px !important; }
+  .bc-card-dock .bc-card { flex: 0 0 140px !important; }
 }
