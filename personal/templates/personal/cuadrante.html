@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Cuadrante — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Cuadrante semanal</div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <a href="?semana={{ semana_anterior }}" class="bc-btn bc-btn-secondary">&#8592; Anterior</a>
+    <span style="font-size:15px; font-weight:500;">
+      {{ lunes|date:"d M" }} — {{ domingo|date:"d M Y" }}
+    </span>
+    <a href="?semana={{ semana_siguiente }}" class="bc-btn bc-btn-secondary">Siguiente &#8594;</a>
+  </div>
+
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          {% for dia in dias %}
+          <th>{{ dia|date:"D d" }}</th>
+          {% endfor %}
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for empleado in empleados %}
+        <tr>
+          <td style="font-weight:500;">{{ empleado.nombre }}</td>
+          {% for dia in dias %}
+            {% with key=empleado.id|stringformat:"i" %}
+            <td>
+              {% for turno in turno_map.values %}
+                {% if turno.empleado.id == empleado.id and turno.fecha == dia %}
+                  {% if turno.estado == 'trabajo' %}
+                    <span class="bc-badge bc-badge-green">
+                      {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}
+                    </span>
+                  {% elif turno.estado == 'libre' %}
+                    <span class="bc-badge bc-badge-gray">L</span>
+                  {% elif turno.estado == 'vacaciones' %}
+                    <span class="bc-badge bc-badge-amber">V</span>
+                  {% elif turno.estado == 'inamovible' %}
+                    <span class="bc-badge bc-badge-red">L</span>
+                  {% elif turno.estado == 'libre_vacaciones' %}
+                    <span class="bc-badge bc-badge-blue">LV</span>
+                  {% elif turno.estado == 'baja' %}
+                    <span class="bc-badge bc-badge-red">B</span>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </td>
+            {% endwith %}
+          {% endfor %}
+          <td>
+            {% for turno in turno_map.values %}
+              {% if turno.empleado.id == empleado.id %}
+                {{ turno.horas }}
+              {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
