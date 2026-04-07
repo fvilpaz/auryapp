@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Eventos — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <div class="bc-section-title" style="margin:0; border:none;">Todos los eventos</div>
+    <a href="{% url 'dashboard' %}" class="bc-btn bc-btn-secondary">&#8592; Dashboard</a>
+  </div>
+
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Espacios</th>
+          <th>Concepto</th>
+          <th>Personas</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evento in eventos %}
+        <tr>
+          <td>{{ evento.fecha|date:"d M Y" }}</td>
+          <td>{{ evento.cliente|default:"—" }}</td>
+          <td>
+            {% if evento.tipo == 'boda' %}
+              <span class="bc-badge bc-badge-blue">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'graduacion' %}
+              <span class="bc-badge bc-badge-green">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'comunion' %}
+              <span class="bc-badge bc-badge-amber">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'gala' %}
+              <span class="bc-badge bc-badge-red">{{ evento.get_tipo_display }}</span>
+            {% else %}
+              <span class="bc-badge bc-badge-gray">{{ evento.get_tipo_display }}</span>
+            {% endif %}
+          </td>
+          <td>{% for e in evento.espacios.all %}{{ e.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+          <td>{{ evento.get_concepto_display }}</td>
+          <td>{{ evento.personas }}</td>
+          <td>{{ evento.notas|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No hay eventos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

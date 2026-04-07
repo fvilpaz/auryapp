@@ -9,12 +9,12 @@
   <div class="bc-section-title">Módulos</div>
   <div class="bc-card-grid bc-card-dock">
 
-    <div class="bc-card">
+    <a href="{% url 'lista_eventos' %}" class="bc-card" style="text-decoration:none; color:inherit;">
       <div class="bc-card-icon">&#128197;</div>
       <div class="bc-card-value">{{ total_eventos_mes }}</div>
       <div class="bc-card-label">Eventos</div>
       <div class="bc-card-sub">Este mes</div>
-    </div>
+    </a>
 
     <div class="bc-card">
       <div class="bc-card-icon">&#9989;</div>
@@ -44,12 +44,12 @@
   <div class="bc-section-title">Gestión</div>
   <div class="bc-card-grid bc-card-dock">
 
-    <div class="bc-card">
+    <a href="{% url 'cuadrante' %}" class="bc-card" style="text-decoration:none; color:inherit;">
       <div class="bc-card-icon">&#128197;</div>
       <div class="bc-card-value">—</div>
       <div class="bc-card-label">Turnos</div>
       <div class="bc-card-sub">Ver cuadrante</div>
-    </div>
+    </a>
 
     <div class="bc-card">
       <div class="bc-card-icon">&#127964;</div>

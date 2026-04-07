@@ -264,6 +264,8 @@ body {
   white-space: normal;
 }
 
+.bc-table-name { font-weight: 500; }
+
 /* ============================================
    BADGES
    ============================================ */
@@ -381,6 +383,42 @@ body {
   border-top: none;
   border-left: none;
   transform: rotate(45deg) translateY(-1px);
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.bc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+.bc-section-header-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+.bc-section-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bc-section-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.bc-section-nav-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 /* ============================================

@@ -33,3 +33,10 @@ def dashboard(request):
         'hoy': hoy,
     }
     return render(request, 'core/dashboard.html', context)
+
+def lista_eventos(request):
+    eventos = Evento.objects.all().order_by('fecha')
+    context = {
+        'eventos': eventos,
+    }
+    return render(request, 'core/eventos.html', context)
