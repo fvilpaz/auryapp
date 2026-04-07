@@ -656,13 +656,22 @@ body {
 .fc .fc-list-event-time {
   display: none;
 }
-/* Scroll horizontal en móvil */
-.fc .fc-view-harness {
+.bc-calendar-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
 }
-.fc .fc-scrollgrid {
+
+.bc-calendar-wrapper .fc .fc-view-harness {
+  overflow-x: visible;
+}
+
+.bc-calendar-wrapper .fc .fc-scrollgrid {
   min-width: 600px;
+}
+.bc-card-calendar {
+  padding: 0;
+  overflow: hidden;
 }
 
 /* ============================================
