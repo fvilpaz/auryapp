@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import Espacio, Evento
 from personal.models import Empleado, Turno
 from tareas.models import TareaPlantilla
+from django.http import JsonResponse
 
 def dashboard(request):
     hoy = timezone.now().date()
@@ -40,3 +41,23 @@ def lista_eventos(request):
         'eventos': eventos,
     }
     return render(request, 'core/eventos.html', context)
+
+def eventos_json(request):
+    eventos = Evento.objects.all()
+    data = []
+    colores = {
+        'boda': '#1a6fc4',
+        'graduacion': '#1d9e75',
+        'comunion': '#e8a020',
+        'gala': '#c0392b',
+        'preboda': '#8e44ad',
+        'otro': '#6b7280',
+    }
+    for evento in eventos:
+        data.append({
+            'title': evento.cliente if evento.cliente else evento.get_tipo_display(),
+            'start': evento.fecha.isoformat(),
+            'color': colores.get(evento.tipo, '#6b7280'),
+            'url': f'/eventos/',
+        })
+    return JsonResponse(data, safe=False)
