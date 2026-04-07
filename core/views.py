@@ -61,3 +61,6 @@ def eventos_json(request):
             'url': f'/eventos/',
         })
     return JsonResponse(data, safe=False)
+
+def calendario(request):
+    return render(request, 'core/calendario.html')
