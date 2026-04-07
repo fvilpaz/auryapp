@@ -6,7 +6,12 @@
 {% block content %}
 
 <div class="bc-section">
-  <div class="bc-section-title">Todos los eventos</div>
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Todos los eventos</span>
+    <a href="{% url 'nuevo_evento' %}" class="bc-btn bc-btn-primary">
+      <i class="ti ti-plus"></i> Nuevo evento
+    </a>
+  </div>
 
   <div class="bc-table-wrapper">
     <table class="bc-table">
@@ -19,6 +24,7 @@
           <th>Concepto</th>
           <th>Personas</th>
           <th>Notas</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +49,7 @@
           <td>{{ evento.get_concepto_display }}</td>
           <td>{{ evento.personas }}</td>
           <td>{{ evento.notas|default:"—" }}</td>
+          <td><a href="{% url 'editar_evento' evento.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-pencil"></i></a></td>
         </tr>
         {% empty %}
         <tr><td colspan="7">No hay eventos</td></tr>

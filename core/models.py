@@ -54,3 +54,30 @@ class Evento(models.Model):
 
     def __str__(self):
         return f"{self.cliente} — {self.get_tipo_display()} — {self.fecha}"
+
+
+class Nota(models.Model):
+    texto = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Nota'
+        verbose_name_plural = 'Notas'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return self.texto[:50]
+
+
+class ArticuloPedido(models.Model):
+    espacio = models.ForeignKey(Espacio, on_delete=models.CASCADE, related_name='articulos')
+    nombre = models.CharField(max_length=200)
+    cantidad = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Artículo de pedido'
+        verbose_name_plural = 'Artículos de pedido'
+        ordering = ['nombre']
+
+    def __str__(self):
+        return f"{self.espacio} — {self.nombre}"

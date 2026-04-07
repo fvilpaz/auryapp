@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Nuevo empleado — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Nuevo empleado</div>
+
+  <div class="bc-card" style="max-width: 480px;">
+    <form method="post" style="width:100%;">
+      {% csrf_token %}
+
+      <div class="bc-form-grid">
+        <div class="bc-form-group">
+          <label>Nombre *</label>
+          <input type="text" name="nombre" required autofocus>
+        </div>
+        <div class="bc-form-group">
+          <label>Apellidos</label>
+          <input type="text" name="apellidos">
+        </div>
+      </div>
+
+      <div class="bc-form-group" style="margin-top:12px;">
+        <label>Rol *</label>
+        <select name="rol" required>
+          <option value="">— Seleccionar —</option>
+          {% for value, label in roles %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="bc-form-grid" style="margin-top:12px;">
+        <div class="bc-form-group">
+          <label>Teléfono</label>
+          <input type="text" name="telefono">
+        </div>
+        <div class="bc-form-group">
+          <label>Email</label>
+          <input type="email" name="email">
+        </div>
+      </div>
+
+      <div class="bc-form-group" style="margin-top:12px;">
+        <label>Fecha de nacimiento</label>
+        <input type="date" name="fecha_nacimiento">
+      </div>
+
+      <div class="bc-btn-row" style="margin-top:20px;">
+        <button type="submit" class="bc-btn bc-btn-primary">
+          <i class="ti ti-user-plus"></i> Guardar
+        </button>
+        <a href="{% url 'lista_empleados' %}" class="bc-btn">Cancelar</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

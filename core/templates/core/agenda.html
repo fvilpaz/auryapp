@@ -1,0 +1,119 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agenda — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Agenda</div>
+
+  <div class="bc-card" style="max-width:560px;">
+    <form method="post" style="width:100%;" id="nota-form">
+      {% csrf_token %}
+      <div class="bc-form-group">
+        <label>Nueva nota</label>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <textarea name="texto" id="nota-texto" rows="2"
+                    placeholder="Escribe o dicta una nota..."
+                    style="flex:1;"></textarea>
+          <button type="button" id="btn-mic"
+                  title="Dictar nota"
+                  style="flex-shrink:0; width:40px; height:40px; border-radius:50%;
+                         border:0.5px solid var(--color-border);
+                         background:var(--color-surface);
+                         color:var(--color-text); cursor:pointer;
+                         display:flex; align-items:center; justify-content:center;
+                         transition: background 0.2s, color 0.2s;">
+            <i class="ti ti-microphone" style="font-size:18px;"></i>
+          </button>
+        </div>
+      </div>
+      <div class="bc-btn-row" style="margin-top:12px;">
+        <button type="submit" class="bc-btn bc-btn-primary">
+          <i class="ti ti-plus"></i> Añadir
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if notas %}
+<div class="bc-section">
+  <div class="bc-section-title">Notas</div>
+  <div style="display:flex; flex-direction:column; gap:8px; max-width:560px;">
+    {% for nota in notas %}
+    <div class="bc-card" style="flex-direction:row; align-items:flex-start; gap:12px; padding:14px 16px;">
+      <div style="flex:1;">
+        <div style="font-size:13px; color:var(--color-text); white-space:pre-wrap;">{{ nota.texto }}</div>
+        <div style="font-size:11px; color:var(--color-muted); margin-top:4px;">
+          {{ nota.fecha|date:"d M Y, H:i" }}
+        </div>
+      </div>
+      <form method="post" action="{% url 'eliminar_nota' nota.pk %}"
+            onsubmit="return confirm('¿Eliminar esta nota?')">
+        {% csrf_token %}
+        <button type="submit" style="background:none; border:none; cursor:pointer;
+                color:var(--color-muted); padding:0; line-height:1;">
+          <i class="ti ti-trash" style="font-size:16px;"></i>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const btnMic = document.getElementById('btn-mic');
+const textarea = document.getElementById('nota-texto');
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+  btnMic.title = 'Tu navegador no soporta dictado de voz';
+  btnMic.style.opacity = '0.4';
+  btnMic.disabled = true;
+} else {
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'es-ES';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  let escuchando = false;
+
+  btnMic.addEventListener('click', function() {
+    if (escuchando) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  });
+
+  recognition.addEventListener('start', function() {
+    escuchando = true;
+    btnMic.style.background = 'var(--color-primary)';
+    btnMic.style.color = '#fff';
+    btnMic.style.borderColor = 'var(--color-primary)';
+  });
+
+  recognition.addEventListener('end', function() {
+    escuchando = false;
+    btnMic.style.background = '';
+    btnMic.style.color = '';
+    btnMic.style.borderColor = '';
+  });
+
+  recognition.addEventListener('result', function(e) {
+    const texto = e.results[0][0].transcript;
+    textarea.value = textarea.value
+      ? textarea.value + ' ' + texto
+      : texto;
+  });
+
+  recognition.addEventListener('error', function(e) {
+    console.error('Error dictado:', e.error);
+  });
+}
+</script>
+{% endblock %}

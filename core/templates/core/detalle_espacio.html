@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ espacio.nombre }} — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">{{ espacio.nombre }}</span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      {% if not es_hoy %}
+      <a href="{% url 'detalle_espacio' espacio.pk %}" class="bc-btn bc-btn-secondary" style="font-size:12px;">
+        Volver a hoy
+      </a>
+      {% endif %}
+      <input type="date" id="selector-fecha"
+             value="{{ fecha|date:'Y-m-d' }}"
+             style="padding:6px 10px; background:var(--color-surface);
+                    border:0.5px solid var(--color-border);
+                    border-radius:var(--radius-sm);
+                    font-size:12px; color:var(--color-text); cursor:pointer;">
+    </div>
+  </div>
+
+  {% if not es_hoy %}
+  <div style="font-size:12px; color:var(--color-primary); margin-bottom:12px;">
+    <i class="ti ti-calendar"></i> Viendo: {{ fecha|date:"l d M Y" }}
+  </div>
+  {% endif %}
+
+  <div class="bc-card-grid" style="grid-template-columns: 1fr 1fr;">
+
+    <div class="bc-card">
+      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+        <span class="bc-section-header-title">Personal</span>
+      </div>
+
+      {% if turno_asignado %}
+      <div style="width:100%; margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">
+        {% for turno in turno_asignado %}
+        <span class="bc-badge bc-badge-green">
+          <i class="ti ti-user-check"></i> {{ turno.empleado.nombre }}
+          {% if turno.hora_inicio %}— {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}{% endif %}
+        </span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if empleados_disponibles %}
+      <form method="post" action="{% url 'asignar_empleado' espacio.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="width:100%;">
+        {% csrf_token %}
+        <div class="bc-form-group">
+          <label>Asignar empleado</label>
+          <select name="turno_id">
+            <option value="">— Seleccionar —</option>
+            {% for turno in empleados_disponibles %}
+            <option value="{{ turno.id }}">
+              {{ turno.empleado.nombre }}{% if turno.hora_inicio %} · {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="bc-btn-row">
+          <button type="submit" class="bc-btn bc-btn-primary">
+            <i class="ti ti-user-plus"></i> Asignar
+          </button>
+        </div>
+      </form>
+      {% else %}
+      <p style="color:var(--color-muted); font-size:13px;">No hay empleados disponibles.</p>
+      {% endif %}
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+        <span class="bc-section-header-title">Tareas</span>
+      </div>
+
+      {% regroup tareas_hoy by plantilla.get_momento_display as tareas_por_momento %}
+      {% for grupo in tareas_por_momento %}
+      <div style="margin-bottom:12px;">
+        <div class="bc-badge {% if grupo.grouper == 'Apertura' %}bc-badge-blue{% else %}bc-badge-amber{% endif %}" style="margin-bottom:8px;">
+          {{ grupo.grouper }}
+        </div>
+        <div class="bc-checklist">
+          {% for tarea in grupo.list %}
+          <div class="bc-check-item {% if tarea.completada %}done{% endif %}"
+               data-id="{{ tarea.pk }}"
+               style="cursor:pointer;">
+            <div class="bc-check-box {% if tarea.completada %}done{% endif %}"></div>
+            {{ tarea.plantilla.nombre }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:var(--color-muted); font-size:13px;">No hay tareas definidas.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('selector-fecha').addEventListener('change', function() {
+    window.location.href = '{% url "detalle_espacio" espacio.pk %}?fecha=' + this.value;
+  });
+
+  document.querySelectorAll('.bc-check-item[data-id]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var id = this.dataset.id;
+      fetch('/tareas/' + id + '/toggle/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        item.classList.toggle('done', data.completada);
+        item.querySelector('.bc-check-box').classList.toggle('done', data.completada);
+      });
+    });
+  });
+</script>
+{% endblock %}

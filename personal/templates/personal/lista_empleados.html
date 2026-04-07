@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Empleados — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Empleados en plantilla</span>
+    <a href="{% url 'nuevo_empleado' %}" class="bc-btn bc-btn-primary">
+      <i class="ti ti-user-plus"></i> Nuevo empleado
+    </a>
+  </div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for empleado in empleados %}
+        <tr>
+          <td>{{ empleado.nombre }} {{ empleado.apellidos }}</td>
+          <td>{{ empleado.get_rol_display }}</td>
+          <td>{{ empleado.telefono|default:"—" }}</td>
+          <td>{{ empleado.email|default:"—" }}</td>
+          <td><a href="{% url 'editar_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-pencil"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">No hay empleados activos</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

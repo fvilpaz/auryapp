@@ -7,8 +7,10 @@ class Empleado(models.Model):
 
     ROL_CHOICES = [
         ('maitre', 'Maître'),
+        ('segundo_maitre', 'Segundo Maître'),
         ('jefe_sector', 'Jefe de sector'),
         ('camarero', 'Camarero'),
+        ('ayudante_camarero', 'Ayudante de camarero'),
     ]
 
     nombre = models.CharField(max_length=100)
@@ -16,6 +18,7 @@ class Empleado(models.Model):
     rol = models.CharField(max_length=20, choices=ROL_CHOICES)
     telefono = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True)
     activo = models.BooleanField(default=True)
 
     class Meta:

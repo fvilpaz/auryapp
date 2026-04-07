@@ -1,0 +1,108 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pedidos — {{ espacio.nombre }}{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">{{ espacio.nombre }}</span>
+    <a href="{% url 'nuevo_articulo' espacio.pk %}" class="bc-btn bc-btn-primary">
+      <i class="ti ti-plus"></i> Nuevo artículo
+    </a>
+  </div>
+
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Artículo</th>
+          <th>Cantidad</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for articulo in articulos %}
+        <tr>
+          <td>{{ articulo.nombre }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="bc-btn bc-btn-sm btn-cantidad" data-id="{{ articulo.pk }}" data-accion="bajar">
+                <i class="ti ti-minus"></i>
+              </button>
+              <input type="number" min="0" value="{{ articulo.cantidad }}"
+                     class="input-cantidad"
+                     data-id="{{ articulo.pk }}"
+                     style="width:56px; text-align:center; padding:4px 6px;
+                            background:var(--color-surface); border:0.5px solid var(--color-border);
+                            border-radius:var(--radius-sm); color:var(--color-text); font-size:13px;">
+              <button class="bc-btn bc-btn-sm btn-cantidad" data-id="{{ articulo.pk }}" data-accion="subir">
+                <i class="ti ti-plus"></i>
+              </button>
+            </div>
+          </td>
+          <td style="white-space:nowrap;">
+            <a href="{% url 'editar_articulo' articulo.pk %}" class="bc-btn bc-btn-sm">
+              <i class="ti ti-pencil"></i>
+            </a>
+            <form method="post" action="{% url 'eliminar_articulo' articulo.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="bc-btn bc-btn-sm bc-btn-danger"
+                      onclick="return confirm('¿Eliminar {{ articulo.nombre }}?')">
+                <i class="ti ti-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No hay artículos. Añade el primero.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const csrfToken = '{{ csrf_token }}';
+
+  document.querySelectorAll('.btn-cantidad').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const accion = this.dataset.accion;
+      fetch('/pedidos/articulo/' + id + '/cantidad/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'accion=' + accion,
+      })
+      .then(r => r.json())
+      .then(data => {
+        const input = document.querySelector('.input-cantidad[data-id="' + id + '"]');
+        if (input) input.value = data.cantidad;
+      });
+    });
+  });
+
+  document.querySelectorAll('.input-cantidad').forEach(function(input) {
+    input.addEventListener('change', function() {
+      const id = this.dataset.id;
+      const valor = this.value;
+      fetch('/pedidos/articulo/' + id + '/cantidad/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'accion=set&valor=' + valor,
+      })
+      .then(r => r.json())
+      .then(data => { this.value = data.cantidad; });
+    });
+  });
+</script>
+{% endblock %}

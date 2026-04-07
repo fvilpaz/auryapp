@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pedidos — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Pedidos por espacio</div>
+  <div class="bc-card-grid">
+    {% for espacio in espacios %}
+    <a href="{% url 'pedidos_espacio' espacio.pk %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-building"></i></div>
+      <div class="bc-card-label">{{ espacio.nombre }}</div>
+      {% if espacio.descripcion %}
+      <div class="bc-card-sub">{{ espacio.descripcion }}</div>
+      {% endif %}
+    </a>
+    {% empty %}
+    <p style="color:var(--color-muted); font-size:13px;">No hay espacios activos.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

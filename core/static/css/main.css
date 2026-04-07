@@ -92,7 +92,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -296,7 +296,7 @@ a.bc-card {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
-.bc-form-group { display: flex; flex-direction: column; gap: 4px; }
+.bc-form-group { display: flex; flex-direction: column; gap: 4px; width: 100%; }
 .bc-form-group label {
   font-size: 12px;
   font-weight: 500;
@@ -321,6 +321,128 @@ a.bc-card {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(26, 111, 196, 0.12);
 }
+
+/* ============================================
+   PUNTOS DE VENTA
+   ============================================ */
+.bc-pdv-card {
+  min-width: 160px;
+  min-height: 140px;
+  justify-content: space-between;
+}
+.bc-pdv-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  align-self: flex-start;
+  width: 100%;
+}
+.bc-avatar-stack {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 8px;
+}
+.bc-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-surface);
+  margin-left: -6px;
+  flex-shrink: 0;
+}
+.bc-avatar:first-child { margin-left: 0; }
+.bc-avatar-empty {
+  background: var(--color-border);
+  color: var(--color-muted);
+  font-size: 14px;
+}
+.bc-avatar-extra {
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: 10px;
+}
+.bc-progress-wrap {
+  width: 100%;
+  margin-top: 12px;
+}
+.bc-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+.bc-progress-bar {
+  width: 100%;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bc-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+.bc-progress-fill.low    { background: var(--color-danger, #e53e3e); }
+.bc-progress-fill.mid    { background: var(--color-warning, #e8a020); }
+.bc-progress-fill.high   { background: var(--color-success); }
+
+/* ============================================
+   NOTIFICACIONES DASHBOARD
+   ============================================ */
+.bc-notif-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.bc-notif-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.bc-notif-item { font-size: 12px; padding: 3px 0; color: var(--color-text); }
+.bc-notif-empty { font-size: 12px; color: var(--color-muted); }
+
+@media (max-width: 480px) and (orientation: portrait) {
+  .bc-notif-grid { grid-template-columns: 1fr !important; }
+}
+
+.bc-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.bc-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 6px 12px;
+  background: var(--color-bg);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.bc-checkbox-item:has(input:checked) {
+  background: rgba(26, 111, 196, 0.08);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.bc-checkbox-item input[type="checkbox"] { display: none; }
 
 /* ============================================
    BOTONES
@@ -732,6 +854,53 @@ a.bc-card {
 }
 
 /* Móvil portrait */
+/* ============================================
+   BOTTOM SHEET
+   ============================================ */
+.bc-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+}
+.bc-overlay.open { display: block; }
+
+.bc-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 20px 24px 32px;
+  z-index: 201;
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.bc-sheet.open { transform: translateY(0); }
+.bc-sheet-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--color-text);
+}
+.bc-sheet-handle {
+  width: 40px; height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+/* Cuadrante edit mode */
+.cuadrante-edit-mode td.editable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cuadrante-edit-mode td.editable:hover {
+  background: rgba(26, 111, 196, 0.08);
+}
+
 @media (max-width: 480px) and (orientation: portrait) {
   .bc-card-grid { grid-template-columns: 1fr 1fr !important; }
   .bc-form-grid { grid-template-columns: 1fr !important; }

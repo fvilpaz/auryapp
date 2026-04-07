@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Espacio, Evento
+from .models import Espacio, Evento, ArticuloPedido, Nota
 from personal.models import Empleado, Turno
-from tareas.models import TareaPlantilla
+from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
 
 def dashboard(request):
@@ -17,20 +17,62 @@ def dashboard(request):
     turnos_hoy = Turno.objects.filter(
         fecha=hoy,
         estado='trabajo'
-    ).select_related('empleado')
-    tareas_apertura = TareaPlantilla.objects.filter(
-        momento='apertura',
-        activa=True
-    ).select_related('espacio')
+    ).select_related('empleado', 'espacio')
+
+    resumen_espacios = []
+    for espacio in espacios:
+        asignados = turnos_hoy.filter(espacio=espacio).select_related('empleado')
+        total_tareas = TareaPlantilla.objects.filter(espacio=espacio, activa=True).count()
+        completadas = TareaDelDia.objects.filter(
+            plantilla__espacio=espacio, fecha=hoy, completada=True
+        ).count()
+        porcentaje = int(completadas / total_tareas * 100) if total_tareas > 0 else 0
+        resumen_espacios.append({
+            'espacio': espacio,
+            'asignados': asignados,
+            'total_tareas': total_tareas,
+            'completadas': completadas,
+            'porcentaje': porcentaje,
+        })
+
+    # Próximos 7 días
+    en_7_dias = hoy + timezone.timedelta(days=7)
+    eventos_esta_semana = Evento.objects.filter(fecha__gte=hoy, fecha__lte=en_7_dias).count()
+
+    # Vacaciones próximas
+    vacaciones_proximas = Turno.objects.filter(
+        fecha__gte=hoy, fecha__lte=en_7_dias,
+        estado='vacaciones'
+    ).select_related('empleado').order_by('fecha')
+
+    # Días sueltos próximos
+    dias_sueltos_proximos = Turno.objects.filter(
+        fecha__gte=hoy, fecha__lte=en_7_dias,
+        estado__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo']
+    ).select_related('empleado').order_by('fecha')
+
+    # Cumpleaños próximos (comparando mes y día)
+    cumpleanos_proximos = []
+    for empleado in Empleado.objects.filter(activo=True, fecha_nacimiento__isnull=False):
+        cumple = empleado.fecha_nacimiento.replace(year=hoy.year)
+        if cumple < hoy:
+            cumple = cumple.replace(year=hoy.year + 1)
+        if hoy <= cumple <= en_7_dias:
+            cumpleanos_proximos.append({'empleado': empleado, 'fecha': cumple})
+    cumpleanos_proximos.sort(key=lambda x: x['fecha'])
 
     context = {
-        'espacios': espacios,
+        'resumen_espacios': resumen_espacios,
         'total_espacios': espacios.count(),
         'eventos_proximos': eventos_proximos,
         'total_eventos_mes': total_eventos_mes,
         'total_personal': total_personal,
-        'turnos_hoy': turnos_hoy,
-        'tareas_apertura': tareas_apertura,
+        'turnos_activos_hoy': turnos_hoy.count(),
+        'eventos_esta_semana': eventos_esta_semana,
+        'total_notas': Nota.objects.count(),
+        'vacaciones_proximas': vacaciones_proximas,
+        'dias_sueltos_proximos': dias_sueltos_proximos,
+        'cumpleanos_proximos': cumpleanos_proximos,
         'hoy': hoy,
     }
     return render(request, 'core/dashboard.html', context)
@@ -62,5 +104,191 @@ def eventos_json(request):
         })
     return JsonResponse(data, safe=False)
 
+def nuevo_evento(request):
+    espacios = Espacio.objects.filter(activo=True)
+    if request.method == 'POST':
+        evento = Evento.objects.create(
+            cliente=request.POST.get('cliente', '').strip(),
+            tipo=request.POST.get('tipo', ''),
+            fecha=request.POST.get('fecha'),
+            concepto=request.POST.get('concepto', ''),
+            personas=request.POST.get('personas', 0),
+            notas=request.POST.get('notas', '').strip(),
+        )
+        evento.espacios.set(request.POST.getlist('espacios'))
+        return redirect('lista_eventos')
+    return render(request, 'core/form_evento.html', {
+        'espacios': espacios,
+        'tipos': Evento.TIPO_CHOICES,
+        'conceptos': Evento.CONCEPTO_CHOICES,
+        'evento': None,
+        'fecha_inicial': request.GET.get('fecha', ''),
+    })
+
+def editar_evento(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    espacios = Espacio.objects.filter(activo=True)
+    if request.method == 'POST':
+        evento.cliente = request.POST.get('cliente', '').strip()
+        evento.tipo = request.POST.get('tipo', '')
+        evento.fecha = request.POST.get('fecha')
+        evento.concepto = request.POST.get('concepto', '')
+        evento.personas = request.POST.get('personas', 0)
+        evento.notas = request.POST.get('notas', '').strip()
+        evento.save()
+        evento.espacios.set(request.POST.getlist('espacios'))
+        return redirect('lista_eventos')
+    return render(request, 'core/form_evento.html', {
+        'espacios': espacios,
+        'tipos': Evento.TIPO_CHOICES,
+        'conceptos': Evento.CONCEPTO_CHOICES,
+        'evento': evento,
+    })
+
+def eliminar_evento(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == 'POST':
+        evento.delete()
+    return redirect('lista_eventos')
+
 def calendario(request):
     return render(request, 'core/calendario.html')
+
+def agenda(request):
+    if request.method == 'POST':
+        texto = request.POST.get('texto', '').strip()
+        if texto:
+            Nota.objects.create(texto=texto)
+        return redirect('agenda')
+    notas = Nota.objects.all()
+    return render(request, 'core/agenda.html', {'notas': notas})
+
+def eliminar_nota(request, pk):
+    nota = get_object_or_404(Nota, pk=pk)
+    if request.method == 'POST':
+        nota.delete()
+    return redirect('agenda')
+
+def lista_espacios(request):
+    espacios = Espacio.objects.filter(activo=True)
+    return render(request, 'core/lista_espacios.html', {'espacios': espacios})
+
+def detalle_espacio(request, pk):
+    espacio = get_object_or_404(Espacio, pk=pk)
+    hoy = timezone.now().date()
+
+    # Permitir ver/asignar otro día via ?fecha=
+    fecha_param = request.GET.get('fecha')
+    try:
+        from datetime import date
+        año, mes, dia = fecha_param.split('-')
+        fecha = date(int(año), int(mes), int(dia))
+    except:
+        fecha = hoy
+
+    empleados_disponibles = Turno.objects.filter(
+        fecha=fecha,
+        estado='trabajo',
+        espacio__isnull=True
+    ).select_related('empleado')
+
+    turno_asignado = Turno.objects.filter(
+        fecha=fecha,
+        estado='trabajo',
+        espacio=espacio
+    ).select_related('empleado')
+
+    # Generar TareaDelDia solo para hoy
+    if fecha == hoy:
+        plantillas = TareaPlantilla.objects.filter(espacio=espacio, activa=True)
+        for plantilla in plantillas:
+            TareaDelDia.objects.get_or_create(plantilla=plantilla, fecha=hoy)
+
+    tareas_hoy = TareaDelDia.objects.filter(
+        plantilla__espacio=espacio,
+        fecha=fecha
+    ).select_related('plantilla').order_by('plantilla__momento', 'plantilla__orden')
+
+    context = {
+        'espacio': espacio,
+        'empleados_disponibles': empleados_disponibles,
+        'turno_asignado': turno_asignado,
+        'tareas_hoy': tareas_hoy,
+        'fecha': fecha,
+        'hoy': hoy,
+        'es_hoy': fecha == hoy,
+    }
+    return render(request, 'core/detalle_espacio.html', context)
+
+def toggle_tarea(request, pk):
+    if request.method == 'POST':
+        tarea = get_object_or_404(TareaDelDia, pk=pk)
+        tarea.completada = not tarea.completada
+        tarea.save()
+        return JsonResponse({'completada': tarea.completada})
+    return JsonResponse({'error': 'método no permitido'}, status=405)
+
+def asignar_empleado(request, pk):
+    if request.method == 'POST':
+        espacio = get_object_or_404(Espacio, pk=pk)
+        turno_id = request.POST.get('turno_id')
+        if turno_id:
+            turno = get_object_or_404(Turno, pk=turno_id)
+            turno.espacio = espacio
+            turno.save()
+    fecha = request.GET.get('fecha', '')
+    url = redirect('detalle_espacio', pk=pk).url
+    if fecha:
+        url += f'?fecha={fecha}'
+    return redirect(url)
+
+def pedidos_espacio(request, pk):
+    espacio = get_object_or_404(Espacio, pk=pk)
+    articulos = ArticuloPedido.objects.filter(espacio=espacio)
+    return render(request, 'core/pedidos_espacio.html', {
+        'espacio': espacio,
+        'articulos': articulos,
+    })
+
+def nuevo_articulo(request, pk):
+    espacio = get_object_or_404(Espacio, pk=pk)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            ArticuloPedido.objects.create(espacio=espacio, nombre=nombre, cantidad=0)
+        return redirect('pedidos_espacio', pk=pk)
+    return render(request, 'core/nuevo_articulo.html', {'espacio': espacio})
+
+def editar_articulo(request, pk):
+    articulo = get_object_or_404(ArticuloPedido, pk=pk)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            articulo.nombre = nombre
+            articulo.save()
+        return redirect('pedidos_espacio', pk=articulo.espacio.pk)
+    return render(request, 'core/editar_articulo.html', {'articulo': articulo})
+
+def eliminar_articulo(request, pk):
+    articulo = get_object_or_404(ArticuloPedido, pk=pk)
+    espacio_pk = articulo.espacio.pk
+    if request.method == 'POST':
+        articulo.delete()
+    return redirect('pedidos_espacio', pk=espacio_pk)
+
+def actualizar_cantidad(request, pk):
+    if request.method == 'POST':
+        articulo = get_object_or_404(ArticuloPedido, pk=pk)
+        accion = request.POST.get('accion')
+        if accion == 'subir':
+            articulo.cantidad += 1
+        elif accion == 'bajar' and articulo.cantidad > 0:
+            articulo.cantidad -= 1
+        elif accion == 'set':
+            try:
+                articulo.cantidad = max(0, int(request.POST.get('valor', 0)))
+            except ValueError:
+                pass
+        articulo.save()
+        return JsonResponse({'cantidad': articulo.cantidad})
+    return JsonResponse({'error': 'método no permitido'}, status=405)

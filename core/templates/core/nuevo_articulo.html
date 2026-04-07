@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Nuevo artículo — {{ espacio.nombre }}{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Nuevo artículo — {{ espacio.nombre }}</div>
+  <div class="bc-card" style="max-width:400px;">
+    <form method="post" style="width:100%;">
+      {% csrf_token %}
+      <div class="bc-form-group">
+        <label>Nombre del artículo *</label>
+        <input type="text" name="nombre" required autofocus>
+      </div>
+      <div class="bc-btn-row" style="margin-top:16px;">
+        <button type="submit" class="bc-btn bc-btn-primary">
+          <i class="ti ti-plus"></i> Añadir
+        </button>
+        <a href="{% url 'pedidos_espacio' espacio.pk %}" class="bc-btn">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

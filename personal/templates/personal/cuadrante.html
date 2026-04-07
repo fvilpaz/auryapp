@@ -6,7 +6,17 @@
 {% block content %}
 
 <div class="bc-section">
-  <div class="bc-section-title">Cuadrante semanal</div>
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Cuadrante semanal</span>
+    <div style="display:flex; gap:8px;">
+      <button id="btn-añadir-empleado" class="bc-btn bc-btn-secondary" style="display:none;">
+        <i class="ti ti-user-plus"></i> Añadir empleado
+      </button>
+      <button id="btn-edit-mode" class="bc-btn bc-btn-secondary">
+        <i class="ti ti-pencil"></i> Editar
+      </button>
+    </div>
+  </div>
 
   <div class="bc-section-nav">
     <a href="?semana={{ semana_anterior }}" class="bc-btn bc-btn-secondary">&#8592;</a>
@@ -15,7 +25,7 @@
   </div>
 
   <div class="bc-table-wrapper">
-    <table class="bc-table">
+    <table class="bc-table" id="cuadrante-table">
       <thead>
         <tr>
           <th>Empleado</th>
@@ -26,39 +36,42 @@
         </tr>
       </thead>
       <tbody>
-        {% for empleado in empleados %}
+        {% for row in rows %}
         <tr>
-          <td class="bc-table-name">{{ empleado.nombre }}</td>
-          {% for dia in dias %}
-            {% with key=empleado.id|stringformat:"i" %}
-            <td>
-              {% for turno in turno_map.values %}
-                {% if turno.empleado.id == empleado.id and turno.fecha == dia %}
-                  {% if turno.estado == 'trabajo' %}
-                    <span class="bc-badge bc-badge-green">{{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}</span>
-                  {% elif turno.estado == 'libre' %}
-                    <span class="bc-badge bc-badge-gray">L</span>
-                  {% elif turno.estado == 'vacaciones' %}
-                    <span class="bc-badge bc-badge-amber">V</span>
-                  {% elif turno.estado == 'inamovible' %}
-                    <span class="bc-badge bc-badge-red">L</span>
-                  {% elif turno.estado == 'libre_vacaciones' %}
-                    <span class="bc-badge bc-badge-blue">LV</span>
-                  {% elif turno.estado == 'baja' %}
-                    <span class="bc-badge bc-badge-red">B</span>
-                  {% endif %}
-                {% endif %}
-              {% endfor %}
-            </td>
-            {% endwith %}
-          {% endfor %}
-          <td>
-            {% for turno in turno_map.values %}
-              {% if turno.empleado.id == empleado.id %}
-                {{ turno.horas }}
+          <td class="bc-table-name">{{ row.empleado.nombre }}</td>
+          {% for cell in row.cells %}
+          <td class="editable"
+              data-empleado="{{ row.empleado.id }}"
+              data-nombre="{{ row.empleado.nombre }}"
+              data-fecha="{{ cell.dia|date:'Y-m-d' }}"
+              data-fecha-display="{{ cell.dia|date:'D d M' }}"
+              {% if cell.turno %}
+              data-turno-id="{{ cell.turno.pk }}"
+              data-estado="{{ cell.turno.estado }}"
+              data-hora-inicio="{{ cell.turno.hora_inicio|time:'H:i' }}"
+              data-hora-fin="{{ cell.turno.hora_fin|time:'H:i' }}"
+              data-horas="{{ cell.turno.horas }}"
+              {% endif %}>
+            {% if cell.turno %}
+              {% if cell.turno.estado == 'trabajo' %}
+                <span class="bc-badge bc-badge-green">{{ cell.turno.hora_inicio|time:"H:i" }}-{{ cell.turno.hora_fin|time:"H:i" }}</span>
+              {% elif cell.turno.estado == 'libre' %}
+                <span class="bc-badge bc-badge-gray">L</span>
+              {% elif cell.turno.estado == 'vacaciones' %}
+                <span class="bc-badge bc-badge-amber">V</span>
+              {% elif cell.turno.estado == 'inamovible' %}
+                <span class="bc-badge bc-badge-red">LI</span>
+              {% elif cell.turno.estado == 'libre_vacaciones' %}
+                <span class="bc-badge bc-badge-blue">LV</span>
+              {% elif cell.turno.estado == 'finde_largo' %}
+                <span class="bc-badge bc-badge-blue">FL</span>
+              {% elif cell.turno.estado == 'baja' %}
+                <span class="bc-badge bc-badge-red">B</span>
               {% endif %}
-            {% endfor %}
+            {% endif %}
           </td>
+          {% endfor %}
+          <td id="horas-{{ row.empleado.id }}">{{ row.horas_total }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -66,4 +79,253 @@
   </div>
 </div>
 
+<!-- Sheet añadir empleado -->
+<div class="bc-sheet" id="añadir-sheet">
+  <div class="bc-sheet-handle"></div>
+  <div class="bc-sheet-title">Añadir empleado a la semana</div>
+
+  {% if empleados_disponibles %}
+  <form id="añadir-form">
+    {% csrf_token %}
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Empleado</label>
+      <select name="empleado_id" id="a-empleado-id">
+        <option value="">— Seleccionar —</option>
+        {% for e in empleados_disponibles %}
+        <option value="{{ e.id }}">{{ e.nombre }} {{ e.apellidos }} — {{ e.get_rol_display }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Día</label>
+      <select name="fecha" id="a-fecha">
+        {% for dia in dias %}
+        <option value="{{ dia|date:'Y-m-d' }}">{{ dia|date:"D d M" }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Estado</label>
+      <select name="estado" id="a-estado">
+        {% for value, label in estados %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-grid" id="a-horas-fields">
+      <div class="bc-form-group">
+        <label>Hora inicio</label>
+        <input type="time" name="hora_inicio" id="a-hora-inicio">
+      </div>
+      <div class="bc-form-group">
+        <label>Hora fin</label>
+        <input type="time" name="hora_fin" id="a-hora-fin">
+      </div>
+    </div>
+
+    <div class="bc-form-group" style="margin-top:12px;">
+      <label>Horas</label>
+      <input type="number" name="horas" id="a-horas" min="0" max="24">
+    </div>
+
+    <div class="bc-btn-row" style="margin-top:20px;">
+      <button type="submit" class="bc-btn bc-btn-primary">
+        <i class="ti ti-device-floppy"></i> Guardar
+      </button>
+      <button type="button" class="bc-btn" id="btn-cerrar-añadir">Cancelar</button>
+    </div>
+  </form>
+  {% else %}
+  <p style="color:var(--color-muted); font-size:13px; margin-bottom:16px;">
+    Todos los empleados activos ya están en el cuadrante esta semana.
+  </p>
+  {% endif %}
+
+  <div style="margin-top:16px; padding-top:16px; border-top:0.5px solid var(--color-border);">
+    <a href="{% url 'nuevo_empleado' %}" class="bc-btn" style="width:100%; justify-content:center;">
+      <i class="ti ti-user-plus"></i> Crear empleado nuevo
+    </a>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="bc-overlay" id="sheet-overlay"></div>
+
+<!-- Bottom sheet -->
+<div class="bc-sheet" id="turno-sheet">
+  <div class="bc-sheet-handle"></div>
+  <div class="bc-sheet-title" id="sheet-title">Editar turno</div>
+
+  <form id="turno-form">
+    {% csrf_token %}
+    <input type="hidden" name="empleado_id" id="f-empleado-id">
+    <input type="hidden" name="fecha" id="f-fecha">
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Estado</label>
+      <select name="estado" id="f-estado">
+        {% for value, label in estados %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-grid" id="horas-fields">
+      <div class="bc-form-group">
+        <label>Hora inicio</label>
+        <input type="time" name="hora_inicio" id="f-hora-inicio">
+      </div>
+      <div class="bc-form-group">
+        <label>Hora fin</label>
+        <input type="time" name="hora_fin" id="f-hora-fin">
+      </div>
+    </div>
+
+    <div class="bc-form-group" style="margin-top:12px;">
+      <label>Horas</label>
+      <input type="number" name="horas" id="f-horas" min="0" max="24">
+    </div>
+
+    <div class="bc-btn-row" style="margin-top:20px;">
+      <button type="submit" class="bc-btn bc-btn-primary">
+        <i class="ti ti-device-floppy"></i> Guardar
+      </button>
+      <button type="button" class="bc-btn" id="btn-cerrar-sheet">Cancelar</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const table = document.getElementById('cuadrante-table');
+const btnEdit = document.getElementById('btn-edit-mode');
+const btnAñadir = document.getElementById('btn-añadir-empleado');
+const overlay = document.getElementById('sheet-overlay');
+const sheet = document.getElementById('turno-sheet');
+const añadirSheet = document.getElementById('añadir-sheet');
+const form = document.getElementById('turno-form');
+let editMode = false;
+let activeCell = null;
+
+btnEdit.addEventListener('click', function() {
+  editMode = !editMode;
+  table.classList.toggle('cuadrante-edit-mode', editMode);
+  btnEdit.innerHTML = editMode
+    ? '<i class="ti ti-x"></i> Salir de edición'
+    : '<i class="ti ti-pencil"></i> Editar';
+  btnEdit.classList.toggle('bc-btn-primary', editMode);
+  btnEdit.classList.toggle('bc-btn-secondary', !editMode);
+  btnAñadir.style.display = editMode ? '' : 'none';
+});
+
+btnAñadir.addEventListener('click', function() {
+  overlay.classList.add('open');
+  añadirSheet.classList.add('open');
+});
+
+document.getElementById('btn-cerrar-añadir').addEventListener('click', closeSheet);
+
+document.getElementById('a-estado').addEventListener('change', function() {
+  document.getElementById('a-horas-fields').style.display =
+    this.value === 'trabajo' ? '' : 'none';
+});
+
+const añadirForm = document.getElementById('añadir-form');
+if (añadirForm) {
+  añadirForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(añadirForm);
+    fetch('{% url "guardar_turno" %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
+      body: data,
+    })
+    .then(r => r.json())
+    .then(function(res) {
+      if (res.ok) window.location.reload();
+    });
+  });
+}
+
+table.addEventListener('click', function(e) {
+  if (!editMode) return;
+  const td = e.target.closest('td.editable');
+  if (!td) return;
+  activeCell = td;
+  openSheet(td);
+});
+
+function openSheet(td) {
+  document.getElementById('f-empleado-id').value = td.dataset.empleado;
+  document.getElementById('f-fecha').value = td.dataset.fecha;
+  document.getElementById('f-estado').value = td.dataset.estado || 'trabajo';
+  document.getElementById('f-hora-inicio').value = td.dataset.horaInicio || '';
+  document.getElementById('f-hora-fin').value = td.dataset.horaFin || '';
+  document.getElementById('f-horas').value = td.dataset.horas || '';
+  document.getElementById('sheet-title').textContent =
+    td.dataset.nombre + ' — ' + td.dataset.fechaDisplay;
+  toggleHorasFields(td.dataset.estado || 'trabajo');
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+}
+
+document.getElementById('f-estado').addEventListener('change', function() {
+  toggleHorasFields(this.value);
+});
+
+function toggleHorasFields(estado) {
+  document.getElementById('horas-fields').style.display =
+    estado === 'trabajo' ? '' : 'none';
+}
+
+function closeSheet() {
+  overlay.classList.remove('open');
+  sheet.classList.remove('open');
+  activeCell = null;
+}
+
+overlay.addEventListener('click', closeSheet);
+document.getElementById('btn-cerrar-sheet').addEventListener('click', closeSheet);
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const data = new FormData(form);
+  fetch('{% url "guardar_turno" %}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
+    body: data,
+  })
+  .then(r => r.json())
+  .then(function(res) {
+    if (!res.ok || !activeCell) return;
+    // Actualizar data attributes de la celda
+    activeCell.dataset.estado = res.estado;
+    activeCell.dataset.horaInicio = res.hora_inicio;
+    activeCell.dataset.horaFin = res.hora_fin;
+    // Actualizar el badge visualmente
+    activeCell.innerHTML = renderBadge(res.estado, res.hora_inicio, res.hora_fin);
+    closeSheet();
+  });
+});
+
+function renderBadge(estado, hi, hf) {
+  const map = {
+    'trabajo': ['bc-badge-green', hi + '-' + hf],
+    'libre': ['bc-badge-gray', 'L'],
+    'vacaciones': ['bc-badge-amber', 'V'],
+    'inamovible': ['bc-badge-red', 'LI'],
+    'libre_vacaciones': ['bc-badge-blue', 'LV'],
+    'finde_largo': ['bc-badge-blue', 'FL'],
+    'baja': ['bc-badge-red', 'B'],
+  };
+  const [cls, txt] = map[estado] || ['bc-badge-gray', '?'];
+  return `<span class="bc-badge ${cls}">${txt}</span>`;
+}
+</script>
 {% endblock %}

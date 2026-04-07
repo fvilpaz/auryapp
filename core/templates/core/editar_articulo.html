@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Editar artículo{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">Editar artículo</div>
+  <div class="bc-card" style="max-width:400px;">
+    <form method="post" style="width:100%;">
+      {% csrf_token %}
+      <div class="bc-form-group">
+        <label>Nombre del artículo *</label>
+        <input type="text" name="nombre" value="{{ articulo.nombre }}" required autofocus>
+      </div>
+      <div class="bc-btn-row" style="margin-top:16px;">
+        <button type="submit" class="bc-btn bc-btn-primary">
+          <i class="ti ti-device-floppy"></i> Guardar
+        </button>
+        <a href="{% url 'pedidos_espacio' articulo.espacio.pk %}" class="bc-btn">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

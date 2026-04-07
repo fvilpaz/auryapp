@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{% if evento %}Editar evento{% else %}Nuevo evento{% endif %} — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-title">{% if evento %}Editar — {{ evento.cliente }}{% else %}Nuevo evento{% endif %}</div>
+
+  <div class="bc-card" style="max-width:560px;">
+    <form method="post" style="width:100%;">
+      {% csrf_token %}
+
+      <div class="bc-form-grid">
+        <div class="bc-form-group">
+          <label>Cliente *</label>
+          <input type="text" name="cliente" value="{{ evento.cliente|default:'' }}" required autofocus>
+        </div>
+        <div class="bc-form-group">
+          <label>Fecha *</label>
+          <input type="date" name="fecha" value="{{ evento.fecha|date:'Y-m-d'|default:fecha_inicial }}" required>
+        </div>
+      </div>
+
+      <div class="bc-form-grid" style="margin-top:12px;">
+        <div class="bc-form-group">
+          <label>Tipo *</label>
+          <select name="tipo" required>
+            <option value="">— Seleccionar —</option>
+            {% for value, label in tipos %}
+            <option value="{{ value }}" {% if evento.tipo == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="bc-form-group">
+          <label>Concepto *</label>
+          <select name="concepto" required>
+            <option value="">— Seleccionar —</option>
+            {% for value, label in conceptos %}
+            <option value="{{ value }}" {% if evento.concepto == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="bc-form-grid" style="margin-top:12px;">
+        <div class="bc-form-group">
+          <label>Personas *</label>
+          <input type="number" name="personas" min="1" value="{{ evento.personas|default:'' }}" required>
+        </div>
+        <div class="bc-form-group">
+          <label>Espacios</label>
+          <div class="bc-checkbox-group">
+            {% for espacio in espacios %}
+            <label class="bc-checkbox-item">
+              <input type="checkbox" name="espacios" value="{{ espacio.pk }}"
+                {% if evento %}{% if espacio in evento.espacios.all %}checked{% endif %}{% endif %}>
+              {{ espacio.nombre }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="bc-form-group" style="margin-top:12px;">
+        <label>Notas</label>
+        <textarea name="notas" rows="3">{{ evento.notas|default:'' }}</textarea>
+      </div>
+
+      <div class="bc-btn-row" style="margin-top:20px;">
+        <button type="submit" class="bc-btn bc-btn-primary">
+          <i class="ti ti-device-floppy"></i> Guardar
+        </button>
+        <a href="{% url 'lista_eventos' %}" class="bc-btn">Cancelar</a>
+        {% if evento %}
+        <form method="post" action="{% url 'eliminar_evento' evento.pk %}" style="margin:0;"
+              onsubmit="return confirm('¿Eliminar este evento?')">
+          {% csrf_token %}
+          <button type="submit" class="bc-btn bc-btn-danger">
+            <i class="ti ti-trash"></i> Eliminar
+          </button>
+        </form>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

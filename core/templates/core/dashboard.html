@@ -5,9 +5,36 @@
 
 {% block content %}
 
+<div style="text-align:center; margin-bottom:8px; margin-top:-8px;">
+  <img src="https://pngtotal.com/wp-content/uploads/2024/07/cartoon-stitch-png.png"
+       alt="Stitch"
+       style="height:90px; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));">
+</div>
+
 <div class="bc-section">
   <div class="bc-section-title">Módulos</div>
   <div class="bc-card-grid bc-card-dock" data-cols="2">
+
+    <a href="{% url 'agenda' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-notebook"></i></div>
+      <div class="bc-card-value">{{ total_notas }}</div>
+      <div class="bc-card-label">Agenda</div>
+      <div class="bc-card-sub">Notas del día</div>
+    </a>
+
+    <a href="{% url 'cuadrante' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
+      <div class="bc-card-value">{{ turnos_activos_hoy }}</div>
+      <div class="bc-card-label">Turnos</div>
+      <div class="bc-card-sub">Trabajando hoy</div>
+    </a>
+
+    <a href="{% url 'calendario' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-calendar-month"></i></div>
+      <div class="bc-card-value">{{ eventos_esta_semana }}</div>
+      <div class="bc-card-label">Calendario</div>
+      <div class="bc-card-sub">Esta semana</div>
+    </a>
 
     <a href="{% url 'lista_eventos' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-calendar-event"></i></div>
@@ -16,62 +43,76 @@
       <div class="bc-card-sub">Este mes</div>
     </a>
 
-    <div class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-checklist"></i></div>
-      <div class="bc-card-value">0/0</div>
-      <div class="bc-card-label">Tareas hoy</div>
-      <div class="bc-card-sub">Sin datos aún</div>
-    </div>
-
-    <div class="bc-card">
+    <a href="{% url 'lista_empleados' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-users"></i></div>
       <div class="bc-card-value">{{ total_personal }}</div>
       <div class="bc-card-label">Personal</div>
       <div class="bc-card-sub">Activos</div>
-    </div>
-
-    <div class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-building"></i></div>
-      <div class="bc-card-value">{{ total_espacios }}</div>
-      <div class="bc-card-label">Espacios</div>
-      <div class="bc-card-sub">Todos activos</div>
-    </div>
-
-  </div>
-</div>
-
-<div class="bc-section">
-  <div class="bc-section-title">Gestión</div>
-  <div class="bc-card-grid bc-card-dock" data-cols="2">
-
-    <a href="{% url 'cuadrante' %}" class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
-      <div class="bc-card-value">—</div>
-      <div class="bc-card-label">Turnos</div>
-      <div class="bc-card-sub">Ver cuadrante</div>
     </a>
 
     <div class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
       <div class="bc-card-value">—</div>
       <div class="bc-card-label">Vacaciones</div>
-      <div class="bc-card-sub">Ver calendario</div>
+      <div class="bc-card-sub">Solicitudes</div>
     </div>
 
     <div class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
       <div class="bc-card-value">—</div>
-      <div class="bc-card-label">Solicitud días</div>
-      <div class="bc-card-sub">Pendientes</div>
+      <div class="bc-card-label">Días sueltos</div>
+      <div class="bc-card-sub">Solicitudes</div>
     </div>
 
-    <a href="{% url 'calendario' %}" class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-calendar-month"></i></div>
-      <div class="bc-card-value">Ver</div>
-      <div class="bc-card-label">Calendario</div>
-      <div class="bc-card-sub">Vista mensual</div>
+    <a href="{% url 'pedidos' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-clipboard-list"></i></div>
+      <div class="bc-card-value">{{ total_espacios }}</div>
+      <div class="bc-card-label">Pedidos</div>
+      <div class="bc-card-sub">Por espacio</div>
     </a>
 
+  </div>
+</div>
+
+<div class="bc-section">
+  <div class="bc-section-title">Puntos de venta</div>
+  <div class="bc-card-dock" data-cols="1">
+    {% for item in resumen_espacios %}
+    <a href="{% url 'detalle_espacio' item.espacio.pk %}" class="bc-card bc-pdv-card">
+
+      <div class="bc-pdv-nombre">{{ item.espacio.nombre }}</div>
+
+      <div class="bc-avatar-stack">
+        {% if item.asignados %}
+          {% for turno in item.asignados|slice:":4" %}
+          <div class="bc-avatar" title="{{ turno.empleado.nombre }}">
+            {{ turno.empleado.nombre|slice:":2"|upper }}
+          </div>
+          {% endfor %}
+          {% if item.asignados.count > 4 %}
+          <div class="bc-avatar bc-avatar-extra">+{{ item.asignados.count|add:"-4" }}</div>
+          {% endif %}
+        {% else %}
+          <div class="bc-avatar bc-avatar-empty">
+            <i class="ti ti-user-off" style="font-size:13px;"></i>
+          </div>
+          <span style="font-size:11px; color:var(--color-muted); margin-left:8px;">Sin asignar</span>
+        {% endif %}
+      </div>
+
+      <div class="bc-progress-wrap">
+        <div class="bc-progress-label">
+          <span>Tareas</span>
+          <span>{{ item.completadas }}/{{ item.total_tareas }}</span>
+        </div>
+        <div class="bc-progress-bar">
+          <div class="bc-progress-fill {% if item.porcentaje >= 75 %}high{% elif item.porcentaje >= 40 %}mid{% else %}low{% endif %}"
+               data-pct="{{ item.porcentaje }}"></div>
+        </div>
+      </div>
+
+    </a>
+    {% endfor %}
   </div>
 </div>
 
@@ -106,29 +147,45 @@
 </div>
 
 <div class="bc-section">
-  <div class="bc-section-title">Puntos de venta</div>
-  <div class="bc-card-grid bc-card-dock" data-cols="1">
-    {% for espacio in espacios %}
-    <div class="bc-card">
-      <div class="bc-card-label">{{ espacio.nombre }}</div>
-      {% for turno in turnos_hoy %}
-        {% if turno.espacio == espacio %}
-          <div class="bc-card-sub">👤 {{ turno.empleado.nombre }}</div>
-        {% endif %}
+  <div class="bc-section-title">Esta semana</div>
+  <div class="bc-notif-grid">
+
+    <div class="bc-card" style="padding:14px;">
+      <div class="bc-notif-label"><i class="ti ti-cake"></i> Cumpleaños</div>
+      {% for item in cumpleanos_proximos %}
+      <div class="bc-notif-item">{{ item.empleado.nombre }} — {{ item.fecha|date:"d M" }}</div>
+      {% empty %}
+      <div class="bc-notif-empty">Ninguno esta semana</div>
       {% endfor %}
-      <div style="margin-top:8px; width:100%;">
-        {% for tarea in tareas_apertura %}
-          {% if tarea.espacio == espacio %}
-            <div class="bc-check-item">
-              <div class="bc-check-box"></div>
-              {{ tarea.nombre }}
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
     </div>
-    {% endfor %}
+
+    <div class="bc-card" style="padding:14px;">
+      <div class="bc-notif-label"><i class="ti ti-sunset-2"></i> Vacaciones</div>
+      {% for turno in vacaciones_proximas %}
+      <div class="bc-notif-item">{{ turno.empleado.nombre }} — {{ turno.fecha|date:"d M" }}</div>
+      {% empty %}
+      <div class="bc-notif-empty">Ninguna esta semana</div>
+      {% endfor %}
+    </div>
+
+    <div class="bc-card" style="padding:14px;">
+      <div class="bc-notif-label"><i class="ti ti-calendar-off"></i> Días sueltos</div>
+      {% for turno in dias_sueltos_proximos %}
+      <div class="bc-notif-item">{{ turno.empleado.nombre }} — {{ turno.fecha|date:"d M" }}</div>
+      {% empty %}
+      <div class="bc-notif-empty">Ninguno esta semana</div>
+      {% endfor %}
+    </div>
+
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.bc-progress-fill[data-pct]').forEach(function(el) {
+    el.style.width = el.dataset.pct + '%';
+  });
+</script>
 {% endblock %}
