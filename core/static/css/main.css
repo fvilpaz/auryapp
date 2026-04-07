@@ -22,18 +22,6 @@
   --radius-lg:         14px;
   --navbar-h:          56px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-primary:   #3b8fdf;
-    --color-bg:        #0f1117;
-    --color-surface:   #1c1f28;
-    --color-border:    rgba(255, 255, 255, 0.08);
-    --color-text:      #e8eaf0;
-    --color-muted:     #9ca3af;
-  }
-}
-
 /* --- Reset mínimo --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -189,6 +177,10 @@ body {
   color: var(--color-primary);
   align-self: center;
 }
+a.bc-card {
+  text-decoration: none;
+  color: inherit;
+}
 
 /* ============================================
    ALERTAS
@@ -266,8 +258,7 @@ body {
 
 .bc-table-name { font-weight: 500; }
 
-.bc-table tbody td:first-child,
-.bc-table thead th:first-child {
+.bc-table tbody td:first-child {
   position: sticky;
   left: 0;
   background: var(--color-surface);
@@ -275,6 +266,8 @@ body {
 }
 
 .bc-table thead th:first-child {
+  position: sticky;
+  left: 0;
   background: var(--color-primary);
   z-index: 2;
 }
@@ -744,7 +737,8 @@ body {
   .bc-form-grid { grid-template-columns: 1fr !important; }
   .bc-page { padding: 16px !important; }
   .bc-navbar { padding: 0 16px !important; }
-  .bc-card-dock .bc-card { flex: 0 0 85vw !important; }
+  .bc-card-dock[data-cols="2"] .bc-card { flex: 0 0 42.5vw !important; }
+  .bc-card-dock[data-cols="1"] .bc-card { flex: 0 0 85vw !important; }
   .bc-calendar-wrapper { overflow-x: auto !important; }
   .bc-calendar-wrapper .fc .fc-scrollgrid { min-width: 600px !important; }
 }

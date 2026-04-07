@@ -7,31 +7,31 @@
 
 <div class="bc-section">
   <div class="bc-section-title">Módulos</div>
-  <div class="bc-card-grid bc-card-dock">
+  <div class="bc-card-grid bc-card-dock" data-cols="2">
 
-    <a href="{% url 'lista_eventos' %}" class="bc-card" style="text-decoration:none; color:inherit;">
-      <div class="bc-card-icon">&#128197;</div>
+    <a href="{% url 'lista_eventos' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-calendar-event"></i></div>
       <div class="bc-card-value">{{ total_eventos_mes }}</div>
       <div class="bc-card-label">Eventos</div>
       <div class="bc-card-sub">Este mes</div>
     </a>
 
     <div class="bc-card">
-      <div class="bc-card-icon">&#9989;</div>
+      <div class="bc-card-icon"><i class="ti ti-checklist"></i></div>
       <div class="bc-card-value">0/0</div>
       <div class="bc-card-label">Tareas hoy</div>
       <div class="bc-card-sub">Sin datos aún</div>
     </div>
 
     <div class="bc-card">
-      <div class="bc-card-icon">&#128100;</div>
+      <div class="bc-card-icon"><i class="ti ti-users"></i></div>
       <div class="bc-card-value">{{ total_personal }}</div>
       <div class="bc-card-label">Personal</div>
       <div class="bc-card-sub">Activos</div>
     </div>
 
     <div class="bc-card">
-      <div class="bc-card-icon">&#127965;</div>
+      <div class="bc-card-icon"><i class="ti ti-building"></i></div>
       <div class="bc-card-value">{{ total_espacios }}</div>
       <div class="bc-card-label">Espacios</div>
       <div class="bc-card-sub">Todos activos</div>
@@ -42,36 +42,35 @@
 
 <div class="bc-section">
   <div class="bc-section-title">Gestión</div>
-  <div class="bc-card-grid bc-card-dock">
+  <div class="bc-card-grid bc-card-dock" data-cols="2">
 
-    <a href="{% url 'cuadrante' %}" class="bc-card" style="text-decoration:none; color:inherit;">
-      <div class="bc-card-icon">&#128197;</div>
+    <a href="{% url 'cuadrante' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
       <div class="bc-card-value">—</div>
       <div class="bc-card-label">Turnos</div>
       <div class="bc-card-sub">Ver cuadrante</div>
     </a>
 
     <div class="bc-card">
-      <div class="bc-card-icon">&#127964;</div>
+      <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
       <div class="bc-card-value">—</div>
       <div class="bc-card-label">Vacaciones</div>
       <div class="bc-card-sub">Ver calendario</div>
     </div>
 
     <div class="bc-card">
-      <div class="bc-card-icon">&#128203;</div>
+      <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
       <div class="bc-card-value">—</div>
       <div class="bc-card-label">Solicitud días</div>
       <div class="bc-card-sub">Pendientes</div>
     </div>
 
-    <a href="{% url 'calendario' %}" class="bc-card" style="text-decoration:none; color:inherit;">
-        <div class="bc-card-icon">&#128336;</div>
-        <div class="bc-card-value">Ver</div>
-        <div class="bc-card-label">Calendario</div>
-        <div class="bc-card-sub">Vista mensual</div>
+    <a href="{% url 'calendario' %}" class="bc-card">
+      <div class="bc-card-icon"><i class="ti ti-calendar-month"></i></div>
+      <div class="bc-card-value">Ver</div>
+      <div class="bc-card-label">Calendario</div>
+      <div class="bc-card-sub">Vista mensual</div>
     </a>
-
 
   </div>
 </div>
@@ -108,7 +107,7 @@
 
 <div class="bc-section">
   <div class="bc-section-title">Puntos de venta</div>
-  <div class="bc-card-grid bc-card-dock">
+  <div class="bc-card-grid bc-card-dock" data-cols="1">
     {% for espacio in espacios %}
     <div class="bc-card">
       <div class="bc-card-label">{{ espacio.nombre }}</div>
