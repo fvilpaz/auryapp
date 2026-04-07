@@ -641,9 +641,6 @@ body {
   color: var(--color-text);
   text-decoration: none;
 }
-.fc .fc-list-event-time {
-  color: var(--color-muted);
-}
 .fc-theme-standard td,
 .fc-theme-standard th,
 .fc-theme-standard .fc-scrollgrid {
@@ -660,8 +657,8 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   width: 100%;
+  max-width: 100%;
 }
-
 .bc-calendar-wrapper .fc .fc-view-harness {
   overflow-x: visible;
 }
@@ -671,7 +668,7 @@ body {
 }
 .bc-card-calendar {
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ============================================
@@ -709,4 +706,6 @@ body {
   .bc-page { padding: 16px !important; }
   .bc-navbar { padding: 0 16px !important; }
   .bc-card-dock .bc-card { flex: 0 0 85vw !important; }
+  .bc-calendar-wrapper { overflow-x: auto !important; }
+  .bc-calendar-wrapper .fc .fc-scrollgrid { min-width: 600px !important; }
 }
