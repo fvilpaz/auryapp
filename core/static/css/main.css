@@ -670,6 +670,13 @@ body {
   padding: 0;
   overflow: visible;
 }
+.fc .fc-toolbar {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  padding: 12px 0;
+}
 
 /* ============================================
    RESPONSIVE
