@@ -266,6 +266,18 @@ body {
 
 .bc-table-name { font-weight: 500; }
 
+.bc-table tbody td:first-child,
+.bc-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.bc-table thead th:first-child {
+  background: var(--color-primary);
+}
+
 /* ============================================
    BADGES
    ============================================ */
