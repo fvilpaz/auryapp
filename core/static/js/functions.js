@@ -1,47 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendario');
-  if (!calendarEl) return;
-
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'es',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,listMonth'
-    },
-    events: window.BC.urls.eventos_json,
-    eventClick: function(info) {
-      info.jsEvent.preventDefault();
-      window.location.href = info.event.url;
-    },
-    height: 'auto',
-  });
-  calendar.render();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendario');
-  if (!calendarEl) return;
-
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'es',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,listMonth'
-    },
-    events: window.BC.urls.eventos_json,
-    eventClick: function(info) {
-      info.jsEvent.preventDefault();
-      window.location.href = info.event.url;
-    },
-    height: 'auto',
-  });
-  calendar.render();
-});
-
 /* ── TEMAS ── */
 var THEMES = [
   { id: 'light',     name: 'Claro',     emoji: '☀️', group: 'light' },
@@ -126,4 +82,30 @@ document.addEventListener('DOMContentLoaded', function() {
   var saved = localStorage.getItem('bc-theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
   buildThemePanel();
+
+  var calendarEl = document.getElementById('calendario');
+  if (!calendarEl) return;
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'es',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,listMonth'
+    },
+    events: window.BC.urls.eventos_json,
+    eventClick: function(info) {
+      info.jsEvent.preventDefault();
+      window.location.href = info.event.url;
+    },
+    height: 'auto',
+  });
+  calendar.render();
+
+  var toolbar = calendarEl.querySelector('.fc-toolbar');
+  var placeholder = document.getElementById('fc-toolbar-placeholder');
+  if (toolbar && placeholder) {
+    placeholder.appendChild(toolbar);
+  }
 });

@@ -670,12 +670,44 @@ body {
   padding: 0;
   overflow: visible;
 }
-.fc .fc-toolbar {
-  position: sticky;
-  left: 0;
-  z-index: 10;
+#fc-toolbar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 8px 0;
+}
+#fc-toolbar-placeholder .fc-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#fc-toolbar-placeholder .fc-toolbar-chunk {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#fc-toolbar-placeholder .fc-button {
   background: var(--color-surface);
-  padding: 12px 0;
+  border: 0.5px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+#fc-toolbar-placeholder .fc-button-primary:not(:disabled).fc-button-active,
+#fc-toolbar-placeholder .fc-button-primary:not(:disabled):active {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+#fc-toolbar-placeholder .fc-toolbar-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 /* ============================================
