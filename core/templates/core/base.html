@@ -31,5 +31,15 @@
   <script src="{% static 'js/functions.js' %}"></script>
   {% block extra_js %}{% endblock %}
 
+<script>
+  window.BC = {
+    urls: {
+      eventos_json: "{% url 'eventos_json' %}",
+    }
+  };
+</script>
+<script src="{% static 'js/functions.js' %}"></script>
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>
