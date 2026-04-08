@@ -41,6 +41,18 @@
           <span style="color:var(--color-muted);">Posición cuadrante</span>
           <span>{{ empleado.posicion }}</span>
         </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Contrato</span>
+          <span>{{ empleado.get_tipo_contrato_display|default:"—" }}</span>
+        </div>
+        {% if empleado.fecha_vencimiento %}
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Vencimiento</span>
+          <span {% if empleado.fecha_vencimiento <= hoy %}class="bc-badge bc-badge-red"{% elif empleado.fecha_vencimiento <= en_30_dias %}class="bc-badge bc-badge-amber"{% endif %}>
+            {{ empleado.fecha_vencimiento|date:"d M Y" }}
+          </span>
+        </div>
+        {% endif %}
       </div>
     </div>
 

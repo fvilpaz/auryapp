@@ -5,6 +5,14 @@ from core.models import Espacio
 
 class Empleado(models.Model):
 
+    CONTRATO_CHOICES = [
+        ('indefinido', 'Indefinido'),
+        ('temporal', 'Temporal'),
+        ('fijo_discontinuo', 'Fijo discontinuo'),
+        ('obra_servicio', 'Obra y servicio'),
+        ('practicas', 'Prácticas'),
+    ]
+
     ROL_CHOICES = [
         ('maitre', 'Maître'),
         ('segundo_maitre', 'Segundo Maître'),
@@ -21,6 +29,8 @@ class Empleado(models.Model):
     fecha_nacimiento = models.DateField(null=True, blank=True)
     activo = models.BooleanField(default=True)
     posicion = models.PositiveIntegerField(default=0)
+    tipo_contrato = models.CharField(max_length=20, choices=CONTRATO_CHOICES, blank=True)
+    fecha_vencimiento = models.DateField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Empleado'

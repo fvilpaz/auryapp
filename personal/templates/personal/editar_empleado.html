@@ -48,6 +48,22 @@
         <input type="date" name="fecha_nacimiento" value="{{ empleado.fecha_nacimiento|date:'Y-m-d' }}">
       </div>
 
+      <div class="bc-form-grid" style="margin-top:12px;">
+        <div class="bc-form-group">
+          <label>Tipo de contrato</label>
+          <select name="tipo_contrato">
+            <option value="">— Sin especificar —</option>
+            {% for value, label in contratos %}
+            <option value="{{ value }}" {% if empleado.tipo_contrato == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="bc-form-group">
+          <label>Vencimiento contrato</label>
+          <input type="date" name="fecha_vencimiento" value="{{ empleado.fecha_vencimiento|date:'Y-m-d' }}">
+        </div>
+      </div>
+
       <div class="bc-btn-row" style="margin-top:20px;">
         <button type="submit" class="bc-btn bc-btn-primary">
           <i class="ti ti-device-floppy"></i> Guardar

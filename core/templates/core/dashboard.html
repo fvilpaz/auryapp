@@ -148,7 +148,7 @@
 
 <div class="bc-section">
   <div class="bc-section-title">Esta semana</div>
-  <div class="bc-notif-grid">
+  <div class="bc-notif-grid" style="grid-template-columns: repeat(4, 1fr);">
 
     <div class="bc-card" style="padding:14px;">
       <div class="bc-notif-label"><i class="ti ti-cake"></i> Cumpleaños</div>
@@ -190,6 +190,22 @@
           <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">Pendiente</span>
         {% else %}
           <span class="bc-badge bc-badge-green" style="font-size:10px; padding:1px 6px;">Aprobada</span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="bc-notif-empty">Ninguno próximo</div>
+      {% endfor %}
+    </div>
+
+    <div class="bc-card" style="padding:14px;">
+      <div class="bc-notif-label"><i class="ti ti-file-invoice"></i> Vencimientos</div>
+      {% for emp in contratos_proximos %}
+      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <a href="{% url 'detalle_empleado' emp.pk %}" class="bc-link-plain" style="font-weight:500;">{{ emp.nombre }}</a>
+        {% if emp.fecha_vencimiento <= hoy %}
+          <span class="bc-badge bc-badge-red" style="font-size:10px; padding:1px 6px;">Vencido</span>
+        {% else %}
+          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">{{ emp.fecha_vencimiento|date:"d M" }}</span>
         {% endif %}
       </div>
       {% empty %}

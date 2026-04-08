@@ -69,11 +69,14 @@ def detalle_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     solicitudes = SolicitudAusencia.objects.filter(empleado=empleado).order_by('-fecha_inicio')
     todos_empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
+    hoy = timezone.now().date()
     context = {
         'empleado': empleado,
         'solicitudes': solicitudes,
         'tipos_solicitud': SolicitudAusencia.TIPO_CHOICES,
         'todos_empleados': todos_empleados,
+        'hoy': hoy,
+        'en_30_dias': hoy + timedelta(days=30),
     }
     return render(request, 'personal/detalle_empleado.html', context)
 
@@ -85,18 +88,20 @@ def nuevo_empleado(request):
         telefono = request.POST.get('telefono', '').strip()
         email = request.POST.get('email', '').strip()
         fecha_nacimiento = request.POST.get('fecha_nacimiento') or None
+        tipo_contrato = request.POST.get('tipo_contrato', '')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
         if nombre and rol:
             Empleado.objects.create(
-                nombre=nombre,
-                apellidos=apellidos,
-                rol=rol,
-                telefono=telefono,
-                email=email,
+                nombre=nombre, apellidos=apellidos, rol=rol,
+                telefono=telefono, email=email,
                 fecha_nacimiento=fecha_nacimiento,
+                tipo_contrato=tipo_contrato,
+                fecha_vencimiento=fecha_vencimiento,
             )
             return redirect('lista_empleados')
     return render(request, 'personal/nuevo_empleado.html', {
         'roles': Empleado.ROL_CHOICES,
+        'contratos': Empleado.CONTRATO_CHOICES,
     })
 
 def editar_empleado(request, pk):
@@ -108,12 +113,15 @@ def editar_empleado(request, pk):
         empleado.telefono = request.POST.get('telefono', '').strip()
         empleado.email = request.POST.get('email', '').strip()
         empleado.fecha_nacimiento = request.POST.get('fecha_nacimiento') or None
+        empleado.tipo_contrato = request.POST.get('tipo_contrato', '')
+        empleado.fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
         if empleado.nombre and empleado.rol:
             empleado.save()
             return redirect('lista_empleados')
     return render(request, 'personal/editar_empleado.html', {
         'empleado': empleado,
         'roles': Empleado.ROL_CHOICES,
+        'contratos': Empleado.CONTRATO_CHOICES,
     })
 
 def guardar_turno(request):

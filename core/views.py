@@ -61,6 +61,14 @@ def dashboard(request):
             cumpleanos_proximos.append({'empleado': empleado, 'fecha': cumple})
     cumpleanos_proximos.sort(key=lambda x: x['fecha'])
 
+    # Contratos próximos a vencer (30 días)
+    en_30_dias = hoy + timezone.timedelta(days=30)
+    contratos_proximos = Empleado.objects.filter(
+        activo=True,
+        fecha_vencimiento__isnull=False,
+        fecha_vencimiento__lte=en_30_dias,
+    ).order_by('fecha_vencimiento')
+
     solicitudes_pendientes = SolicitudAusencia.objects.filter(estado='pendiente').count()
     solicitudes_vacaciones = SolicitudAusencia.objects.filter(
         tipo='vacaciones', fecha_fin__gte=hoy
@@ -81,6 +89,7 @@ def dashboard(request):
         'vacaciones_proximas': vacaciones_proximas,
         'dias_sueltos_proximos': dias_sueltos_proximos,
         'cumpleanos_proximos': cumpleanos_proximos,
+        'contratos_proximos': contratos_proximos,
         'solicitudes_pendientes': solicitudes_pendientes,
         'solicitudes_vacaciones': solicitudes_vacaciones,
         'solicitudes_dias': solicitudes_dias,
