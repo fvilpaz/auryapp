@@ -209,6 +209,8 @@ def detalle_espacio(request, pk):
         fecha=fecha
     ).select_related('plantilla').order_by('plantilla__momento', 'plantilla__orden')
 
+    otros_espacios = Espacio.objects.filter(activo=True).exclude(pk=espacio.pk)
+
     context = {
         'espacio': espacio,
         'empleados_disponibles': empleados_disponibles,
@@ -217,8 +219,33 @@ def detalle_espacio(request, pk):
         'fecha': fecha,
         'hoy': hoy,
         'es_hoy': fecha == hoy,
+        'otros_espacios': otros_espacios,
     }
     return render(request, 'core/detalle_espacio.html', context)
+
+def desasignar_empleado(request, pk, turno_id):
+    if request.method == 'POST':
+        turno = get_object_or_404(Turno, pk=turno_id)
+        turno.espacio = None
+        turno.save()
+    fecha = request.GET.get('fecha', '')
+    url = redirect('detalle_espacio', pk=pk).url
+    if fecha:
+        url += f'?fecha={fecha}'
+    return redirect(url)
+
+def mover_empleado(request, pk, turno_id):
+    if request.method == 'POST':
+        turno = get_object_or_404(Turno, pk=turno_id)
+        nuevo_espacio_id = request.POST.get('espacio_id')
+        if nuevo_espacio_id:
+            turno.espacio = get_object_or_404(Espacio, pk=nuevo_espacio_id)
+            turno.save()
+    fecha = request.GET.get('fecha', '')
+    url = redirect('detalle_espacio', pk=pk).url
+    if fecha:
+        url += f'?fecha={fecha}'
+    return redirect(url)
 
 def toggle_tarea(request, pk):
     if request.method == 'POST':

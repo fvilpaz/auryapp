@@ -229,7 +229,13 @@ btnAñadir.addEventListener('click', function() {
   añadirSheet.classList.add('open');
 });
 
-document.getElementById('btn-cerrar-añadir').addEventListener('click', closeSheet);
+var btnCerrarAñadir = document.getElementById('btn-cerrar-añadir');
+if (btnCerrarAñadir) {
+  btnCerrarAñadir.addEventListener('click', function() {
+    overlay.classList.remove('open');
+    añadirSheet.classList.remove('open');
+  });
+}
 
 document.getElementById('a-estado').addEventListener('change', function() {
   document.getElementById('a-horas-fields').style.display =
@@ -290,7 +296,11 @@ function closeSheet() {
   activeCell = null;
 }
 
-overlay.addEventListener('click', closeSheet);
+overlay.addEventListener('click', function() {
+  closeSheet();
+  overlay.classList.remove('open');
+  añadirSheet.classList.remove('open');
+});
 document.getElementById('btn-cerrar-sheet').addEventListener('click', closeSheet);
 
 form.addEventListener('submit', function(e) {

@@ -39,10 +39,44 @@
       {% if turno_asignado %}
       <div style="width:100%; margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">
         {% for turno in turno_asignado %}
-        <span class="bc-badge bc-badge-green">
-          <i class="ti ti-user-check"></i> {{ turno.empleado.nombre }}
-          {% if turno.hora_inicio %}— {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}{% endif %}
-        </span>
+        <details style="width:100%;">
+          <summary style="list-style:none; cursor:pointer;">
+            <span class="bc-badge bc-badge-green" style="width:100%; justify-content:space-between;">
+              <span>
+                <i class="ti ti-user-check"></i> {{ turno.empleado.nombre }}
+                {% if turno.hora_inicio %}— {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}{% endif %}
+              </span>
+              <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+            </span>
+          </summary>
+          <div style="margin-top:6px; padding:10px; background:var(--color-bg);
+                      border:0.5px solid var(--color-border); border-radius:var(--radius-sm);
+                      display:flex; flex-direction:column; gap:8px;">
+            <form method="post" action="{% url 'desasignar_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="bc-btn bc-btn-sm" style="width:100%; justify-content:flex-start;">
+                <i class="ti ti-user-off"></i> Quitar del espacio
+              </button>
+            </form>
+            {% if otros_espacios %}
+            <form method="post" action="{% url 'mover_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="margin:0;">
+              {% csrf_token %}
+              <div style="display:flex; gap:6px; align-items:center;">
+                <select name="espacio_id" style="flex:1; padding:6px 8px;
+                        background:var(--color-surface); border:0.5px solid var(--color-border);
+                        border-radius:var(--radius-sm); font-size:12px; color:var(--color-text);">
+                  {% for otro in otros_espacios %}
+                  <option value="{{ otro.pk }}">{{ otro.nombre }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary">
+                  <i class="ti ti-arrows-exchange"></i> Mover
+                </button>
+              </div>
+            </form>
+            {% endif %}
+          </div>
+        </details>
         {% endfor %}
       </div>
       {% endif %}
