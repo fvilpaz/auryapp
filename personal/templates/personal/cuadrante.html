@@ -12,6 +12,9 @@
       <button id="btn-añadir-empleado" class="bc-btn bc-btn-secondary" style="display:none;">
         <i class="ti ti-user-plus"></i> Añadir empleado
       </button>
+      <button id="btn-ordenar" class="bc-btn bc-btn-secondary" style="display:none;">
+        <i class="ti ti-sort-ascending-numbers"></i> Ordenar
+      </button>
       <button id="btn-edit-mode" class="bc-btn bc-btn-secondary">
         <i class="ti ti-pencil"></i> Editar
       </button>
@@ -152,6 +155,32 @@
   </div>
 </div>
 
+<!-- Sheet ordenar empleados -->
+<div class="bc-sheet" id="ordenar-sheet">
+  <div class="bc-sheet-handle"></div>
+  <div class="bc-sheet-title">Ordenar empleados</div>
+  <p style="font-size:12px; color:var(--color-muted); margin-bottom:12px;">Asigna una posición numérica a cada empleado. El 1 aparece primero.</p>
+  <div style="display:flex; flex-direction:column; gap:8px;" id="ordenar-lista">
+    {% for empleado in todos_empleados %}
+    <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+      <input type="number" min="0" max="99"
+             name="posicion_{{ empleado.pk }}"
+             value="{{ empleado.posicion }}"
+             style="width:56px; padding:6px 8px; background:var(--color-surface);
+                    border:0.5px solid var(--color-border); border-radius:var(--radius-sm);
+                    font-size:13px; color:var(--color-text); text-align:center;">
+      <span>{{ empleado.nombre }} {{ empleado.apellidos }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="bc-btn-row" style="margin-top:20px;">
+    <button id="btn-guardar-orden" class="bc-btn bc-btn-primary">
+      <i class="ti ti-device-floppy"></i> Guardar orden
+    </button>
+    <button type="button" class="bc-btn" id="btn-cerrar-ordenar">Cancelar</button>
+  </div>
+</div>
+
 <!-- Overlay -->
 <div class="bc-overlay" id="sheet-overlay"></div>
 
@@ -206,9 +235,11 @@
 const table = document.getElementById('cuadrante-table');
 const btnEdit = document.getElementById('btn-edit-mode');
 const btnAñadir = document.getElementById('btn-añadir-empleado');
+const btnOrdenar = document.getElementById('btn-ordenar');
 const overlay = document.getElementById('sheet-overlay');
 const sheet = document.getElementById('turno-sheet');
 const añadirSheet = document.getElementById('añadir-sheet');
+const ordenarSheet = document.getElementById('ordenar-sheet');
 const form = document.getElementById('turno-form');
 let editMode = false;
 let activeCell = null;
@@ -222,6 +253,30 @@ btnEdit.addEventListener('click', function() {
   btnEdit.classList.toggle('bc-btn-primary', editMode);
   btnEdit.classList.toggle('bc-btn-secondary', !editMode);
   btnAñadir.style.display = editMode ? '' : 'none';
+  btnOrdenar.style.display = editMode ? '' : 'none';
+});
+
+btnOrdenar.addEventListener('click', function() {
+  overlay.classList.add('open');
+  ordenarSheet.classList.add('open');
+});
+
+document.getElementById('btn-cerrar-ordenar').addEventListener('click', function() {
+  overlay.classList.remove('open');
+  ordenarSheet.classList.remove('open');
+});
+
+document.getElementById('btn-guardar-orden').addEventListener('click', function() {
+  const inputs = document.querySelectorAll('#ordenar-lista input[name^="posicion_"]');
+  const data = new FormData();
+  data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  inputs.forEach(function(inp) { data.append(inp.name, inp.value); });
+  fetch('{% url "guardar_posiciones" %}', {
+    method: 'POST',
+    body: data,
+  }).then(function(r) { return r.json(); }).then(function(res) {
+    if (res.ok) window.location.reload();
+  });
 });
 
 btnAñadir.addEventListener('click', function() {

@@ -1,0 +1,149 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ empleado.nombre }} — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">{{ empleado.nombre }} {{ empleado.apellidos }}</span>
+    <a href="{% url 'editar_empleado' empleado.pk %}" class="bc-btn bc-btn-secondary">
+      <i class="ti ti-pencil"></i> Editar
+    </a>
+  </div>
+
+  <div class="bc-card-grid" style="grid-template-columns: 1fr 1fr;">
+
+    <!-- Datos personales -->
+    <div class="bc-card">
+      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+        <span class="bc-section-header-title">Datos</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; width:100%; font-size:13px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Rol</span>
+          <span>{{ empleado.get_rol_display }}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Teléfono</span>
+          <span>{{ empleado.telefono|default:"—" }}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Email</span>
+          <span>{{ empleado.email|default:"—" }}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Cumpleaños</span>
+          <span>{{ empleado.fecha_nacimiento|date:"d M Y"|default:"—" }}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--color-muted);">Posición cuadrante</span>
+          <span>{{ empleado.posicion }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nueva solicitud -->
+    <div class="bc-card">
+      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+        <span class="bc-section-header-title">Nueva solicitud</span>
+      </div>
+      <form method="post" action="{% url 'nueva_solicitud' empleado.pk %}" style="width:100%;">
+        {% csrf_token %}
+        <div class="bc-form-group">
+          <label>Tipo</label>
+          <select name="tipo">
+            {% for value, label in tipos_solicitud %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="bc-form-grid" style="margin-top:10px;">
+          <div class="bc-form-group">
+            <label>Desde</label>
+            <input type="date" name="fecha_inicio" required>
+          </div>
+          <div class="bc-form-group">
+            <label>Hasta</label>
+            <input type="date" name="fecha_fin" required>
+          </div>
+        </div>
+        <div class="bc-form-group" style="margin-top:10px;">
+          <label>Notas</label>
+          <input type="text" name="notas" placeholder="Opcional">
+        </div>
+        <div class="bc-btn-row" style="margin-top:12px;">
+          <button type="submit" class="bc-btn bc-btn-primary">
+            <i class="ti ti-send"></i> Solicitar
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- Historial de solicitudes -->
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Solicitudes</span>
+  </div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Desde</th>
+          <th>Hasta</th>
+          <th>Días</th>
+          <th>Notas</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sol in solicitudes %}
+        <tr>
+          <td>{{ sol.get_tipo_display }}</td>
+          <td>{{ sol.fecha_inicio|date:"d M Y" }}</td>
+          <td>{{ sol.fecha_fin|date:"d M Y" }}</td>
+          <td>{{ sol.fecha_fin|timeuntil:sol.fecha_inicio }}</td>
+          <td>{{ sol.notas|default:"—" }}</td>
+          <td>
+            {% if sol.estado == 'pendiente' %}
+              <span class="bc-badge bc-badge-amber">Pendiente</span>
+            {% elif sol.estado == 'aprobada' %}
+              <span class="bc-badge bc-badge-green">Aprobada</span>
+            {% else %}
+              <span class="bc-badge bc-badge-red">Rechazada</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if sol.estado == 'pendiente' %}
+            <div style="display:flex; gap:4px;">
+              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary" title="Aprobar">
+                  <i class="ti ti-check"></i>
+                </button>
+              </form>
+              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="bc-btn bc-btn-sm" title="Rechazar">
+                  <i class="ti ti-x"></i>
+                </button>
+              </form>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="color:var(--color-muted);">No hay solicitudes</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

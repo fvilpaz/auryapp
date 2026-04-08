@@ -414,6 +414,8 @@ a.bc-card {
 }
 .bc-notif-item { font-size: 12px; padding: 3px 0; color: var(--color-text); }
 .bc-notif-empty { font-size: 12px; color: var(--color-muted); }
+a.bc-link-plain, a.bc-link-plain:visited { color: var(--color-primary) !important; text-decoration: none !important; }
+a.bc-link-plain:hover { opacity: 0.7; }
 
 @media (max-width: 480px) and (orientation: portrait) {
   .bc-notif-grid { grid-template-columns: 1fr !important; }

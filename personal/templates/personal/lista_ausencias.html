@@ -1,0 +1,148 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ titulo }} — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">{{ titulo }}</span>
+    <button id="btn-nueva-solicitud" class="bc-btn bc-btn-primary">
+      <i class="ti ti-plus"></i> Nueva solicitud
+    </button>
+  </div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Tipo</th>
+          <th>Desde</th>
+          <th>Hasta</th>
+          <th>Notas</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sol in solicitudes %}
+        <tr>
+          <td><a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain">{{ sol.empleado.nombre }}</a></td>
+          <td>{{ sol.get_tipo_display }}</td>
+          <td>{{ sol.fecha_inicio|date:"d M Y" }}</td>
+          <td>{{ sol.fecha_fin|date:"d M Y" }}</td>
+          <td>{{ sol.notas|default:"—" }}</td>
+          <td>
+            {% if sol.estado == 'pendiente' %}
+              <span class="bc-badge bc-badge-amber">Pendiente</span>
+            {% elif sol.estado == 'aprobada' %}
+              <span class="bc-badge bc-badge-green">Aprobada</span>
+            {% else %}
+              <span class="bc-badge bc-badge-red">Rechazada</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if sol.estado == 'pendiente' %}
+            <div style="display:flex; gap:4px;">
+              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary" title="Aprobar">
+                  <i class="ti ti-check"></i>
+                </button>
+              </form>
+              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="bc-btn bc-btn-sm" title="Rechazar">
+                  <i class="ti ti-x"></i>
+                </button>
+              </form>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="color:var(--color-muted);">No hay solicitudes próximas</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Bottom sheet nueva solicitud -->
+<div class="bc-sheet" id="solicitud-sheet">
+  <div class="bc-sheet-handle"></div>
+  <div class="bc-sheet-title">Nueva solicitud</div>
+
+  <form method="post" action="{% url 'crear_solicitud' %}" id="solicitud-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Empleado</label>
+      <select name="empleado_id" required>
+        <option value="">— Seleccionar —</option>
+        {% for emp in empleados %}
+        <option value="{{ emp.pk }}">{{ emp.nombre }} {{ emp.apellidos }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-group" style="margin-bottom:12px;">
+      <label>Tipo</label>
+      <select name="tipo" required>
+        {% for value, label in tipos %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="bc-form-grid" style="margin-bottom:12px;">
+      <div class="bc-form-group">
+        <label>Desde</label>
+        <input type="date" name="fecha_inicio" required>
+      </div>
+      <div class="bc-form-group">
+        <label>Hasta</label>
+        <input type="date" name="fecha_fin" required>
+      </div>
+    </div>
+
+    <div class="bc-form-group" style="margin-bottom:20px;">
+      <label>Notas</label>
+      <input type="text" name="notas" placeholder="Opcional">
+    </div>
+
+    <div class="bc-btn-row">
+      <button type="submit" class="bc-btn bc-btn-primary">
+        <i class="ti ti-send"></i> Crear solicitud
+      </button>
+      <button type="button" class="bc-btn" id="btn-cerrar-solicitud">Cancelar</button>
+    </div>
+  </form>
+</div>
+
+<div class="bc-overlay" id="solicitud-overlay"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const overlay = document.getElementById('solicitud-overlay');
+  const sheet = document.getElementById('solicitud-sheet');
+
+  document.getElementById('btn-nueva-solicitud').addEventListener('click', function() {
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+  });
+
+  document.getElementById('btn-cerrar-solicitud').addEventListener('click', closeSheet);
+  overlay.addEventListener('click', closeSheet);
+
+  function closeSheet() {
+    overlay.classList.remove('open');
+    sheet.classList.remove('open');
+  }
+</script>
+{% endblock %}

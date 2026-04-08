@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Solicitudes pendientes — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Solicitudes pendientes</span>
+  </div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Tipo</th>
+          <th>Desde</th>
+          <th>Hasta</th>
+          <th>Notas</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sol in solicitudes %}
+        <tr>
+          <td><a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain">{{ sol.empleado.nombre }}</a></td>
+          <td>{{ sol.get_tipo_display }}</td>
+          <td>{{ sol.fecha_inicio|date:"d M Y" }}</td>
+          <td>{{ sol.fecha_fin|date:"d M Y" }}</td>
+          <td>{{ sol.notas|default:"—" }}</td>
+          <td>
+            <div style="display:flex; gap:4px;">
+              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary">
+                  <i class="ti ti-check"></i> Aprobar
+                </button>
+              </form>
+              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="bc-btn bc-btn-sm">
+                  <i class="ti ti-x"></i> Rechazar
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="color:var(--color-muted);">No hay solicitudes pendientes</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

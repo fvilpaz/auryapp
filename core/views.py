@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import Espacio, Evento, ArticuloPedido, Nota
-from personal.models import Empleado, Turno
+from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
 
@@ -39,17 +39,17 @@ def dashboard(request):
     en_7_dias = hoy + timezone.timedelta(days=7)
     eventos_esta_semana = Evento.objects.filter(fecha__gte=hoy, fecha__lte=en_7_dias).count()
 
-    # Vacaciones próximas
-    vacaciones_proximas = Turno.objects.filter(
-        fecha__gte=hoy, fecha__lte=en_7_dias,
-        estado='vacaciones'
-    ).select_related('empleado').order_by('fecha')
+    # Vacaciones próximas (todas, no rechazadas)
+    vacaciones_proximas = SolicitudAusencia.objects.filter(
+        tipo='vacaciones',
+        fecha_fin__gte=hoy,
+    ).exclude(estado='rechazada').select_related('empleado').order_by('fecha_inicio')
 
-    # Días sueltos próximos
-    dias_sueltos_proximos = Turno.objects.filter(
-        fecha__gte=hoy, fecha__lte=en_7_dias,
-        estado__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo']
-    ).select_related('empleado').order_by('fecha')
+    # Días sueltos próximos (todos, no rechazados)
+    dias_sueltos_proximos = SolicitudAusencia.objects.filter(
+        tipo__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo'],
+        fecha_fin__gte=hoy,
+    ).exclude(estado='rechazada').select_related('empleado').order_by('fecha_inicio')
 
     # Cumpleaños próximos (comparando mes y día)
     cumpleanos_proximos = []
@@ -60,6 +60,14 @@ def dashboard(request):
         if hoy <= cumple <= en_7_dias:
             cumpleanos_proximos.append({'empleado': empleado, 'fecha': cumple})
     cumpleanos_proximos.sort(key=lambda x: x['fecha'])
+
+    solicitudes_pendientes = SolicitudAusencia.objects.filter(estado='pendiente').count()
+    solicitudes_vacaciones = SolicitudAusencia.objects.filter(
+        tipo='vacaciones', fecha_fin__gte=hoy
+    ).exclude(estado='rechazada').count()
+    solicitudes_dias = SolicitudAusencia.objects.filter(
+        tipo__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo'], fecha_fin__gte=hoy
+    ).exclude(estado='rechazada').count()
 
     context = {
         'resumen_espacios': resumen_espacios,
@@ -73,6 +81,9 @@ def dashboard(request):
         'vacaciones_proximas': vacaciones_proximas,
         'dias_sueltos_proximos': dias_sueltos_proximos,
         'cumpleanos_proximos': cumpleanos_proximos,
+        'solicitudes_pendientes': solicitudes_pendientes,
+        'solicitudes_vacaciones': solicitudes_vacaciones,
+        'solicitudes_dias': solicitudes_dias,
         'hoy': hoy,
     }
     return render(request, 'core/dashboard.html', context)
@@ -143,6 +154,7 @@ def editar_evento(request, pk):
         'tipos': Evento.TIPO_CHOICES,
         'conceptos': Evento.CONCEPTO_CHOICES,
         'evento': evento,
+        'fecha_inicial': '',
     })
 
 def eliminar_evento(request, pk):

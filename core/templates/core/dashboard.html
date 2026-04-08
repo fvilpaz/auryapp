@@ -50,19 +50,19 @@
       <div class="bc-card-sub">Activos</div>
     </a>
 
-    <div class="bc-card">
+    <a href="{% url 'lista_vacaciones' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
-      <div class="bc-card-value">—</div>
+      <div class="bc-card-value">{{ solicitudes_vacaciones }}</div>
       <div class="bc-card-label">Vacaciones</div>
-      <div class="bc-card-sub">Solicitudes</div>
-    </div>
+      <div class="bc-card-sub">Próximas</div>
+    </a>
 
-    <div class="bc-card">
+    <a href="{% url 'lista_dias_sueltos' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
-      <div class="bc-card-value">—</div>
+      <div class="bc-card-value">{{ solicitudes_dias }}</div>
       <div class="bc-card-label">Días sueltos</div>
-      <div class="bc-card-sub">Solicitudes</div>
-    </div>
+      <div class="bc-card-sub">Próximos</div>
+    </a>
 
     <a href="{% url 'pedidos' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-clipboard-list"></i></div>
@@ -161,19 +161,39 @@
 
     <div class="bc-card" style="padding:14px;">
       <div class="bc-notif-label"><i class="ti ti-sunset-2"></i> Vacaciones</div>
-      {% for turno in vacaciones_proximas %}
-      <div class="bc-notif-item">{{ turno.empleado.nombre }} — {{ turno.fecha|date:"d M" }}</div>
+      {% for sol in vacaciones_proximas %}
+      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <span>
+          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain" style="font-weight:500;">{{ sol.empleado.nombre }}</a>
+          <span style="color:var(--color-muted);"> {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
+        </span>
+        {% if sol.estado == 'pendiente' %}
+          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">Pendiente</span>
+        {% else %}
+          <span class="bc-badge bc-badge-green" style="font-size:10px; padding:1px 6px;">Aprobada</span>
+        {% endif %}
+      </div>
       {% empty %}
-      <div class="bc-notif-empty">Ninguna esta semana</div>
+      <div class="bc-notif-empty">Ninguna próxima</div>
       {% endfor %}
     </div>
 
     <div class="bc-card" style="padding:14px;">
       <div class="bc-notif-label"><i class="ti ti-calendar-off"></i> Días sueltos</div>
-      {% for turno in dias_sueltos_proximos %}
-      <div class="bc-notif-item">{{ turno.empleado.nombre }} — {{ turno.fecha|date:"d M" }}</div>
+      {% for sol in dias_sueltos_proximos %}
+      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <span>
+          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain" style="font-weight:500;">{{ sol.empleado.nombre }}</a>
+          <span style="color:var(--color-muted);"> {{ sol.get_tipo_display }} {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
+        </span>
+        {% if sol.estado == 'pendiente' %}
+          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">Pendiente</span>
+        {% else %}
+          <span class="bc-badge bc-badge-green" style="font-size:10px; padding:1px 6px;">Aprobada</span>
+        {% endif %}
+      </div>
       {% empty %}
-      <div class="bc-notif-empty">Ninguno esta semana</div>
+      <div class="bc-notif-empty">Ninguno próximo</div>
       {% endfor %}
     </div>
 

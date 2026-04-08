@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Case, When, Value, IntegerField
-from datetime import timedelta
-from .models import Empleado, Turno
+from django.http import JsonResponse
+from datetime import timedelta, date
+from .models import Empleado, Turno, SolicitudAusencia
 
 def cuadrante(request):
     semana_param = request.GET.get('semana')
     if semana_param:
         try:
-            from datetime import date
             año, mes, dia = semana_param.split('-')
             hoy = date(int(año), int(mes), int(dia))
         except:
@@ -22,17 +21,7 @@ def cuadrante(request):
     semana_anterior = (lunes - timedelta(days=7)).strftime('%Y-%m-%d')
     semana_siguiente = (lunes + timedelta(days=7)).strftime('%Y-%m-%d')
 
-    empleados = Empleado.objects.filter(activo=True).annotate(
-        rol_orden=Case(
-            When(rol='maitre', then=Value(0)),
-            When(rol='segundo_maitre', then=Value(1)),
-            When(rol='jefe_sector', then=Value(2)),
-            When(rol='camarero', then=Value(3)),
-            When(rol='ayudante_camarero', then=Value(4)),
-            default=Value(99),
-            output_field=IntegerField(),
-        )
-    ).order_by('rol_orden', 'nombre')
+    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
     turnos = Turno.objects.filter(
         fecha__gte=lunes,
         fecha__lte=domingo
@@ -65,25 +54,28 @@ def cuadrante(request):
         'semana_siguiente': semana_siguiente,
         'estados': Turno.ESTADO_CHOICES,
         'empleados_disponibles': empleados_disponibles,
+        'todos_empleados': empleados,
     }
     return render(request, 'personal/cuadrante.html', context)
 
 def lista_empleados(request):
-    empleados = Empleado.objects.filter(activo=True).annotate(
-        rol_orden=Case(
-            When(rol='maitre', then=Value(0)),
-            When(rol='segundo_maitre', then=Value(1)),
-            When(rol='jefe_sector', then=Value(2)),
-            When(rol='camarero', then=Value(3)),
-            When(rol='ayudante_camarero', then=Value(4)),
-            default=Value(99),
-            output_field=IntegerField(),
-        )
-    ).order_by('rol_orden', 'nombre')
+    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
     context = {
         'empleados': empleados,
     }
     return render(request, 'personal/lista_empleados.html', context)
+
+def detalle_empleado(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    solicitudes = SolicitudAusencia.objects.filter(empleado=empleado).order_by('-fecha_inicio')
+    todos_empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
+    context = {
+        'empleado': empleado,
+        'solicitudes': solicitudes,
+        'tipos_solicitud': SolicitudAusencia.TIPO_CHOICES,
+        'todos_empleados': todos_empleados,
+    }
+    return render(request, 'personal/detalle_empleado.html', context)
 
 def nuevo_empleado(request):
     if request.method == 'POST':
@@ -125,7 +117,6 @@ def editar_empleado(request, pk):
     })
 
 def guardar_turno(request):
-    from django.http import JsonResponse
     if request.method == 'POST':
         empleado_id = request.POST.get('empleado_id')
         fecha = request.POST.get('fecha')
@@ -153,3 +144,105 @@ def guardar_turno(request):
             'hora_fin': turno.hora_fin.strftime('%H:%M') if turno.hora_fin else '',
         })
     return JsonResponse({'ok': False}, status=405)
+
+def guardar_posiciones(request):
+    if request.method == 'POST':
+        for key, val in request.POST.items():
+            if key.startswith('posicion_'):
+                emp_id = key.replace('posicion_', '')
+                try:
+                    Empleado.objects.filter(pk=int(emp_id)).update(posicion=int(val))
+                except (ValueError, TypeError):
+                    pass
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False}, status=405)
+
+def nueva_solicitud(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+        notas = request.POST.get('notas', '').strip()
+        if tipo and fecha_inicio and fecha_fin:
+            SolicitudAusencia.objects.create(
+                empleado=empleado,
+                tipo=tipo,
+                fecha_inicio=fecha_inicio,
+                fecha_fin=fecha_fin,
+                notas=notas,
+            )
+    return redirect('detalle_empleado', pk=pk)
+
+def aprobar_solicitud(request, pk):
+    solicitud = get_object_or_404(SolicitudAusencia, pk=pk)
+    if request.method == 'POST':
+        solicitud.estado = 'aprobada'
+        solicitud.save()
+        dia_actual = solicitud.fecha_inicio
+        while dia_actual <= solicitud.fecha_fin:
+            Turno.objects.update_or_create(
+                empleado=solicitud.empleado,
+                fecha=dia_actual,
+                defaults={'estado': solicitud.tipo}
+            )
+            dia_actual += timedelta(days=1)
+        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+        if next_url:
+            return redirect(next_url)
+    return redirect('detalle_empleado', pk=solicitud.empleado.pk)
+
+def rechazar_solicitud(request, pk):
+    solicitud = get_object_or_404(SolicitudAusencia, pk=pk)
+    if request.method == 'POST':
+        solicitud.estado = 'rechazada'
+        solicitud.save()
+        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+        if next_url:
+            return redirect(next_url)
+    return redirect('detalle_empleado', pk=solicitud.empleado.pk)
+
+def lista_solicitudes(request):
+    solicitudes = SolicitudAusencia.objects.filter(estado='pendiente').select_related('empleado').order_by('fecha_inicio')
+    context = {'solicitudes': solicitudes}
+    return render(request, 'personal/lista_solicitudes.html', context)
+
+def lista_vacaciones(request):
+    hoy = timezone.now().date()
+    solicitudes = SolicitudAusencia.objects.filter(
+        tipo='vacaciones',
+        fecha_fin__gte=hoy,
+    ).exclude(estado='rechazada').select_related('empleado').order_by('fecha_inicio')
+    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
+    tipos = [('vacaciones', 'Vacaciones')]
+    context = {'solicitudes': solicitudes, 'titulo': 'Vacaciones', 'empleados': empleados, 'tipos': tipos}
+    return render(request, 'personal/lista_ausencias.html', context)
+
+def lista_dias_sueltos(request):
+    hoy = timezone.now().date()
+    solicitudes = SolicitudAusencia.objects.filter(
+        tipo__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo'],
+        fecha_fin__gte=hoy,
+    ).exclude(estado='rechazada').select_related('empleado').order_by('fecha_inicio')
+    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
+    tipos = [t for t in SolicitudAusencia.TIPO_CHOICES if t[0] != 'vacaciones']
+    context = {'solicitudes': solicitudes, 'titulo': 'Días sueltos', 'empleados': empleados, 'tipos': tipos}
+    return render(request, 'personal/lista_ausencias.html', context)
+
+def crear_solicitud(request):
+    if request.method == 'POST':
+        empleado_id = request.POST.get('empleado_id')
+        tipo = request.POST.get('tipo')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+        notas = request.POST.get('notas', '').strip()
+        if empleado_id and tipo and fecha_inicio and fecha_fin:
+            empleado = get_object_or_404(Empleado, pk=empleado_id)
+            SolicitudAusencia.objects.create(
+                empleado=empleado,
+                tipo=tipo,
+                fecha_inicio=fecha_inicio,
+                fecha_fin=fecha_fin,
+                notas=notas,
+            )
+    return redirect(request.POST.get('next', 'lista_solicitudes'))

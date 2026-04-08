@@ -25,11 +25,14 @@
       <tbody>
         {% for empleado in empleados %}
         <tr>
-          <td>{{ empleado.nombre }} {{ empleado.apellidos }}</td>
+          <td><a href="{% url 'detalle_empleado' empleado.pk %}" class="bc-link-plain">{{ empleado.nombre }} {{ empleado.apellidos }}</a></td>
           <td>{{ empleado.get_rol_display }}</td>
           <td>{{ empleado.telefono|default:"—" }}</td>
           <td>{{ empleado.email|default:"—" }}</td>
-          <td><a href="{% url 'editar_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-pencil"></i></a></td>
+          <td style="display:flex; gap:4px;">
+            <a href="{% url 'detalle_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-eye"></i></a>
+            <a href="{% url 'editar_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-pencil"></i></a>
+          </td>
         </tr>
         {% empty %}
         <tr>
