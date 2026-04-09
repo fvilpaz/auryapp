@@ -215,6 +215,21 @@ def lista_solicitudes(request):
     context = {'solicitudes': solicitudes}
     return render(request, 'personal/lista_solicitudes.html', context)
 
+def lista_vencimientos(request):
+    hoy = timezone.now().date()
+    empleados = Empleado.objects.filter(
+        activo=True,
+        fecha_vencimiento__isnull=False,
+    ).order_by('fecha_vencimiento')
+    datos = []
+    for emp in empleados:
+        dias = (emp.fecha_vencimiento - hoy).days
+        abs_dias = abs(dias)
+        meses = abs_dias // 30
+        datos.append({'empleado': emp, 'dias': dias, 'abs_dias': abs_dias, 'meses': meses})
+    context = {'datos': datos, 'hoy': hoy}
+    return render(request, 'personal/lista_vencimientos.html', context)
+
 def lista_vacaciones(request):
     hoy = timezone.now().date()
     solicitudes = SolicitudAusencia.objects.filter(

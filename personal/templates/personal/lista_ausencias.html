@@ -43,15 +43,15 @@
           </td>
           <td>
             {% if sol.estado == 'pendiente' %}
-            <div style="display:flex; gap:4px;">
-              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}" style="margin:0;">
+            <div class="bc-btn-group">
+              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
                 <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary" title="Aprobar">
                   <i class="ti ti-check"></i>
                 </button>
               </form>
-              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}" style="margin:0;">
+              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
                 <button type="submit" class="bc-btn bc-btn-sm" title="Rechazar">
@@ -63,23 +63,22 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" style="color:var(--color-muted);">No hay solicitudes próximas</td></tr>
+        <tr><td colspan="7" class="bc-text-muted">No hay solicitudes próximas</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Bottom sheet nueva solicitud -->
 <div class="bc-sheet" id="solicitud-sheet">
   <div class="bc-sheet-handle"></div>
   <div class="bc-sheet-title">Nueva solicitud</div>
 
-  <form method="post" action="{% url 'crear_solicitud' %}" id="solicitud-form">
+  <form method="post" action="{% url 'crear_solicitud' %}">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.path }}">
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Empleado</label>
       <select name="empleado_id" required>
         <option value="">— Seleccionar —</option>
@@ -89,7 +88,7 @@
       </select>
     </div>
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Tipo</label>
       <select name="tipo" required>
         {% for value, label in tipos %}
@@ -98,7 +97,7 @@
       </select>
     </div>
 
-    <div class="bc-form-grid" style="margin-bottom:12px;">
+    <div class="bc-form-grid bc-mb-12">
       <div class="bc-form-group">
         <label>Desde</label>
         <input type="date" name="fecha_inicio" required>
@@ -109,7 +108,7 @@
       </div>
     </div>
 
-    <div class="bc-form-group" style="margin-bottom:20px;">
+    <div class="bc-form-group bc-mb-20">
       <label>Notas</label>
       <input type="text" name="notas" placeholder="Opcional">
     </div>

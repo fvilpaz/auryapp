@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<div style="text-align:center; margin-bottom:8px; margin-top:-8px;">
+<div class="bc-hero-image">
   <img src="https://pngtotal.com/wp-content/uploads/2024/07/cartoon-stitch-png.png"
        alt="Stitch"
        style="height:150px; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));">
@@ -79,9 +79,7 @@
   <div class="bc-card-dock" data-cols="1">
     {% for item in resumen_espacios %}
     <a href="{% url 'detalle_espacio' item.espacio.pk %}" class="bc-card bc-pdv-card">
-
       <div class="bc-pdv-nombre">{{ item.espacio.nombre }}</div>
-
       <div class="bc-avatar-stack">
         {% if item.asignados %}
           {% for turno in item.asignados|slice:":4" %}
@@ -94,12 +92,11 @@
           {% endif %}
         {% else %}
           <div class="bc-avatar bc-avatar-empty">
-            <i class="ti ti-user-off" style="font-size:13px;"></i>
+            <i class="ti ti-user-off bc-text-sm"></i>
           </div>
-          <span style="font-size:11px; color:var(--color-muted); margin-left:8px;">Sin asignar</span>
+          <span class="bc-avatar-empty-label">Sin asignar</span>
         {% endif %}
       </div>
-
       <div class="bc-progress-wrap">
         <div class="bc-progress-label">
           <span>Tareas</span>
@@ -110,7 +107,6 @@
                data-pct="{{ item.porcentaje }}"></div>
         </div>
       </div>
-
     </a>
     {% endfor %}
   </div>
@@ -147,30 +143,32 @@
 </div>
 
 <div class="bc-section">
-  <div class="bc-section-title">Esta semana</div>
-  <div class="bc-notif-grid" style="grid-template-columns: repeat(4, 1fr);">
+  <div class="bc-section-title">Avisos</div>
+  <div class="bc-notif-grid bc-notif-grid-4">
 
-    <div class="bc-card" style="padding:14px;">
+    <div class="bc-card bc-card-compact">
       <div class="bc-notif-label"><i class="ti ti-cake"></i> Cumpleaños</div>
       {% for item in cumpleanos_proximos %}
-      <div class="bc-notif-item">{{ item.empleado.nombre }} — {{ item.fecha|date:"d M" }}</div>
+      <div class="bc-notif-item">
+        <span>{{ item.empleado.nombre }} — {{ item.fecha|date:"d M" }}</span>
+      </div>
       {% empty %}
       <div class="bc-notif-empty">Ninguno esta semana</div>
       {% endfor %}
     </div>
 
-    <div class="bc-card" style="padding:14px;">
+    <div class="bc-card bc-card-compact">
       <div class="bc-notif-label"><i class="ti ti-sunset-2"></i> Vacaciones</div>
       {% for sol in vacaciones_proximas %}
-      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <div class="bc-notif-item">
         <span>
-          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain" style="font-weight:500;">{{ sol.empleado.nombre }}</a>
-          <span style="color:var(--color-muted);"> {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
+          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain bc-font-medium">{{ sol.empleado.nombre }}</a>
+          <span class="bc-text-muted"> {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
         </span>
         {% if sol.estado == 'pendiente' %}
-          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">Pendiente</span>
+          <span class="bc-badge bc-badge-amber bc-badge-sm">Pendiente</span>
         {% else %}
-          <span class="bc-badge bc-badge-green" style="font-size:10px; padding:1px 6px;">Aprobada</span>
+          <span class="bc-badge bc-badge-green bc-badge-sm">Aprobada</span>
         {% endif %}
       </div>
       {% empty %}
@@ -178,18 +176,18 @@
       {% endfor %}
     </div>
 
-    <div class="bc-card" style="padding:14px;">
+    <div class="bc-card bc-card-compact">
       <div class="bc-notif-label"><i class="ti ti-calendar-off"></i> Días sueltos</div>
       {% for sol in dias_sueltos_proximos %}
-      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <div class="bc-notif-item">
         <span>
-          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain" style="font-weight:500;">{{ sol.empleado.nombre }}</a>
-          <span style="color:var(--color-muted);"> {{ sol.get_tipo_display }} {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
+          <a href="{% url 'detalle_empleado' sol.empleado.pk %}" class="bc-link-plain bc-font-medium">{{ sol.empleado.nombre }}</a>
+          <span class="bc-text-muted"> {{ sol.get_tipo_display }} {{ sol.fecha_inicio|date:"d" }}-{{ sol.fecha_fin|date:"d M" }}</span>
         </span>
         {% if sol.estado == 'pendiente' %}
-          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">Pendiente</span>
+          <span class="bc-badge bc-badge-amber bc-badge-sm">Pendiente</span>
         {% else %}
-          <span class="bc-badge bc-badge-green" style="font-size:10px; padding:1px 6px;">Aprobada</span>
+          <span class="bc-badge bc-badge-green bc-badge-sm">Aprobada</span>
         {% endif %}
       </div>
       {% empty %}
@@ -197,21 +195,21 @@
       {% endfor %}
     </div>
 
-    <div class="bc-card" style="padding:14px;">
+    <a href="{% url 'lista_vencimientos' %}" class="bc-card bc-card-compact bc-link-plain">
       <div class="bc-notif-label"><i class="ti ti-file-invoice"></i> Vencimientos</div>
       {% for emp in contratos_proximos %}
-      <div class="bc-notif-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <a href="{% url 'detalle_empleado' emp.pk %}" class="bc-link-plain" style="font-weight:500;">{{ emp.nombre }}</a>
+      <div class="bc-notif-item">
+        <span class="bc-font-medium">{{ emp.nombre }}</span>
         {% if emp.fecha_vencimiento <= hoy %}
-          <span class="bc-badge bc-badge-red" style="font-size:10px; padding:1px 6px;">Vencido</span>
+          <span class="bc-badge bc-badge-red bc-badge-sm">Vencido</span>
         {% else %}
-          <span class="bc-badge bc-badge-amber" style="font-size:10px; padding:1px 6px;">{{ emp.fecha_vencimiento|date:"d M" }}</span>
+          <span class="bc-badge bc-badge-amber bc-badge-sm">{{ emp.fecha_vencimiento|date:"d M" }}</span>
         {% endif %}
       </div>
       {% empty %}
       <div class="bc-notif-empty">Ninguno próximo</div>
       {% endfor %}
-    </div>
+    </a>
 
   </div>
 </div>

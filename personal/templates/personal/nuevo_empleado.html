@@ -7,8 +7,8 @@
 <div class="bc-section">
   <div class="bc-section-title">Nuevo empleado</div>
 
-  <div class="bc-card" style="max-width: 480px;">
-    <form method="post" style="width:100%;">
+  <div class="bc-card bc-card-form">
+    <form method="post">
       {% csrf_token %}
 
       <div class="bc-form-grid">
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div class="bc-form-group" style="margin-top:12px;">
+      <div class="bc-form-group bc-mt-12">
         <label>Rol *</label>
         <select name="rol" required>
           <option value="">— Seleccionar —</option>
@@ -32,7 +32,7 @@
         </select>
       </div>
 
-      <div class="bc-form-grid" style="margin-top:12px;">
+      <div class="bc-form-grid bc-mt-12">
         <div class="bc-form-group">
           <label>Teléfono</label>
           <input type="text" name="telefono">
@@ -43,12 +43,12 @@
         </div>
       </div>
 
-      <div class="bc-form-group" style="margin-top:12px;">
+      <div class="bc-form-group bc-mt-12">
         <label>Fecha de nacimiento</label>
         <input type="date" name="fecha_nacimiento">
       </div>
 
-      <div class="bc-form-grid" style="margin-top:12px;">
+      <div class="bc-form-grid bc-mt-12">
         <div class="bc-form-group">
           <label>Tipo de contrato</label>
           <select name="tipo_contrato">
@@ -64,7 +64,7 @@
         </div>
       </div>
 
-      <div class="bc-btn-row" style="margin-top:20px;">
+      <div class="bc-btn-row">
         <button type="submit" class="bc-btn bc-btn-primary">
           <i class="ti ti-user-plus"></i> Guardar
         </button>

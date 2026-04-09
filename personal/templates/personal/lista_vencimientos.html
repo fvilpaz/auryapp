@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Vencimientos de contrato — Beach Club{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Vencimientos de contrato</span>
+  </div>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Rol</th>
+          <th>Tipo contrato</th>
+          <th>Vencimiento</th>
+          <th>Tiempo restante</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in datos %}
+        <tr>
+          <td><a href="{% url 'detalle_empleado' item.empleado.pk %}" class="bc-link-plain">{{ item.empleado.nombre }} {{ item.empleado.apellidos }}</a></td>
+          <td>{{ item.empleado.get_rol_display }}</td>
+          <td>{{ item.empleado.get_tipo_contrato_display|default:"—" }}</td>
+          <td>{{ item.empleado.fecha_vencimiento|date:"d M Y" }}</td>
+          <td>
+            {% if item.dias < 0 %}
+              Hace {{ item.abs_dias }} días
+            {% elif item.dias == 0 %}
+              Hoy
+            {% elif item.dias == 1 %}
+              Mañana
+            {% elif item.dias < 30 %}
+              {{ item.dias }} días
+            {% elif item.meses == 1 %}
+              1 mes
+            {% else %}
+              {{ item.meses }} meses
+            {% endif %}
+          </td>
+          <td>
+            {% if item.dias < 0 %}
+              <span class="bc-badge bc-badge-red">Vencido</span>
+            {% elif item.dias <= 30 %}
+              <span class="bc-badge bc-badge-amber">Próximo</span>
+            {% elif item.dias <= 90 %}
+              <span class="bc-badge bc-badge-blue">En 3 meses</span>
+            {% else %}
+              <span class="bc-badge bc-badge-green">Vigente</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="bc-text-muted">No hay contratos con fecha de vencimiento</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -8,63 +8,56 @@
 <div class="bc-section">
   <div class="bc-section-header">
     <span class="bc-section-header-title">{{ espacio.nombre }}</span>
-    <div style="display:flex; align-items:center; gap:8px;">
+    <div class="bc-flex-center bc-gap-8">
       {% if not es_hoy %}
-      <a href="{% url 'detalle_espacio' espacio.pk %}" class="bc-btn bc-btn-secondary" style="font-size:12px;">
+      <a href="{% url 'detalle_espacio' espacio.pk %}" class="bc-btn bc-btn-secondary bc-text-sm">
         Volver a hoy
       </a>
       {% endif %}
       <input type="date" id="selector-fecha"
              value="{{ fecha|date:'Y-m-d' }}"
-             style="padding:6px 10px; background:var(--color-surface);
-                    border:0.5px solid var(--color-border);
-                    border-radius:var(--radius-sm);
-                    font-size:12px; color:var(--color-text); cursor:pointer;">
+             class="bc-date-picker">
     </div>
   </div>
 
   {% if not es_hoy %}
-  <div style="font-size:12px; color:var(--color-primary); margin-bottom:12px;">
+  <div class="bc-fecha-aviso">
     <i class="ti ti-calendar"></i> Viendo: {{ fecha|date:"l d M Y" }}
   </div>
   {% endif %}
 
-  <div class="bc-card-grid" style="grid-template-columns: 1fr 1fr;">
+  <div class="bc-card-grid bc-grid-2">
 
     <div class="bc-card">
-      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+      <div class="bc-section-header bc-w-full bc-mb-16">
         <span class="bc-section-header-title">Personal</span>
       </div>
 
       {% if turno_asignado %}
-      <div style="width:100%; margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">
+      <div class="bc-staff-list">
         {% for turno in turno_asignado %}
-        <details style="width:100%;">
-          <summary style="list-style:none; cursor:pointer;">
+        <details class="bc-w-full">
+          <summary class="bc-summary">
             <span class="bc-badge bc-badge-green" style="width:100%; justify-content:space-between;">
               <span>
                 <i class="ti ti-user-check"></i> {{ turno.empleado.nombre }}
                 {% if turno.hora_inicio %}— {{ turno.hora_inicio|time:"H:i" }}-{{ turno.hora_fin|time:"H:i" }}{% endif %}
               </span>
-              <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+              <i class="ti ti-chevron-down bc-text-xs"></i>
             </span>
           </summary>
-          <div style="margin-top:6px; padding:10px; background:var(--color-bg);
-                      border:0.5px solid var(--color-border); border-radius:var(--radius-sm);
-                      display:flex; flex-direction:column; gap:8px;">
-            <form method="post" action="{% url 'desasignar_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="margin:0;">
+          <div class="bc-details-panel">
+            <form method="post" action="{% url 'desasignar_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}">
               {% csrf_token %}
-              <button type="submit" class="bc-btn bc-btn-sm" style="width:100%; justify-content:flex-start;">
+              <button type="submit" class="bc-btn bc-btn-sm bc-btn-full" style="justify-content:flex-start;">
                 <i class="ti ti-user-off"></i> Quitar del espacio
               </button>
             </form>
             {% if otros_espacios %}
-            <form method="post" action="{% url 'mover_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="margin:0;">
+            <form method="post" action="{% url 'mover_empleado' espacio.pk turno.pk %}?fecha={{ fecha|date:'Y-m-d' }}">
               {% csrf_token %}
-              <div style="display:flex; gap:6px; align-items:center;">
-                <select name="espacio_id" style="flex:1; padding:6px 8px;
-                        background:var(--color-surface); border:0.5px solid var(--color-border);
-                        border-radius:var(--radius-sm); font-size:12px; color:var(--color-text);">
+              <div class="bc-flex-center bc-gap-6">
+                <select name="espacio_id" class="bc-flex-1 bc-date-picker">
                   {% for otro in otros_espacios %}
                   <option value="{{ otro.pk }}">{{ otro.nombre }}</option>
                   {% endfor %}
@@ -82,7 +75,7 @@
       {% endif %}
 
       {% if empleados_disponibles %}
-      <form method="post" action="{% url 'asignar_empleado' espacio.pk %}?fecha={{ fecha|date:'Y-m-d' }}" style="width:100%;">
+      <form method="post" action="{% url 'asignar_empleado' espacio.pk %}?fecha={{ fecha|date:'Y-m-d' }}" class="bc-w-full">
         {% csrf_token %}
         <div class="bc-form-group">
           <label>Asignar empleado</label>
@@ -102,26 +95,25 @@
         </div>
       </form>
       {% else %}
-      <p style="color:var(--color-muted); font-size:13px;">No hay empleados disponibles.</p>
+      <p class="bc-text-muted bc-text-sm">No hay empleados disponibles.</p>
       {% endif %}
     </div>
 
     <div class="bc-card">
-      <div class="bc-section-header" style="width:100%; margin-bottom:16px;">
+      <div class="bc-section-header bc-w-full bc-mb-16">
         <span class="bc-section-header-title">Tareas</span>
       </div>
 
       {% regroup tareas_hoy by plantilla.get_momento_display as tareas_por_momento %}
       {% for grupo in tareas_por_momento %}
-      <div style="margin-bottom:12px;">
-        <div class="bc-badge {% if grupo.grouper == 'Apertura' %}bc-badge-blue{% else %}bc-badge-amber{% endif %}" style="margin-bottom:8px;">
+      <div class="bc-mb-12">
+        <div class="bc-badge {% if grupo.grouper == 'Apertura' %}bc-badge-blue{% else %}bc-badge-amber{% endif %} bc-mb-8">
           {{ grupo.grouper }}
         </div>
         <div class="bc-checklist">
           {% for tarea in grupo.list %}
           <div class="bc-check-item {% if tarea.completada %}done{% endif %}"
-               data-id="{{ tarea.pk }}"
-               style="cursor:pointer;">
+               data-id="{{ tarea.pk }}" style="cursor:pointer;">
             <div class="bc-check-box {% if tarea.completada %}done{% endif %}"></div>
             {{ tarea.plantilla.nombre }}
           </div>
@@ -129,7 +121,7 @@
         </div>
       </div>
       {% empty %}
-      <p style="color:var(--color-muted); font-size:13px;">No hay tareas definidas.</p>
+      <p class="bc-text-muted bc-text-sm">No hay tareas definidas.</p>
       {% endfor %}
     </div>
 

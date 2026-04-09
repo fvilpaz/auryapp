@@ -29,15 +29,15 @@
           <td>{{ sol.fecha_fin|date:"d M Y" }}</td>
           <td>{{ sol.notas|default:"—" }}</td>
           <td>
-            <div style="display:flex; gap:4px;">
-              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}" style="margin:0;">
+            <div class="bc-btn-group">
+              <form method="post" action="{% url 'aprobar_solicitud' sol.pk %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
                 <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary">
                   <i class="ti ti-check"></i> Aprobar
                 </button>
               </form>
-              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}" style="margin:0;">
+              <form method="post" action="{% url 'rechazar_solicitud' sol.pk %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
                 <button type="submit" class="bc-btn bc-btn-sm">
@@ -48,7 +48,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" style="color:var(--color-muted);">No hay solicitudes pendientes</td></tr>
+        <tr><td colspan="6" class="bc-text-muted">No hay solicitudes pendientes</td></tr>
         {% endfor %}
       </tbody>
     </table>

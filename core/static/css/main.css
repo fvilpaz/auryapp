@@ -412,7 +412,6 @@ a.bc-card {
   text-transform: uppercase;
   margin-bottom: 8px;
 }
-.bc-notif-item { font-size: 12px; padding: 3px 0; color: var(--color-text); }
 .bc-notif-empty { font-size: 12px; color: var(--color-muted); }
 a.bc-link-plain, a.bc-link-plain:visited { color: var(--color-primary) !important; text-decoration: none !important; }
 a.bc-link-plain:hover { opacity: 0.7; }
@@ -912,4 +911,198 @@ a.bc-link-plain:hover { opacity: 0.7; }
   .bc-card-dock[data-cols="1"] .bc-card { flex: 0 0 85vw !important; }
   .bc-calendar-wrapper { overflow-x: auto !important; }
   .bc-calendar-wrapper .fc .fc-scrollgrid { min-width: 600px !important; }
+}
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+/* Formularios: reset margin por defecto */
+form { margin: 0; }
+
+/* Flex */
+.bc-flex { display: flex; }
+.bc-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.bc-flex-center { display: flex; align-items: center; }
+.bc-flex-col { display: flex; flex-direction: column; }
+.bc-gap-4 { gap: 4px; }
+.bc-gap-6 { gap: 6px; }
+.bc-gap-8 { gap: 8px; }
+.bc-gap-10 { gap: 10px; }
+.bc-gap-12 { gap: 12px; }
+
+/* Anchura */
+.bc-w-full { width: 100%; }
+
+/* Display */
+.bc-hidden { display: none; }
+
+/* Tipografía */
+.bc-text-muted { color: var(--color-muted); }
+.bc-text-sm { font-size: 12px; }
+.bc-text-xs { font-size: 11px; }
+.bc-font-medium { font-weight: 500; }
+
+/* Espaciado — margin top */
+.bc-mt-8  { margin-top: 8px; }
+.bc-mt-10 { margin-top: 10px; }
+.bc-mt-12 { margin-top: 12px; }
+.bc-mt-16 { margin-top: 16px; }
+.bc-mt-20 { margin-top: 20px; }
+
+/* Espaciado — margin bottom */
+.bc-mb-8  { margin-bottom: 8px; }
+.bc-mb-12 { margin-bottom: 12px; }
+.bc-mb-16 { margin-bottom: 16px; }
+.bc-mb-20 { margin-bottom: 20px; }
+
+/* Espaciado — margin bottom */
+.bc-mb-8  { margin-bottom: 8px; }
+.bc-mb-12 { margin-bottom: 12px; }
+.bc-mb-16 { margin-bottom: 16px; }
+.bc-mb-20 { margin-bottom: 20px; }
+
+/* Variantes de tarjeta */
+.bc-card-compact { padding: 14px; }
+.bc-card-form    { max-width: 480px; }
+.bc-card-wide    { max-width: 560px; }
+
+/* Grid 2 columnas */
+.bc-grid-2 { grid-template-columns: 1fr 1fr; }
+
+/* Badge pequeño */
+.bc-badge-sm { font-size: 10px; padding: 1px 6px; }
+
+/* Fila de datos (ficha empleado, etc.) */
+.bc-data-list { display: flex; flex-direction: column; gap: 10px; width: 100%; font-size: 13px; }
+.bc-data-row  { display: flex; justify-content: space-between; align-items: center; }
+
+/* Fila de notificación con badge */
+.bc-notif-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+/* Divider */
+.bc-divider-top { margin-top: 16px; padding-top: 16px; border-top: 0.5px solid var(--color-border); }
+
+/* Botones inline (grupo pequeño) */
+.bc-btn-group { display: flex; gap: 4px; }
+
+/* Imagen hero (Stitch) */
+.bc-hero-image { text-align: center; margin-bottom: 8px; margin-top: -8px; }
+
+/* Notif grid 4 columnas */
+.bc-notif-grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 480px) and (orientation: portrait) {
+  .bc-notif-grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* Avatar sin asignar — label */
+.bc-avatar-empty-label { font-size: 11px; color: var(--color-muted); margin-left: 8px; }
+
+/* Notif item enlace */
+.bc-notif-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; padding: 3px 0; color: var(--color-text); }
+.bc-notif-item .bc-badge { flex-shrink: 0; }
+
+/* Flex 1 */
+.bc-flex-1 { flex: 1; }
+
+/* Mic button */
+.bc-mic-btn {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+  border: 0.5px solid var(--color-border);
+  background: var(--color-surface); color: var(--color-text);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Nota card */
+.bc-nota-card { flex-direction: row; align-items: flex-start; gap: 12px; padding: 14px 16px; }
+.bc-nota-texto { font-size: 13px; color: var(--color-text); white-space: pre-wrap; }
+.bc-nota-fecha { font-size: 11px; color: var(--color-muted); margin-top: 4px; }
+.bc-nota-list  { display: flex; flex-direction: column; gap: 8px; }
+.bc-btn-ghost  { background: none; border: none; cursor: pointer; color: var(--color-muted); padding: 0; line-height: 1; }
+
+/* Date picker input */
+.bc-date-picker {
+  padding: 6px 10px; background: var(--color-surface);
+  border: 0.5px solid var(--color-border); border-radius: var(--radius-sm);
+  font-size: 12px; color: var(--color-text); cursor: pointer;
+}
+
+/* Fecha aviso (viendo otro día) */
+.bc-fecha-aviso { font-size: 12px; color: var(--color-primary); margin-bottom: 12px; }
+
+/* Details/summary reset */
+.bc-summary { list-style: none; cursor: pointer; }
+
+/* Details expansion panel */
+.bc-details-panel {
+  margin-top: 6px; padding: 10px;
+  background: var(--color-bg); border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Staff list (assigned employees) */
+.bc-staff-list { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-bottom: 16px; }
+
+/* Position number input */
+.bc-input-pos {
+  width: 56px; padding: 6px 8px; text-align: center;
+  background: var(--color-surface); border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm); font-size: 13px; color: var(--color-text);
+}
+
+/* Ordenar item */
+.bc-ordenar-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.bc-ordenar-list  { display: flex; flex-direction: column; gap: 8px; }
+
+/* Full-width centered button */
+.bc-btn-full { width: 100%; justify-content: center; }
+
+/* Documentos */
+.bc-doc-list { display: flex; flex-direction: column; gap: 8px; }
+.bc-doc-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--color-bg); }
+.bc-doc-icon { font-size: 22px; color: var(--color-primary); flex-shrink: 0; }
+.bc-doc-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.bc-doc-nombre { font-size: 13px; font-weight: 500; color: var(--color-primary); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-doc-nombre:hover { text-decoration: underline; }
+.bc-text-xs { font-size: 11px; }
+.bc-doc-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.bc-btn-danger-ghost { background: transparent; border-color: transparent; color: var(--color-danger, #c0392b); }
+.bc-btn-danger-ghost:hover { background: #fef2f2; }
+
+/* Plano interactivo */
+.bc-plano-section { padding-left: 0 !important; padding-right: 0 !important; }
+.bc-plano-section .bc-section-header { padding: 0 20px 12px; }
+.bc-plano-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 20px; border-bottom: 1px solid var(--color-border); }
+.bc-plano-colorbar { display: flex; align-items: center; gap: 8px; padding: 8px 20px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.bc-plano-swatches { display: flex; gap: 5px; flex-wrap: wrap; }
+.bc-plano-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s, border-color 0.15s; flex-shrink: 0; }
+.bc-plano-swatch:hover { transform: scale(1.2); }
+.bc-plano-swatch.active { border-color: var(--color-text); transform: scale(1.15); }
+.bc-plano-group-label { font-size: 10px; font-weight: 600; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.bc-plano-sep { width: 1px; height: 20px; background: var(--color-border); margin: 0 2px; flex-shrink: 0; }
+.bc-plano-wrap {
+  overflow: hidden;
+  background-color: #fff;
+  background-image:
+    linear-gradient(to right, #e8ecf0 1px, transparent 1px),
+    linear-gradient(to bottom, #e8ecf0 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+#plano-canvas { display: block; }
+
+/* Input flotante renombrar */
+.bc-plano-rename-input {
+  position: absolute;
+  z-index: 200;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  min-width: 120px;
+  text-align: center;
+  outline: none;
 }

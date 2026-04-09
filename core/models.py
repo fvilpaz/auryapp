@@ -56,6 +56,23 @@ class Evento(models.Model):
         return f"{self.cliente} — {self.get_tipo_display()} — {self.fecha}"
 
 
+class EventoDocumento(models.Model):
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='documentos')
+    archivo = models.FileField(upload_to='eventos/documentos/')
+    nombre = models.CharField(max_length=200, blank=True)
+    subido = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-subido']
+
+    def __str__(self):
+        return self.nombre or self.archivo.name
+
+    def extension(self):
+        import os
+        return os.path.splitext(self.archivo.name)[1].lower()
+
+
 class Nota(models.Model):
     texto = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)

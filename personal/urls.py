@@ -12,6 +12,7 @@ urlpatterns = [
     path('empleados/<int:pk>/solicitud/', views.nueva_solicitud, name='nueva_solicitud'),
     path('solicitudes/', views.lista_solicitudes, name='lista_solicitudes'),
     path('solicitudes/nueva/', views.crear_solicitud, name='crear_solicitud'),
+    path('vencimientos/', views.lista_vencimientos, name='lista_vencimientos'),
     path('vacaciones/', views.lista_vacaciones, name='lista_vacaciones'),
     path('dias-sueltos/', views.lista_dias_sueltos, name='lista_dias_sueltos'),
     path('solicitudes/<int:pk>/aprobar/', views.aprobar_solicitud, name='aprobar_solicitud'),

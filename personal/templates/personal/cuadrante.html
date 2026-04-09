@@ -8,11 +8,11 @@
 <div class="bc-section">
   <div class="bc-section-header">
     <span class="bc-section-header-title">Cuadrante semanal</span>
-    <div style="display:flex; gap:8px;">
-      <button id="btn-añadir-empleado" class="bc-btn bc-btn-secondary" style="display:none;">
+    <div class="bc-flex bc-gap-8">
+      <button id="btn-añadir-empleado" class="bc-btn bc-btn-secondary bc-hidden">
         <i class="ti ti-user-plus"></i> Añadir empleado
       </button>
-      <button id="btn-ordenar" class="bc-btn bc-btn-secondary" style="display:none;">
+      <button id="btn-ordenar" class="bc-btn bc-btn-secondary bc-hidden">
         <i class="ti ti-sort-ascending-numbers"></i> Ordenar
       </button>
       <button id="btn-edit-mode" class="bc-btn bc-btn-secondary">
@@ -91,7 +91,7 @@
   <form id="añadir-form">
     {% csrf_token %}
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Empleado</label>
       <select name="empleado_id" id="a-empleado-id">
         <option value="">— Seleccionar —</option>
@@ -101,7 +101,7 @@
       </select>
     </div>
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Día</label>
       <select name="fecha" id="a-fecha">
         {% for dia in dias %}
@@ -110,7 +110,7 @@
       </select>
     </div>
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Estado</label>
       <select name="estado" id="a-estado">
         {% for value, label in estados %}
@@ -130,12 +130,12 @@
       </div>
     </div>
 
-    <div class="bc-form-group" style="margin-top:12px;">
+    <div class="bc-form-group bc-mt-12">
       <label>Horas</label>
       <input type="number" name="horas" id="a-horas" min="0" max="24">
     </div>
 
-    <div class="bc-btn-row" style="margin-top:20px;">
+    <div class="bc-btn-row">
       <button type="submit" class="bc-btn bc-btn-primary">
         <i class="ti ti-device-floppy"></i> Guardar
       </button>
@@ -143,13 +143,13 @@
     </div>
   </form>
   {% else %}
-  <p style="color:var(--color-muted); font-size:13px; margin-bottom:16px;">
+  <p class="bc-text-muted bc-text-sm bc-mb-16">
     Todos los empleados activos ya están en el cuadrante esta semana.
   </p>
   {% endif %}
 
-  <div style="margin-top:16px; padding-top:16px; border-top:0.5px solid var(--color-border);">
-    <a href="{% url 'nuevo_empleado' %}" class="bc-btn" style="width:100%; justify-content:center;">
+  <div class="bc-divider-top">
+    <a href="{% url 'nuevo_empleado' %}" class="bc-btn bc-btn-full">
       <i class="ti ti-user-plus"></i> Crear empleado nuevo
     </a>
   </div>
@@ -159,21 +159,19 @@
 <div class="bc-sheet" id="ordenar-sheet">
   <div class="bc-sheet-handle"></div>
   <div class="bc-sheet-title">Ordenar empleados</div>
-  <p style="font-size:12px; color:var(--color-muted); margin-bottom:12px;">Asigna una posición numérica a cada empleado. El 1 aparece primero.</p>
-  <div style="display:flex; flex-direction:column; gap:8px;" id="ordenar-lista">
+  <p class="bc-text-muted bc-text-sm bc-mb-12">Asigna una posición numérica a cada empleado. El 1 aparece primero.</p>
+  <div class="bc-ordenar-list" id="ordenar-lista">
     {% for empleado in todos_empleados %}
-    <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+    <div class="bc-ordenar-item">
       <input type="number" min="0" max="99"
              name="posicion_{{ empleado.pk }}"
              value="{{ empleado.posicion }}"
-             style="width:56px; padding:6px 8px; background:var(--color-surface);
-                    border:0.5px solid var(--color-border); border-radius:var(--radius-sm);
-                    font-size:13px; color:var(--color-text); text-align:center;">
+             class="bc-input-pos">
       <span>{{ empleado.nombre }} {{ empleado.apellidos }}</span>
     </div>
     {% endfor %}
   </div>
-  <div class="bc-btn-row" style="margin-top:20px;">
+  <div class="bc-btn-row">
     <button id="btn-guardar-orden" class="bc-btn bc-btn-primary">
       <i class="ti ti-device-floppy"></i> Guardar orden
     </button>
@@ -184,7 +182,7 @@
 <!-- Overlay -->
 <div class="bc-overlay" id="sheet-overlay"></div>
 
-<!-- Bottom sheet -->
+<!-- Bottom sheet turno -->
 <div class="bc-sheet" id="turno-sheet">
   <div class="bc-sheet-handle"></div>
   <div class="bc-sheet-title" id="sheet-title">Editar turno</div>
@@ -194,7 +192,7 @@
     <input type="hidden" name="empleado_id" id="f-empleado-id">
     <input type="hidden" name="fecha" id="f-fecha">
 
-    <div class="bc-form-group" style="margin-bottom:12px;">
+    <div class="bc-form-group bc-mb-12">
       <label>Estado</label>
       <select name="estado" id="f-estado">
         {% for value, label in estados %}
@@ -214,12 +212,12 @@
       </div>
     </div>
 
-    <div class="bc-form-group" style="margin-top:12px;">
+    <div class="bc-form-group bc-mt-12">
       <label>Horas</label>
       <input type="number" name="horas" id="f-horas" min="0" max="24">
     </div>
 
-    <div class="bc-btn-row" style="margin-top:20px;">
+    <div class="bc-btn-row">
       <button type="submit" class="bc-btn bc-btn-primary">
         <i class="ti ti-device-floppy"></i> Guardar
       </button>
@@ -252,8 +250,8 @@ btnEdit.addEventListener('click', function() {
     : '<i class="ti ti-pencil"></i> Editar';
   btnEdit.classList.toggle('bc-btn-primary', editMode);
   btnEdit.classList.toggle('bc-btn-secondary', !editMode);
-  btnAñadir.style.display = editMode ? '' : 'none';
-  btnOrdenar.style.display = editMode ? '' : 'none';
+  btnAñadir.classList.toggle('bc-hidden', !editMode);
+  btnOrdenar.classList.toggle('bc-hidden', !editMode);
 });
 
 btnOrdenar.addEventListener('click', function() {
@@ -271,12 +269,8 @@ document.getElementById('btn-guardar-orden').addEventListener('click', function(
   const data = new FormData();
   data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
   inputs.forEach(function(inp) { data.append(inp.name, inp.value); });
-  fetch('{% url "guardar_posiciones" %}', {
-    method: 'POST',
-    body: data,
-  }).then(function(r) { return r.json(); }).then(function(res) {
-    if (res.ok) window.location.reload();
-  });
+  fetch('{% url "guardar_posiciones" %}', { method: 'POST', body: data })
+    .then(r => r.json()).then(res => { if (res.ok) window.location.reload(); });
 });
 
 btnAñadir.addEventListener('click', function() {
@@ -293,8 +287,7 @@ if (btnCerrarAñadir) {
 }
 
 document.getElementById('a-estado').addEventListener('change', function() {
-  document.getElementById('a-horas-fields').style.display =
-    this.value === 'trabajo' ? '' : 'none';
+  document.getElementById('a-horas-fields').style.display = this.value === 'trabajo' ? '' : 'none';
 });
 
 const añadirForm = document.getElementById('añadir-form');
@@ -306,11 +299,7 @@ if (añadirForm) {
       method: 'POST',
       headers: { 'X-CSRFToken': data.get('csrfmiddlewaretoken') },
       body: data,
-    })
-    .then(r => r.json())
-    .then(function(res) {
-      if (res.ok) window.location.reload();
-    });
+    }).then(r => r.json()).then(res => { if (res.ok) window.location.reload(); });
   });
 }
 
@@ -329,8 +318,7 @@ function openSheet(td) {
   document.getElementById('f-hora-inicio').value = td.dataset.horaInicio || '';
   document.getElementById('f-hora-fin').value = td.dataset.horaFin || '';
   document.getElementById('f-horas').value = td.dataset.horas || '';
-  document.getElementById('sheet-title').textContent =
-    td.dataset.nombre + ' — ' + td.dataset.fechaDisplay;
+  document.getElementById('sheet-title').textContent = td.dataset.nombre + ' — ' + td.dataset.fechaDisplay;
   toggleHorasFields(td.dataset.estado || 'trabajo');
   overlay.classList.add('open');
   sheet.classList.add('open');
@@ -341,8 +329,7 @@ document.getElementById('f-estado').addEventListener('change', function() {
 });
 
 function toggleHorasFields(estado) {
-  document.getElementById('horas-fields').style.display =
-    estado === 'trabajo' ? '' : 'none';
+  document.getElementById('horas-fields').style.display = estado === 'trabajo' ? '' : 'none';
 }
 
 function closeSheet() {
@@ -369,11 +356,9 @@ form.addEventListener('submit', function(e) {
   .then(r => r.json())
   .then(function(res) {
     if (!res.ok || !activeCell) return;
-    // Actualizar data attributes de la celda
     activeCell.dataset.estado = res.estado;
     activeCell.dataset.horaInicio = res.hora_inicio;
     activeCell.dataset.horaFin = res.hora_fin;
-    // Actualizar el badge visualmente
     activeCell.innerHTML = renderBadge(res.estado, res.hora_inicio, res.hora_fin);
     closeSheet();
   });

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Espacio, Evento, ArticuloPedido, Nota
+from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento
 from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
@@ -61,12 +61,11 @@ def dashboard(request):
             cumpleanos_proximos.append({'empleado': empleado, 'fecha': cumple})
     cumpleanos_proximos.sort(key=lambda x: x['fecha'])
 
-    # Contratos próximos a vencer (30 días)
-    en_30_dias = hoy + timezone.timedelta(days=30)
+    # Contratos que vencen en el año en curso
     contratos_proximos = Empleado.objects.filter(
         activo=True,
         fecha_vencimiento__isnull=False,
-        fecha_vencimiento__lte=en_30_dias,
+        fecha_vencimiento__year=hoy.year,
     ).order_by('fecha_vencimiento')
 
     solicitudes_pendientes = SolicitudAusencia.objects.filter(estado='pendiente').count()
@@ -171,6 +170,30 @@ def eliminar_evento(request, pk):
     if request.method == 'POST':
         evento.delete()
     return redirect('lista_eventos')
+
+def detalle_evento(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    documentos = evento.documentos.all()
+    return render(request, 'core/detalle_evento.html', {
+        'evento': evento,
+        'documentos': documentos,
+    })
+
+def subir_documento(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == 'POST' and request.FILES.get('archivo'):
+        archivo = request.FILES['archivo']
+        nombre = request.POST.get('nombre', '').strip() or archivo.name
+        EventoDocumento.objects.create(evento=evento, archivo=archivo, nombre=nombre)
+    return redirect('detalle_evento', pk=pk)
+
+def eliminar_documento(request, doc_pk):
+    doc = get_object_or_404(EventoDocumento, pk=doc_pk)
+    evento_pk = doc.evento.pk
+    if request.method == 'POST':
+        doc.archivo.delete(save=False)
+        doc.delete()
+    return redirect('detalle_evento', pk=evento_pk)
 
 def calendario(request):
     return render(request, 'core/calendario.html')
