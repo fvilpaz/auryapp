@@ -225,6 +225,73 @@ def eliminar_camarero(request, camarero_pk):
         camarero.delete()
     return redirect('detalle_evento', pk=evento_pk)
 
+def editar_mesas(request, pk):
+    import json as _json
+    evento = get_object_or_404(Evento, pk=pk)
+    MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
+    rangos = evento.rangos.all()
+
+    if request.method == 'POST':
+        if evento.plano_json:
+            try:
+                data = _json.loads(evento.plano_json)
+                # Recorremos por índice posicional
+                mesas_obj = [o for o in data.get('objects', []) if o.get('_tipo') in MESA_TIPOS]
+                for i, o in enumerate(mesas_obj):
+                    prefix = f'mesa_{i}_'
+                    nuevo_nombre = request.POST.get(prefix + 'nombre', '').strip()
+                    if nuevo_nombre:
+                        o['_etiqueta'] = nuevo_nombre
+                        # Actualizar el texto visual dentro del grupo
+                        for sub in o.get('objects', []):
+                            if sub.get('type') == 'text':
+                                sub['text'] = nuevo_nombre
+                    info = o.get('_info') or {}
+                    info['rango']    = request.POST.get(prefix + 'rango', '')
+                    info['pax']      = int(request.POST.get(prefix + 'pax', 0) or 0)
+                    info['carne']    = int(request.POST.get(prefix + 'carne', 0) or 0)
+                    info['pescado']  = int(request.POST.get(prefix + 'pescado', 0) or 0)
+                    info['veg']      = int(request.POST.get(prefix + 'veg', 0) or 0)
+                    info['infantil'] = int(request.POST.get(prefix + 'infantil', 0) or 0)
+                    info['celiaco']  = int(request.POST.get(prefix + 'celiaco', 0) or 0)
+                    info['alergico'] = int(request.POST.get(prefix + 'alergico', 0) or 0)
+                    info['notas']    = request.POST.get(prefix + 'notas', '')
+                    o['_info'] = info
+                evento.plano_json = _json.dumps(data)
+                evento.save(update_fields=['plano_json'])
+            except Exception:
+                pass
+        return redirect('detalle_evento', pk=pk)
+
+    # GET — extraer mesas con sus datos actuales
+    mesas = []
+    if evento.plano_json:
+        try:
+            data = _json.loads(evento.plano_json)
+            for o in data.get('objects', []):
+                if o.get('_tipo') in MESA_TIPOS:
+                    info = o.get('_info') or {}
+                    mesas.append({
+                        'etiqueta': o.get('_etiqueta', ''),
+                        'tipo':     o.get('_tipo', ''),
+                        'rango':    info.get('rango', ''),
+                        'pax':      info.get('pax', ''),
+                        'carne':    info.get('carne', ''),
+                        'pescado':  info.get('pescado', ''),
+                        'veg':      info.get('veg', ''),
+                        'infantil': info.get('infantil', ''),
+                        'celiaco':  info.get('celiaco', ''),
+                        'alergico': info.get('alergico', ''),
+                        'notas':    info.get('notas', ''),
+                    })
+        except Exception:
+            pass
+    return render(request, 'core/editar_mesas.html', {
+        'evento': evento,
+        'mesas': mesas,
+        'rangos': rangos,
+    })
+
 def resumen_mesas(request, pk):
     import json as _json, re as _re
     evento = get_object_or_404(Evento, pk=pk)

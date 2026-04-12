@@ -9,6 +9,7 @@ urlpatterns = [
     path('eventos/<int:pk>/editar/', views.editar_evento, name='editar_evento'),
     path('eventos/<int:pk>/eliminar/', views.eliminar_evento, name='eliminar_evento'),
     path('eventos/<int:pk>/resumen/', views.resumen_mesas, name='resumen_mesas'),
+    path('eventos/<int:pk>/mesas/editar/', views.editar_mesas, name='editar_mesas'),
     path('eventos/<int:pk>/rangos/nuevo/', views.nuevo_rango, name='nuevo_rango'),
     path('eventos/rangos/<int:rango_pk>/eliminar/', views.eliminar_rango, name='eliminar_rango'),
     path('eventos/rangos/<int:rango_pk>/camarero/nuevo/', views.nuevo_camarero, name='nuevo_camarero'),

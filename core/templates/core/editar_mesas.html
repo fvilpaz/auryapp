@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Editar mesas — {{ evento.cliente }}{% endblock %}
+
+{% block content %}
+<div class="bc-section">
+  <div class="bc-section-header">
+    <div>
+      <span class="bc-section-header-title">Editar mesas</span>
+      <p class="bc-text-muted bc-text-sm bc-mt-4">{{ evento.cliente }} &middot; {{ evento.fecha|date:"d M Y" }}</p>
+    </div>
+    <div class="bc-flex bc-gap-8">
+      <button form="form-mesas" type="submit" class="bc-btn bc-btn-primary bc-btn-sm">
+        <i class="ti ti-device-floppy"></i> Guardar cambios
+      </button>
+      <a href="{% url 'detalle_evento' evento.pk %}" class="bc-btn bc-btn-secondary bc-btn-sm">
+        <i class="ti ti-arrow-left"></i> Volver al plano
+      </a>
+    </div>
+  </div>
+
+  {% if mesas %}
+  <form method="post" id="form-mesas">
+    {% csrf_token %}
+    <div class="bc-table-wrapper">
+      <table class="bc-table bc-editar-mesas-tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Rango</th>
+            <th>Pax</th>
+            <th>Carne</th>
+            <th>Pescado</th>
+            <th>Veg.</th>
+            <th>Infantil</th>
+            <th>Celíacos</th>
+            <th>Alérgicos</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in mesas %}
+          <tr>
+            <td>
+              <input type="text" name="mesa_{{ forloop.index0 }}_nombre"
+                     value="{{ m.etiqueta }}" class="bc-editar-input bc-editar-input-nombre" required>
+            </td>
+            <td>
+              <select name="mesa_{{ forloop.index0 }}_rango" class="bc-editar-input">
+                <option value="">—</option>
+                {% for r in rangos %}
+                <option value="{{ r.nombre }}" {% if m.rango == r.nombre %}selected{% endif %}>{{ r.nombre }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_pax"     value="{{ m.pax }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_carne"   value="{{ m.carne }}"    min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_pescado" value="{{ m.pescado }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_veg"     value="{{ m.veg }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_infantil" value="{{ m.infantil }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_celiaco" value="{{ m.celiaco }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="number" name="mesa_{{ forloop.index0 }}_alergico" value="{{ m.alergico }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
+            <td><input type="text"   name="mesa_{{ forloop.index0 }}_notas"   value="{{ m.notas }}"           class="bc-editar-input bc-editar-input-notas"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="bc-section-body" style="padding-top:0;">
+      <button type="submit" class="bc-btn bc-btn-primary bc-btn-sm">
+        <i class="ti ti-device-floppy"></i> Guardar cambios
+      </button>
+    </div>
+  </form>
+  {% else %}
+  <div class="bc-section-body">
+    <p class="bc-text-muted">No hay mesas en el plano todavía.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -236,12 +236,18 @@
     <span class="bc-section-header-title">Plano del evento</span>
     <div class="bc-flex bc-gap-8 bc-flex-center">
       <span id="plano-save-status" class="bc-text-xs bc-text-muted"></span>
+      <button class="bc-btn bc-btn-sm bc-btn-primary bc-plano-btn-guardar" id="btn-guardar-manual" style="display:none;" onclick="guardarPlano()">
+        <i class="ti ti-device-floppy"></i> Guardar
+      </button>
       <button class="bc-btn bc-btn-sm" id="btn-undo" title="Deshacer (Ctrl+Z)" disabled><i class="ti ti-arrow-back-up"></i></button>
       <button class="bc-btn bc-btn-sm" id="btn-redo" title="Rehacer (Ctrl+Y)" disabled><i class="ti ti-arrow-forward-up"></i></button>
       <button class="bc-btn bc-btn-sm bc-btn-danger-ghost" id="btn-reset" title="Borrar todo">
         <i class="ti ti-trash"></i> Resetear
       </button>
       <div class="bc-plano-sep"></div>
+      <a href="{% url 'editar_mesas' evento.pk %}" id="btn-editar-mesas" class="bc-btn bc-btn-secondary bc-btn-sm">
+        <i class="ti ti-table-options"></i> Editar mesas
+      </a>
       <a href="{% url 'resumen_mesas' evento.pk %}" id="btn-resumen-mesas" class="bc-btn bc-btn-secondary bc-btn-sm">
         <i class="ti ti-list-details"></i> Resumen mesas
       </a>
@@ -253,6 +259,13 @@
 
   <!-- Barra de herramientas: elementos -->
   <div class="bc-plano-toolbar">
+    <button class="bc-btn bc-btn-sm bc-btn-secondary" id="btn-modo-mover" title="Activar modo mover">
+      <i class="ti ti-lock"></i> Mover
+    </button>
+    <button class="bc-btn bc-btn-sm bc-btn-secondary" id="btn-sel-todo" title="Seleccionar todo (Ctrl+A)">
+      <i class="ti ti-select-all"></i> Sel. todo
+    </button>
+    <div class="bc-plano-sep"></div>
     <button class="bc-btn bc-btn-sm" data-add="mesa-redonda"><i class="ti ti-circle-filled"></i> Mesa redonda</button>
     <button class="bc-btn bc-btn-sm" data-add="mesa-rect"><i class="ti ti-rectangle-filled"></i> Mesa rect.</button>
     <button class="bc-btn bc-btn-sm" data-add="coctel"><i class="ti ti-circle-dashed"></i> Cóctel</button>
@@ -295,8 +308,12 @@
     <!-- Panel info mesa -->
     <div id="info-panel" class="bc-info-panel" style="display:none;">
       <div class="bc-info-panel-header">
-        <span id="info-panel-titulo" class="bc-font-medium"></span>
-        <button id="btn-cerrar-panel" class="bc-btn bc-btn-sm"><i class="ti ti-x"></i></button>
+        <button id="btn-cerrar-panel" class="bc-btn bc-btn-sm bc-ml-auto"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="bc-info-field">
+        <label>Nombre de la mesa</label>
+        <input type="text" id="info-nombre" placeholder="Ej: Mesa 5, Mesa Nupcial…">
       </div>
 
       <div class="bc-info-field">
@@ -421,15 +438,19 @@ document.getElementById('btn-cancelar-doc').addEventListener('click', function()
 
 // ── Plano Fabric.js ──────────────────────────────────────────────────────
 const wrap = document.getElementById('plano-wrap');
+const isMobile = window.innerWidth < 768;
 const canvas = new fabric.Canvas('plano-canvas', {
-  width: wrap.offsetWidth,
-  height: 620,
+  width: isMobile ? Math.max(wrap.offsetWidth, 600) : wrap.offsetWidth,
+  height: isMobile ? 420 : 620,
   backgroundColor: '#f8f9fb',
   selection: true,
+  allowTouchScrolling: true,
 });
 
 window.addEventListener('resize', function() {
-  canvas.setWidth(wrap.offsetWidth);
+  const mobile = window.innerWidth < 768;
+  const newW = mobile ? Math.max(wrap.offsetWidth, 600) : wrap.offsetWidth;
+  canvas.setWidth(newW);
   canvas.renderAll();
 });
 
@@ -494,6 +515,79 @@ function siguienteNombre(tipo) {
 document.querySelectorAll('[data-add]').forEach(function(btn) {
   btn.addEventListener('click', function() { añadirElemento(this.dataset.add); });
 });
+
+// ── Modo mover / selección ────────────────────────────────────────────────
+let modoMover = false;
+const btnModoMover = document.getElementById('btn-modo-mover');
+
+function aplicarBloqueo(obj, bloqueado) {
+  obj.set({
+    lockMovementX: bloqueado,
+    lockMovementY: bloqueado,
+    lockScalingX:  bloqueado,
+    lockScalingY:  bloqueado,
+    lockRotation:  bloqueado,
+    hasControls:   !bloqueado,
+  });
+}
+
+function setModoMover(activo) {
+  modoMover = activo;
+  canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, !activo); });
+  canvas.renderAll();
+  if (activo) {
+    btnModoMover.classList.add('bc-btn-primary');
+    btnModoMover.classList.remove('bc-btn-secondary');
+    btnModoMover.innerHTML = '<i class="ti ti-lock-open"></i> Mover';
+    btnModoMover.title = 'Desactivar modo mover';
+  } else {
+    btnModoMover.classList.remove('bc-btn-primary');
+    btnModoMover.classList.add('bc-btn-secondary');
+    btnModoMover.innerHTML = '<i class="ti ti-lock"></i> Mover';
+    btnModoMover.title = 'Activar modo mover';
+  }
+}
+
+btnModoMover.addEventListener('click', function() { setModoMover(!modoMover); });
+
+// ── Seleccionar todo ──────────────────────────────────────────────────────
+function seleccionarTodo() {
+  const objs = canvas.getObjects();
+  if (!objs.length) return;
+  // Activar modo mover para poder arrastrar/escalar el conjunto
+  if (!modoMover) setModoMover(true);
+  canvas.discardActiveObject();
+  const sel = new fabric.ActiveSelection(objs, { canvas: canvas });
+  canvas.setActiveObject(sel);
+  canvas.renderAll();
+}
+
+document.getElementById('btn-sel-todo').addEventListener('click', seleccionarTodo);
+
+// Guardar posiciones tras mover/escalar una selección múltiple
+canvas.on('selection:cleared', function() {
+  if (history.length) snapshot();
+});
+
+// Ctrl+A
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+    const tag = document.activeElement ? document.activeElement.tagName : '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    e.preventDefault();
+    seleccionarTodo();
+  }
+});
+
+// Bloquear objetos nuevos si estamos en modo selección
+const _añadirElementoOrig = añadirElemento;
+function añadirElemento(tipo) {
+  _añadirElementoOrig(tipo);
+  if (!modoMover) {
+    const obj = canvas.getActiveObject();
+    if (obj) aplicarBloqueo(obj, true);
+  }
+}
 
 // hex → rgba con alpha
 function hex2rgba(hex, alpha) {
@@ -784,7 +878,7 @@ function aplicarRename() {
     renameTarget._etiqueta = nuevoNombre;
     canvas.renderAll();
     snapshot();
-    scheduleAutosave();
+    guardarPlano(); // guardado inmediato, sin debounce
   }
   renameInput.style.display = 'none';
   renameTarget = null;
@@ -822,13 +916,12 @@ const infoFields = ['rango','pax','carne','pescado','veg','infantil','celiaco','
 function abrirInfoPanel(obj) {
   infoTarget = obj;
   const info = obj._info || {};
-  document.getElementById('info-panel-titulo').textContent = obj._etiqueta || 'Mesa';
+  document.getElementById('info-nombre').value = obj._etiqueta || '';
   infoFields.forEach(function(f) {
     const el = document.getElementById('info-' + f);
     if (el) el.value = info[f] !== undefined ? info[f] : '';
   });
   infoPanel.style.display = 'flex';
-  // Ajustar ancho canvas
   setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
 }
 
@@ -841,6 +934,16 @@ function cerrarInfoPanel() {
 
 function guardarInfoPanel() {
   if (!infoTarget) return;
+
+  // Guardar nombre (renombrar mesa desde el panel)
+  const nuevoNombre = document.getElementById('info-nombre').value.trim();
+  if (nuevoNombre && nuevoNombre !== infoTarget._etiqueta) {
+    infoTarget.getObjects('text').forEach(function(t) { t.set('text', nuevoNombre); });
+    infoTarget._etiqueta = nuevoNombre;
+    canvas.renderAll();
+  }
+
+  // Guardar info de menú/restricciones
   const info = {};
   infoFields.forEach(function(f) {
     const el = document.getElementById('info-' + f);
@@ -849,15 +952,13 @@ function guardarInfoPanel() {
   });
   infoTarget._info = info;
   snapshot();
-  scheduleAutosave();
+  guardarPlano(); // guardado inmediato desde el panel
 }
-
-// La info de pax se muestra en el panel lateral y en la hoja de servicio.
-// No se renderiza en el canvas para mantenerlo limpio y sin conflictos.
 
 // Listeners del panel
 btnAbrirInfo.addEventListener('click', function() { if (selectedObj) abrirInfoPanel(selectedObj); });
 document.getElementById('btn-cerrar-panel').addEventListener('click', cerrarInfoPanel);
+document.getElementById('info-nombre').addEventListener('change', guardarInfoPanel);
 infoFields.forEach(function(f) {
   const el = document.getElementById('info-' + f);
   if (el) el.addEventListener('change', guardarInfoPanel);
@@ -883,6 +984,7 @@ function applySnapshot(json) {
   isUndoRedo = true;
   canvas.loadFromJSON(json, function() {
     canvas.renderAll();
+    canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, !modoMover); });
     recalcularContadores();
     isUndoRedo = false;
     updateUndoRedo();
@@ -925,13 +1027,30 @@ const SAVE_URL = '{% url "guardar_plano" evento.pk %}';
 const saveStatus = document.getElementById('plano-save-status');
 let saveTimer = null;
 
+const btnGuardarManual = document.getElementById('btn-guardar-manual');
+const ES_MOVIL = window.innerWidth < 768;
+
+if (ES_MOVIL) {
+  btnGuardarManual.style.display = '';
+  saveStatus.style.display = 'none';
+}
+
 function setSaveStatus(s) {
+  if (ES_MOVIL) {
+    if (s === 'unsaved') {
+      btnGuardarManual.classList.add('bc-plano-btn-pendiente');
+    } else if (s === 'saved') {
+      btnGuardarManual.classList.remove('bc-plano-btn-pendiente');
+    }
+    return;
+  }
   const map = { saving: '⏳ Guardando…', saved: '✓ Guardado', unsaved: '● Sin guardar', error: '✗ Error al guardar' };
   saveStatus.textContent = map[s] || '';
 }
 
 function scheduleAutosave() {
   setSaveStatus('unsaved');
+  if (ES_MOVIL) return; // en móvil no auto-guardamos
   clearTimeout(saveTimer);
   saveTimer = setTimeout(guardarPlano, 1500);
 }
@@ -947,10 +1066,8 @@ function guardarPlano() {
     .catch(function() { setSaveStatus('error'); });
 }
 
-// ── Resumen mesas: guardar antes de navegar ───────────────────────────────
-document.getElementById('btn-resumen-mesas').addEventListener('click', function(e) {
-  e.preventDefault();
-  const href = this.href;
+// ── Guardar y navegar ────────────────────────────────────────────────────
+function guardarYNavegar(href) {
   clearTimeout(saveTimer);
   const json = canvas.toJSON(EXTRA_PROPS);
   fetch(SAVE_URL, {
@@ -958,6 +1075,12 @@ document.getElementById('btn-resumen-mesas').addEventListener('click', function(
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
     body: JSON.stringify({ plano: json }),
   }).finally(function() { window.location.href = href; });
+}
+['btn-resumen-mesas','btn-editar-mesas'].forEach(function(id) {
+  document.getElementById(id).addEventListener('click', function(e) {
+    e.preventDefault();
+    guardarYNavegar(this.href);
+  });
 });
 
 // Recalcular contadores a partir de los objetos ya cargados en el canvas
@@ -984,8 +1107,21 @@ function recalcularContadores() {
   if (stored && stored.objects) {
     canvas.loadFromJSON(stored, function() {
       canvas.renderAll();
+      // Sincronizar _etiqueta con el texto visual real (corrige bug de rename antiguo)
+      canvas.getObjects().forEach(function(o) {
+        if (o.type !== 'group') return;
+        var textos = o.getObjects('text');
+        if (textos.length > 0) {
+          var textoVisual = textos[textos.length - 1].text; // el último text es la etiqueta
+          if (textoVisual && textoVisual !== o._etiqueta) {
+            o._etiqueta = textoVisual;
+          }
+        }
+      });
+      canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
       recalcularContadores();
-      snapshot();  // primer snapshot tras carga
+      snapshot();
+      guardarPlano(); // persiste la sincronización de nombres
     });
   } else {
     snapshot();  // snapshot inicial vacío
