@@ -45,6 +45,7 @@ class Evento(models.Model):
     concepto = models.CharField(max_length=20, choices=CONCEPTO_CHOICES)
     personas = models.PositiveIntegerField()
     notas = models.TextField(blank=True)
+    plano_json = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

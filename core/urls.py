@@ -8,6 +8,7 @@ urlpatterns = [
     path('eventos/<int:pk>/', views.detalle_evento, name='detalle_evento'),
     path('eventos/<int:pk>/editar/', views.editar_evento, name='editar_evento'),
     path('eventos/<int:pk>/eliminar/', views.eliminar_evento, name='eliminar_evento'),
+    path('eventos/<int:pk>/plano/guardar/', views.guardar_plano, name='guardar_plano'),
     path('eventos/<int:pk>/documentos/subir/', views.subir_documento, name='subir_documento'),
     path('eventos/documentos/<int:doc_pk>/eliminar/', views.eliminar_documento, name='eliminar_documento'),
     path('eventos/json/', views.eventos_json, name='eventos_json'),

@@ -177,7 +177,21 @@ def detalle_evento(request, pk):
     return render(request, 'core/detalle_evento.html', {
         'evento': evento,
         'documentos': documentos,
+        'plano_json': evento.plano_json or '',
     })
+
+def guardar_plano(request, pk):
+    import json as _json
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == 'POST':
+        try:
+            data = _json.loads(request.body)
+            evento.plano_json = _json.dumps(data.get('plano', {}))
+            evento.save(update_fields=['plano_json'])
+            return JsonResponse({'ok': True})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+    return JsonResponse({'ok': False}, status=405)
 
 def subir_documento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)

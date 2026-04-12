@@ -130,7 +130,17 @@
 <div class="bc-section bc-plano-section">
   <div class="bc-section-header">
     <span class="bc-section-header-title">Plano del evento</span>
-    <div class="bc-flex bc-gap-8">
+    <div class="bc-flex bc-gap-8 bc-flex-center">
+      <span id="plano-save-status" class="bc-text-xs bc-text-muted"></span>
+      <button class="bc-btn bc-btn-sm" id="btn-undo" title="Deshacer (Ctrl+Z)" disabled><i class="ti ti-arrow-back-up"></i></button>
+      <button class="bc-btn bc-btn-sm" id="btn-redo" title="Rehacer (Ctrl+Y)" disabled><i class="ti ti-arrow-forward-up"></i></button>
+      <button class="bc-btn bc-btn-sm bc-btn-danger-ghost" id="btn-reset" title="Borrar todo">
+        <i class="ti ti-trash"></i> Resetear
+      </button>
+      <div class="bc-plano-sep"></div>
+      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-hoja-servicio">
+        <i class="ti ti-list-details"></i> Hoja servicio
+      </button>
       <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-exportar-img">
         <i class="ti ti-photo-down"></i> Imagen
       </button>
@@ -144,6 +154,7 @@
   <div class="bc-plano-toolbar">
     <button class="bc-btn bc-btn-sm" data-add="mesa-redonda"><i class="ti ti-circle-filled"></i> Mesa redonda</button>
     <button class="bc-btn bc-btn-sm" data-add="mesa-rect"><i class="ti ti-rectangle-filled"></i> Mesa rect.</button>
+    <button class="bc-btn bc-btn-sm" data-add="coctel"><i class="ti ti-circle-dashed"></i> Cóctel</button>
     <div class="bc-plano-sep"></div>
     <button class="bc-btn bc-btn-sm" data-add="escenario"><i class="ti ti-device-tv"></i> Escenario</button>
     <button class="bc-btn bc-btn-sm" data-add="barra"><i class="ti ti-glass"></i> Barra</button>
@@ -168,12 +179,67 @@
   <div class="bc-plano-colorbar" id="plano-colorbar" style="display:none;">
     <span class="bc-plano-group-label">Color</span>
     <div class="bc-plano-swatches" id="plano-swatches"></div>
+    <button id="btn-abrir-info" class="bc-btn bc-btn-sm bc-btn-secondary" style="display:none; margin-left:12px;">
+      <i class="ti ti-info-circle"></i> Info mesa
+    </button>
     <span class="bc-text-muted bc-text-xs" style="margin-left:auto;">Doble clic = renombrar · Supr = eliminar</span>
   </div>
 
-  <!-- Canvas a ancho completo -->
-  <div class="bc-plano-wrap" id="plano-wrap">
-    <canvas id="plano-canvas"></canvas>
+  <!-- Canvas + panel lateral -->
+  <div class="bc-plano-main">
+    <div class="bc-plano-wrap" id="plano-wrap">
+      <canvas id="plano-canvas"></canvas>
+    </div>
+
+    <!-- Panel info mesa -->
+    <div id="info-panel" class="bc-info-panel" style="display:none;">
+      <div class="bc-info-panel-header">
+        <span id="info-panel-titulo" class="bc-font-medium"></span>
+        <button id="btn-cerrar-panel" class="bc-btn bc-btn-sm"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="bc-info-field">
+        <label>Pax totales</label>
+        <input type="number" id="info-pax" min="0" placeholder="0">
+      </div>
+
+      <div class="bc-info-section-label">Menú</div>
+      <div class="bc-info-grid-2">
+        <div class="bc-info-field">
+          <label>🥩 Carne</label>
+          <input type="number" id="info-carne" min="0" placeholder="0">
+        </div>
+        <div class="bc-info-field">
+          <label>🐟 Pescado</label>
+          <input type="number" id="info-pescado" min="0" placeholder="0">
+        </div>
+        <div class="bc-info-field">
+          <label>🥦 Vegetariano</label>
+          <input type="number" id="info-veg" min="0" placeholder="0">
+        </div>
+        <div class="bc-info-field">
+          <label>👶 Infantil</label>
+          <input type="number" id="info-infantil" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <div class="bc-info-section-label">Restricciones</div>
+      <div class="bc-info-grid-2">
+        <div class="bc-info-field">
+          <label>🌾 Celíacos</label>
+          <input type="number" id="info-celiaco" min="0" placeholder="0">
+        </div>
+        <div class="bc-info-field">
+          <label>🥜 Alérgicos</label>
+          <input type="number" id="info-alergico" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <div class="bc-info-field">
+        <label>Notas</label>
+        <textarea id="info-notas" rows="3" placeholder="Observaciones, peticiones especiales…"></textarea>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -233,6 +299,7 @@ const COLOR_DEFECTO = {
   'planta':       '#16a34a',
   'entrada':      '#10b981',
   'salida':       '#ef4444',
+  'coctel':       '#3b82f6',
   'dj':           '#f97316',
   'tv':           '#1e3a5f',
   'altavoz':      '#64748b',
@@ -242,6 +309,7 @@ const COLOR_DEFECTO = {
 const BASE_NOMBRE = {
   'mesa-redonda': 'Mesa', 'mesa-rect': 'Mesa',
   'escenario': 'Escenario', 'barra': 'Barra', 'zona': 'Área',
+  'coctel': 'Cóctel',
   'columna': '', 'planta': '', 'entrada': 'Entrada', 'salida': 'Salida',
   'dj': 'DJ', 'tv': 'T.V', 'altavoz': '', 'texto': 'Texto',
 };
@@ -347,6 +415,17 @@ function crearGrupo(tipo, etiqueta, color) {
       padding: 28,
       _tipo: 'zona', _etiqueta: etiqueta, _color: color,
     });
+
+  // ── Mesa cóctel (círculo medio, anillo exterior) ──
+  } else if (tipo === 'coctel') {
+    const r = 22;
+    // Anillo exterior para distinguirla de la redonda
+    objs.push(new fabric.Circle({ radius: r + 5, fill: 'transparent', stroke: color, strokeWidth: 1.5, opacity: 0.4, left: -5, top: -5 }));
+    const shape = new fabric.Circle({ radius: r, fill: color, left: 0, top: 0 });
+    shape._main = true;
+    objs.push(shape);
+    if (etiqueta) objs.push(mkLabel(etiqueta, r, r, 10, '#fff'));
+    gx = cx - r - 5; gy = cy - r - 5;
 
   // ── DJ (círculo naranja con texto DJ) ──
   } else if (tipo === 'dj') {
@@ -480,16 +559,21 @@ PALETA_COLORES.forEach(function(c) {
 function mostrarColorbar(obj) {
   selectedObj = obj;
   colorbar.style.display = 'flex';
-  // Marcar color actual
   const colorActual = obj._color || COLOR_DEFECTO[obj._tipo] || '#3b82f6';
   swatchWrap.querySelectorAll('.bc-plano-swatch').forEach(function(s) {
     s.classList.toggle('active', s.dataset.color === colorActual);
   });
+  // Mostrar botón Info solo para mesas
+  btnAbrirInfo.style.display = MESA_TIPOS.includes(obj._tipo) ? '' : 'none';
 }
 
 canvas.on('selection:created',  function(e) { mostrarColorbar(e.selected[0]); });
 canvas.on('selection:updated',  function(e) { mostrarColorbar(e.selected[0]); });
-canvas.on('selection:cleared',  function()  { colorbar.style.display = 'none'; selectedObj = null; });
+canvas.on('selection:cleared',  function()  {
+  colorbar.style.display = 'none';
+  selectedObj = null;
+  cerrarInfoPanel();
+});
 
 // ── Renombrar con doble clic ─────────────────────────────────────────────
 const renameInput = document.getElementById('plano-rename-input');
@@ -553,6 +637,244 @@ document.addEventListener('keydown', function(e) {
     const active = canvas.getActiveObject();
     if (active) { canvas.remove(active); canvas.renderAll(); }
   }
+});
+
+// ── Info panel por mesa ───────────────────────────────────────────────────
+const MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel'];
+const infoPanel  = document.getElementById('info-panel');
+const btnAbrirInfo = document.getElementById('btn-abrir-info');
+let infoTarget = null;
+
+const infoFields = ['pax','carne','pescado','veg','infantil','celiaco','alergico','notas'];
+
+function abrirInfoPanel(obj) {
+  infoTarget = obj;
+  const info = obj._info || {};
+  document.getElementById('info-panel-titulo').textContent = obj._etiqueta || 'Mesa';
+  infoFields.forEach(function(f) {
+    const el = document.getElementById('info-' + f);
+    if (el) el.value = info[f] !== undefined ? info[f] : '';
+  });
+  infoPanel.style.display = 'flex';
+  // Ajustar ancho canvas
+  setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
+}
+
+function cerrarInfoPanel() {
+  infoPanel.style.display = 'none';
+  infoTarget = null;
+  setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
+}
+
+function guardarInfoPanel() {
+  if (!infoTarget) return;
+  const info = {};
+  infoFields.forEach(function(f) {
+    const el = document.getElementById('info-' + f);
+    if (!el) return;
+    info[f] = el.type === 'number' ? (parseInt(el.value) || 0) : el.value;
+  });
+  infoTarget._info = info;
+  // Actualizar etiqueta de pax en canvas si hay pax
+  actualizarPaxLabel(infoTarget);
+  snapshot();
+}
+
+// Pequeña etiqueta de pax debajo de cada mesa
+function actualizarPaxLabel(obj) {
+  const pax = (obj._info && obj._info.pax) ? obj._info.pax + ' pax' : '';
+  // Buscar label existente
+  let label = canvas.getObjects('text').find(function(t) { return t._paxFor === obj.__uid; });
+  if (!pax) {
+    if (label) canvas.remove(label);
+    canvas.renderAll();
+    return;
+  }
+  if (!obj.__uid) obj.__uid = Date.now() + Math.random();
+  const bounds = obj.getBoundingRect();
+  if (!label) {
+    label = new fabric.Text(pax, {
+      fontSize: 10, fill: '#555', fontFamily: 'system-ui,sans-serif',
+      selectable: false, evented: false,
+      _paxFor: obj.__uid,
+    });
+    canvas.add(label);
+  }
+  label.set({ text: pax, left: bounds.left + bounds.width / 2, top: bounds.top + bounds.height + 3, originX: 'center' });
+  label._paxFor = obj.__uid;
+  canvas.renderAll();
+}
+
+// Reposicionar etiqueta al mover mesa
+canvas.on('object:moving', function(e) {
+  const obj = e.target;
+  if (!obj.__uid) return;
+  const label = canvas.getObjects('text').find(function(t) { return t._paxFor === obj.__uid; });
+  if (!label) return;
+  const bounds = obj.getBoundingRect();
+  label.set({ left: bounds.left + bounds.width / 2, top: bounds.top + bounds.height + 3 });
+  canvas.renderAll();
+});
+
+// Listeners del panel
+btnAbrirInfo.addEventListener('click', function() { if (selectedObj) abrirInfoPanel(selectedObj); });
+document.getElementById('btn-cerrar-panel').addEventListener('click', cerrarInfoPanel);
+infoFields.forEach(function(f) {
+  const el = document.getElementById('info-' + f);
+  if (el) el.addEventListener('change', guardarInfoPanel);
+});
+
+// El botón Info se muestra/oculta dentro de mostrarColorbar (ver abajo patch)
+
+// ── Hoja de servicio ──────────────────────────────────────────────────────
+document.getElementById('btn-hoja-servicio').addEventListener('click', function() {
+  const mesas = canvas.getObjects().filter(function(o) {
+    return MESA_TIPOS.includes(o._tipo) && o._etiqueta;
+  }).sort(function(a, b) {
+    return (a._etiqueta || '').localeCompare(b._etiqueta || '', 'es', { numeric: true });
+  });
+
+  if (!mesas.length) { alert('No hay mesas en el plano.'); return; }
+
+  let filas = mesas.map(function(m) {
+    const i = m._info || {};
+    const notas = [
+      i.celiaco  ? i.celiaco  + ' celíaco/s' : '',
+      i.alergico ? i.alergico + ' alérgico/s' : '',
+      i.notas || '',
+    ].filter(Boolean).join(' · ');
+    return '<tr>' +
+      '<td>' + (m._etiqueta || '') + '</td>' +
+      '<td>' + (i.pax      || '—') + '</td>' +
+      '<td>' + (i.carne    || '—') + '</td>' +
+      '<td>' + (i.pescado  || '—') + '</td>' +
+      '<td>' + (i.veg      || '—') + '</td>' +
+      '<td>' + (i.infantil || '—') + '</td>' +
+      '<td>' + (notas      || '—') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+    '<title>Hoja de servicio — {{ evento.cliente }}</title>' +
+    '<style>body{font-family:system-ui,sans-serif;padding:24px}' +
+    'h2{margin-bottom:4px}p{margin:0 0 16px;color:#666}' +
+    'table{width:100%;border-collapse:collapse;font-size:13px}' +
+    'th{background:#1a6fc4;color:#fff;padding:8px 10px;text-align:left}' +
+    'td{padding:7px 10px;border-bottom:1px solid #e5e7eb}' +
+    'tr:nth-child(even) td{background:#f9fafb}' +
+    '@media print{body{padding:8px}}' +
+    '</style></head><body>' +
+    '<h2>{{ evento.cliente }} — {{ evento.fecha|date:"d M Y" }}</h2>' +
+    '<p>{{ evento.get_tipo_display }} · {{ evento.personas }} personas</p>' +
+    '<table><thead><tr>' +
+    '<th>Mesa</th><th>Pax</th><th>Carne</th><th>Pescado</th><th>Veg.</th><th>Infantil</th><th>Notas / Restricciones</th>' +
+    '</tr></thead><tbody>' + filas + '</tbody></table>' +
+    '<script>window.print();<\/script></body></html>';
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+});
+
+// ── Historial Undo/Redo ───────────────────────────────────────────────────
+const EXTRA_PROPS = ['_tipo','_etiqueta','_color','_main'];
+const MAX_HIST = 60;
+let history = [], histIdx = -1, isUndoRedo = false;
+
+function snapshot() {
+  if (isUndoRedo) return;
+  history = history.slice(0, histIdx + 1);
+  history.push(JSON.stringify(canvas.toJSON(EXTRA_PROPS)));
+  if (history.length > MAX_HIST) { history.shift(); } else { histIdx++; }
+  updateUndoRedo();
+  scheduleAutosave();
+}
+
+function applySnapshot(json) {
+  isUndoRedo = true;
+  canvas.loadFromJSON(json, function() { canvas.renderAll(); isUndoRedo = false; updateUndoRedo(); });
+}
+
+function updateUndoRedo() {
+  document.getElementById('btn-undo').disabled = histIdx <= 0;
+  document.getElementById('btn-redo').disabled = histIdx >= history.length - 1;
+}
+
+document.getElementById('btn-undo').addEventListener('click', function() {
+  if (histIdx <= 0) return;
+  histIdx--;
+  applySnapshot(history[histIdx]);
+  scheduleAutosave();
+});
+document.getElementById('btn-redo').addEventListener('click', function() {
+  if (histIdx >= history.length - 1) return;
+  histIdx++;
+  applySnapshot(history[histIdx]);
+  scheduleAutosave();
+});
+
+// Ctrl+Z / Ctrl+Y
+document.addEventListener('keydown', function(e) {
+  if (document.activeElement === renameInput) return;
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); document.getElementById('btn-undo').click(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); document.getElementById('btn-redo').click(); }
+});
+
+// Guardar snapshot en cada cambio relevante
+['object:added','object:modified','object:removed'].forEach(function(ev) {
+  canvas.on(ev, snapshot);
+});
+
+// ── Guardar / Cargar ──────────────────────────────────────────────────────
+const CSRF = '{{ csrf_token }}';
+const SAVE_URL = '{% url "guardar_plano" evento.pk %}';
+const saveStatus = document.getElementById('plano-save-status');
+let saveTimer = null;
+
+function setSaveStatus(s) {
+  const map = { saving: '⏳ Guardando…', saved: '✓ Guardado', unsaved: '● Sin guardar', error: '✗ Error al guardar' };
+  saveStatus.textContent = map[s] || '';
+}
+
+function scheduleAutosave() {
+  setSaveStatus('unsaved');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(guardarPlano, 1500);
+}
+
+function guardarPlano() {
+  const json = canvas.toJSON(EXTRA_PROPS);
+  setSaveStatus('saving');
+  fetch(SAVE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify({ plano: json }),
+  }).then(function(r) { setSaveStatus(r.ok ? 'saved' : 'error'); })
+    .catch(function() { setSaveStatus('error'); });
+}
+
+// Cargar plano guardado al iniciar
+(function() {
+  const stored = {{ plano_json|default:"''"|safe }};
+  if (stored && stored.objects) {
+    canvas.loadFromJSON(stored, function() {
+      canvas.renderAll();
+      snapshot();  // primer snapshot tras carga
+    });
+  } else {
+    snapshot();  // snapshot inicial vacío
+  }
+})();
+
+// ── Resetear ─────────────────────────────────────────────────────────────
+document.getElementById('btn-reset').addEventListener('click', function() {
+  if (!confirm('¿Borrar todo el plano? Esta acción no se puede deshacer.')) return;
+  canvas.clear();
+  canvas.backgroundColor = '#f8f9fb';
+  canvas.renderAll();
+  history = []; histIdx = -1;
+  snapshot();
+  guardarPlano();
 });
 
 // ── Exportar ─────────────────────────────────────────────────────────────
