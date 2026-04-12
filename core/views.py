@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento
+from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento, EventoRango, EventoCamarero
 from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
@@ -174,10 +174,99 @@ def eliminar_evento(request, pk):
 def detalle_evento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     documentos = evento.documentos.all()
+    rangos = evento.rangos.all()
     return render(request, 'core/detalle_evento.html', {
         'evento': evento,
         'documentos': documentos,
+        'rangos': rangos,
         'plano_json': evento.plano_json or '',
+    })
+
+def nuevo_rango(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            EventoRango.objects.create(evento=evento, nombre=nombre, orden=evento.rangos.count())
+    return redirect('detalle_evento', pk=pk)
+
+def eliminar_rango(request, rango_pk):
+    rango = get_object_or_404(EventoRango, pk=rango_pk)
+    evento_pk = rango.evento.pk
+    if request.method == 'POST':
+        rango.delete()
+    return redirect('detalle_evento', pk=evento_pk)
+
+def nuevo_camarero(request, rango_pk):
+    rango = get_object_or_404(EventoRango, pk=rango_pk)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        funcion = request.POST.get('funcion', '').strip()
+        if nombre:
+            EventoCamarero.objects.create(rango=rango, nombre=nombre, funcion=funcion)
+    return redirect('detalle_evento', pk=rango.evento.pk)
+
+def editar_camarero(request, camarero_pk):
+    camarero = get_object_or_404(EventoCamarero, pk=camarero_pk)
+    evento_pk = camarero.rango.evento.pk
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        funcion = request.POST.get('funcion', '').strip()
+        if nombre:
+            camarero.nombre = nombre
+            camarero.funcion = funcion
+            camarero.save()
+    return redirect('detalle_evento', pk=evento_pk)
+
+def eliminar_camarero(request, camarero_pk):
+    camarero = get_object_or_404(EventoCamarero, pk=camarero_pk)
+    evento_pk = camarero.rango.evento.pk
+    if request.method == 'POST':
+        camarero.delete()
+    return redirect('detalle_evento', pk=evento_pk)
+
+def resumen_mesas(request, pk):
+    import json as _json, re as _re
+    evento = get_object_or_404(Evento, pk=pk)
+    TIPOS_DISPONIBLES = [
+        ('mesa-redonda', 'Mesas redondas'),
+        ('mesa-rect',    'Mesas rectangulares'),
+        ('coctel',       'Mesas cóctel'),
+    ]
+    # Por defecto solo mesas (no cóctel); el usuario puede activar con ?tipos=
+    tipos_activos = request.GET.getlist('tipos') or ['mesa-redonda', 'mesa-rect']
+    mesas = []
+    if evento.plano_json:
+        try:
+            data = _json.loads(evento.plano_json)
+            for o in data.get('objects', []):
+                if o.get('_tipo') in tipos_activos and o.get('_etiqueta'):
+                    info = o.get('_info') or {}
+                    rango_raw = info.get('rango', '')
+                    rango = _re.sub(r'\s*\([^)]*\)$', '', rango_raw).strip()
+                    mesas.append({
+                        'etiqueta': o.get('_etiqueta', ''),
+                        'tipo':     o.get('_tipo', ''),
+                        'rango': rango,
+                        'pax': info.get('pax', ''),
+                        'carne': info.get('carne', ''),
+                        'pescado': info.get('pescado', ''),
+                        'veg': info.get('veg', ''),
+                        'infantil': info.get('infantil', ''),
+                        'celiaco': info.get('celiaco', ''),
+                        'alergico': info.get('alergico', ''),
+                        'notas': info.get('notas', ''),
+                    })
+            mesas.sort(key=lambda m: (m['rango'] or 'zzz', m['etiqueta']))
+        except Exception:
+            pass
+    rangos = evento.rangos.prefetch_related('camareros').all()
+    return render(request, 'core/resumen_mesas.html', {
+        'evento': evento,
+        'mesas': mesas,
+        'rangos': rangos,
+        'tipos_disponibles': TIPOS_DISPONIBLES,
+        'tipos_activos': tipos_activos,
     })
 
 def guardar_plano(request, pk):

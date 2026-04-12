@@ -126,6 +126,110 @@
   </div>
 </div>
 
+<!-- Rangos del evento -->
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Rangos</span>
+    <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-nuevo-rango">
+      <i class="ti ti-plus"></i> Añadir rango
+    </button>
+  </div>
+
+  <form method="post" action="{% url 'nuevo_rango' evento.pk %}"
+        id="form-nuevo-rango" style="display:none;" class="bc-section-body">
+    {% csrf_token %}
+    <div class="bc-form-inline">
+      <div class="bc-form-group bc-form-field-grow bc-min-w-180">
+        <label>Nombre del rango</label>
+        <input type="text" name="nombre" placeholder="Ej: Rango A, Salón principal…" required>
+      </div>
+      <div class="bc-btn-row">
+        <button type="submit" class="bc-btn bc-btn-primary bc-btn-sm">
+          <i class="ti ti-device-floppy"></i> Guardar
+        </button>
+        <button type="button" class="bc-btn bc-btn-sm" id="btn-cancelar-rango">Cancelar</button>
+      </div>
+    </div>
+  </form>
+
+  {% if rangos %}
+  <div class="bc-section-body">
+    <div class="bc-rangos-grid">
+      {% for r in rangos %}
+      <div class="bc-rango-card">
+        <div class="bc-rango-header">
+          <span class="bc-font-medium">{{ r.nombre }}</span>
+          <form method="post" action="{% url 'eliminar_rango' r.pk %}" class="bc-inline">
+            {% csrf_token %}
+            <button type="submit" class="bc-btn bc-btn-xs bc-btn-sm" title="Eliminar rango"
+                    onclick="return confirm('¿Eliminar el rango {{ r.nombre }}?')">
+              <i class="ti ti-x bc-icon-xs"></i>
+            </button>
+          </form>
+        </div>
+        <ul class="bc-camarero-list">
+          {% for c in r.camareros.all %}
+          <li class="bc-camarero-item" id="cam-item-{{ c.pk }}">
+            <!-- Modo vista -->
+            <div class="bc-camarero-vista" id="cam-vista-{{ c.pk }}">
+              <i class="ti ti-user bc-icon-sm bc-icon-muted"></i>
+              <span>{{ c.nombre }}</span>
+              {% if c.funcion %}<span class="bc-camarero-funcion">{{ c.funcion }}</span>{% endif %}
+              <div class="bc-camarero-acciones bc-ml-auto bc-shrink-0">
+                <button type="button" class="bc-btn bc-btn-xs bc-btn-sm"
+                        onclick="editarCamarero({{ c.pk }})" title="Editar">
+                  <i class="ti ti-pencil bc-icon-xs"></i>
+                </button>
+                <form method="post" action="{% url 'eliminar_camarero' c.pk %}" class="bc-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="bc-btn bc-btn-xs bc-btn-sm" title="Eliminar">
+                    <i class="ti ti-x bc-icon-xs"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+            <!-- Modo edición -->
+            <form method="post" action="{% url 'editar_camarero' c.pk %}"
+                  class="bc-camarero-edit-form" id="cam-edit-{{ c.pk }}" style="display:none;">
+              {% csrf_token %}
+              <div class="bc-flex-col bc-gap-4 bc-flex-1">
+                <input type="text" name="nombre" value="{{ c.nombre }}" class="bc-camarero-input" required>
+                <input type="text" name="funcion" value="{{ c.funcion }}" class="bc-camarero-input" placeholder="Función (opcional)">
+              </div>
+              <div class="bc-flex-col bc-gap-4 bc-shrink-0">
+                <button type="submit" class="bc-btn bc-btn-xs bc-btn-sm bc-btn-primary" title="Guardar">
+                  <i class="ti ti-check bc-icon-xs"></i>
+                </button>
+                <button type="button" class="bc-btn bc-btn-xs bc-btn-sm"
+                        onclick="cancelarEdicion({{ c.pk }})" title="Cancelar">
+                  <i class="ti ti-x bc-icon-xs"></i>
+                </button>
+              </div>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+        <form method="post" action="{% url 'nuevo_camarero' r.pk %}" class="bc-camarero-add">
+          {% csrf_token %}
+          <div class="bc-flex-col bc-gap-4 bc-flex-1">
+            <input type="text" name="nombre" placeholder="Nombre" class="bc-camarero-input" required>
+            <input type="text" name="funcion" placeholder="Función (opcional)" class="bc-camarero-input">
+          </div>
+          <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary bc-self-end">
+            <i class="ti ti-plus"></i>
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="bc-section-body">
+    <p class="bc-text-muted bc-text-sm">Sin rangos definidos. Añade rangos para asignarlos a las mesas del plano.</p>
+  </div>
+  {% endif %}
+</div>
+
 <!-- Plano interactivo -->
 <div class="bc-section bc-plano-section">
   <div class="bc-section-header">
@@ -138,14 +242,11 @@
         <i class="ti ti-trash"></i> Resetear
       </button>
       <div class="bc-plano-sep"></div>
-      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-hoja-servicio">
-        <i class="ti ti-list-details"></i> Hoja servicio
-      </button>
-      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-exportar-img">
-        <i class="ti ti-photo-down"></i> Imagen
-      </button>
-      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-exportar-pdf">
-        <i class="ti ti-file-type-pdf"></i> PDF
+      <a href="{% url 'resumen_mesas' evento.pk %}" id="btn-resumen-mesas" class="bc-btn bc-btn-secondary bc-btn-sm">
+        <i class="ti ti-list-details"></i> Resumen mesas
+      </a>
+      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-preview-plano">
+        <i class="ti ti-eye"></i> Vista previa
       </button>
     </div>
   </div>
@@ -199,6 +300,15 @@
       </div>
 
       <div class="bc-info-field">
+        <label>Rango</label>
+        <select id="info-rango">
+          <option value="">— Sin rango —</option>
+          {% for r in rangos %}
+          <option value="{{ r.nombre }}">{{ r.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="bc-info-field">
         <label>Pax totales</label>
         <input type="number" id="info-pax" min="0" placeholder="0">
       </div>
@@ -246,6 +356,31 @@
 <!-- Input flotante para renombrar -->
 <input type="text" id="plano-rename-input" class="bc-plano-rename-input" style="display:none;">
 
+<!-- Modal vista previa plano -->
+<div id="modal-preview" class="bc-modal-overlay" style="display:none;">
+  <div class="bc-modal-box bc-modal-box-lg">
+    <div class="bc-modal-header">
+      <span class="bc-font-medium">Vista previa del plano</span>
+      <button id="btn-cerrar-preview" class="bc-btn bc-btn-sm"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="bc-modal-body bc-modal-body-preview">
+      <img id="preview-img" src="" alt="Vista previa" class="bc-preview-img">
+    </div>
+    <div class="bc-modal-footer">
+      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-preview-guardar-img">
+        <i class="ti ti-photo-down"></i> Guardar imagen
+      </button>
+      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-preview-guardar-pdf">
+        <i class="ti ti-file-type-pdf"></i> Guardar PDF
+      </button>
+      <button class="bc-btn bc-btn-primary bc-btn-sm" id="btn-preview-imprimir">
+        <i class="ti ti-printer"></i> Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
 {% endblock %}
 
@@ -253,6 +388,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+// ── Edición inline de camareros ───────────────────────────────────────────
+function editarCamarero(pk) {
+  document.getElementById('cam-vista-' + pk).style.display = 'none';
+  document.getElementById('cam-edit-' + pk).style.display = 'flex';
+  document.getElementById('cam-edit-' + pk).querySelector('input').focus();
+}
+function cancelarEdicion(pk) {
+  document.getElementById('cam-edit-' + pk).style.display = 'none';
+  document.getElementById('cam-vista-' + pk).style.display = 'flex';
+}
+
+// ── Rangos toggle ────────────────────────────────────────────────────────
+document.getElementById('btn-nuevo-rango').addEventListener('click', function() {
+  document.getElementById('form-nuevo-rango').style.display = '';
+  this.style.display = 'none';
+});
+document.getElementById('btn-cancelar-rango').addEventListener('click', function() {
+  document.getElementById('form-nuevo-rango').style.display = 'none';
+  document.getElementById('btn-nuevo-rango').style.display = '';
+});
+
 // ── Subir documento toggle ───────────────────────────────────────────────
 document.getElementById('btn-subir-doc').addEventListener('click', function() {
   document.getElementById('form-subir-doc').style.display = '';
@@ -285,8 +441,18 @@ const PALETA = [
 
 // Paleta de colores temáticos (más suaves, estilo arquitectónico)
 const PALETA_COLORES = [
-  '#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6',
-  '#ec4899','#06b6d4','#64748b','#92400e','#111827',
+  // Azules
+  '#1a6fc4','#3b82f6','#06b6d4',
+  // Verdes
+  '#10b981','#16a34a','#84cc16',
+  // Amarillos / naranjas
+  '#f59e0b','#fbbf24','#f97316',
+  // Rojos / rosas
+  '#ef4444','#ec4899','#e11d48',
+  // Morados
+  '#8b5cf6','#a855f7',
+  // Neutros / oscuros
+  '#64748b','#374151','#92400e','#111827',
 ];
 
 const COLOR_DEFECTO = {
@@ -392,14 +558,18 @@ function crearGrupo(tipo, etiqueta, color) {
 
   } else if (tipo === 'escenario') {
     const [w, h] = [220, 68];
-    objs.push(new fabric.Rect({ width: w, height: h, fill: color, rx: 4, left: 0, top: 0 }));
+    const escRect = new fabric.Rect({ width: w, height: h, fill: color, rx: 4, left: 0, top: 0 });
+    escRect._main = true;
+    objs.push(escRect);
     objs.push(new fabric.Rect({ width: w-12, height: h-12, fill: 'transparent', stroke: 'rgba(255,255,255,0.25)', strokeWidth: 1, rx: 2, left: 6, top: 6 }));
     objs.push(mkLabel(etiqueta, w/2, h/2, 14, '#fff'));
     gx = cx - w/2; gy = cy - h/2;
 
   } else if (tipo === 'barra') {
     const [w, h] = [150, 44];
-    objs.push(new fabric.Rect({ width: w, height: h, fill: color, rx: 4, left: 0, top: 0 }));
+    const barraRect = new fabric.Rect({ width: w, height: h, fill: color, rx: 4, left: 0, top: 0 });
+    barraRect._main = true;
+    objs.push(barraRect);
     objs.push(mkLabel(etiqueta, w/2, h/2, 13, '#fff'));
     gx = cx - w/2; gy = cy - h/2;
 
@@ -601,7 +771,7 @@ canvas.on('mouse:dblclick', function(opt) {
   renameInput.style.display = 'block';
   renameInput.style.left  = (objLeft + objW / 2) + 'px';
   renameInput.style.top   = (objTop - 36) + 'px';
-  renameInput.value = obj.etiqueta || '';
+  renameInput.value = obj._etiqueta || '';
   renameInput.focus();
   renameInput.select();
 });
@@ -609,11 +779,12 @@ canvas.on('mouse:dblclick', function(opt) {
 function aplicarRename() {
   if (!renameTarget) return;
   const nuevoNombre = renameInput.value.trim();
-  if (nuevoNombre) {
-    // Actualizar el objeto Text dentro del Group
+  if (nuevoNombre && nuevoNombre !== renameTarget._etiqueta) {
     renameTarget.getObjects('text').forEach(function(t) { t.set('text', nuevoNombre); });
-    renameTarget.etiqueta = nuevoNombre;
+    renameTarget._etiqueta = nuevoNombre;
     canvas.renderAll();
+    snapshot();
+    scheduleAutosave();
   }
   renameInput.style.display = 'none';
   renameTarget = null;
@@ -631,12 +802,13 @@ document.getElementById('btn-eliminar-elemento').addEventListener('click', funct
   if (active) { canvas.remove(active); canvas.renderAll(); }
 });
 
-// Supr / Delete también elimina
+// Supr / Delete elimina del canvas solo si el foco no está en un campo de texto
 document.addEventListener('keydown', function(e) {
-  if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement !== renameInput) {
-    const active = canvas.getActiveObject();
-    if (active) { canvas.remove(active); canvas.renderAll(); }
-  }
+  if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+  const tag = document.activeElement ? document.activeElement.tagName : '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement === renameInput) return;
+  const active = canvas.getActiveObject();
+  if (active) { canvas.remove(active); canvas.renderAll(); }
 });
 
 // ── Info panel por mesa ───────────────────────────────────────────────────
@@ -645,7 +817,7 @@ const infoPanel  = document.getElementById('info-panel');
 const btnAbrirInfo = document.getElementById('btn-abrir-info');
 let infoTarget = null;
 
-const infoFields = ['pax','carne','pescado','veg','infantil','celiaco','alergico','notas'];
+const infoFields = ['rango','pax','carne','pescado','veg','infantil','celiaco','alergico','notas'];
 
 function abrirInfoPanel(obj) {
   infoTarget = obj;
@@ -661,6 +833,7 @@ function abrirInfoPanel(obj) {
 }
 
 function cerrarInfoPanel() {
+  guardarInfoPanel();
   infoPanel.style.display = 'none';
   infoTarget = null;
   setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
@@ -675,46 +848,12 @@ function guardarInfoPanel() {
     info[f] = el.type === 'number' ? (parseInt(el.value) || 0) : el.value;
   });
   infoTarget._info = info;
-  // Actualizar etiqueta de pax en canvas si hay pax
-  actualizarPaxLabel(infoTarget);
   snapshot();
+  scheduleAutosave();
 }
 
-// Pequeña etiqueta de pax debajo de cada mesa
-function actualizarPaxLabel(obj) {
-  const pax = (obj._info && obj._info.pax) ? obj._info.pax + ' pax' : '';
-  // Buscar label existente
-  let label = canvas.getObjects('text').find(function(t) { return t._paxFor === obj.__uid; });
-  if (!pax) {
-    if (label) canvas.remove(label);
-    canvas.renderAll();
-    return;
-  }
-  if (!obj.__uid) obj.__uid = Date.now() + Math.random();
-  const bounds = obj.getBoundingRect();
-  if (!label) {
-    label = new fabric.Text(pax, {
-      fontSize: 10, fill: '#555', fontFamily: 'system-ui,sans-serif',
-      selectable: false, evented: false,
-      _paxFor: obj.__uid,
-    });
-    canvas.add(label);
-  }
-  label.set({ text: pax, left: bounds.left + bounds.width / 2, top: bounds.top + bounds.height + 3, originX: 'center' });
-  label._paxFor = obj.__uid;
-  canvas.renderAll();
-}
-
-// Reposicionar etiqueta al mover mesa
-canvas.on('object:moving', function(e) {
-  const obj = e.target;
-  if (!obj.__uid) return;
-  const label = canvas.getObjects('text').find(function(t) { return t._paxFor === obj.__uid; });
-  if (!label) return;
-  const bounds = obj.getBoundingRect();
-  label.set({ left: bounds.left + bounds.width / 2, top: bounds.top + bounds.height + 3 });
-  canvas.renderAll();
-});
+// La info de pax se muestra en el panel lateral y en la hoja de servicio.
+// No se renderiza en el canvas para mantenerlo limpio y sin conflictos.
 
 // Listeners del panel
 btnAbrirInfo.addEventListener('click', function() { if (selectedObj) abrirInfoPanel(selectedObj); });
@@ -726,58 +865,8 @@ infoFields.forEach(function(f) {
 
 // El botón Info se muestra/oculta dentro de mostrarColorbar (ver abajo patch)
 
-// ── Hoja de servicio ──────────────────────────────────────────────────────
-document.getElementById('btn-hoja-servicio').addEventListener('click', function() {
-  const mesas = canvas.getObjects().filter(function(o) {
-    return MESA_TIPOS.includes(o._tipo) && o._etiqueta;
-  }).sort(function(a, b) {
-    return (a._etiqueta || '').localeCompare(b._etiqueta || '', 'es', { numeric: true });
-  });
-
-  if (!mesas.length) { alert('No hay mesas en el plano.'); return; }
-
-  let filas = mesas.map(function(m) {
-    const i = m._info || {};
-    const notas = [
-      i.celiaco  ? i.celiaco  + ' celíaco/s' : '',
-      i.alergico ? i.alergico + ' alérgico/s' : '',
-      i.notas || '',
-    ].filter(Boolean).join(' · ');
-    return '<tr>' +
-      '<td>' + (m._etiqueta || '') + '</td>' +
-      '<td>' + (i.pax      || '—') + '</td>' +
-      '<td>' + (i.carne    || '—') + '</td>' +
-      '<td>' + (i.pescado  || '—') + '</td>' +
-      '<td>' + (i.veg      || '—') + '</td>' +
-      '<td>' + (i.infantil || '—') + '</td>' +
-      '<td>' + (notas      || '—') + '</td>' +
-      '</tr>';
-  }).join('');
-
-  const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-    '<title>Hoja de servicio — {{ evento.cliente }}</title>' +
-    '<style>body{font-family:system-ui,sans-serif;padding:24px}' +
-    'h2{margin-bottom:4px}p{margin:0 0 16px;color:#666}' +
-    'table{width:100%;border-collapse:collapse;font-size:13px}' +
-    'th{background:#1a6fc4;color:#fff;padding:8px 10px;text-align:left}' +
-    'td{padding:7px 10px;border-bottom:1px solid #e5e7eb}' +
-    'tr:nth-child(even) td{background:#f9fafb}' +
-    '@media print{body{padding:8px}}' +
-    '</style></head><body>' +
-    '<h2>{{ evento.cliente }} — {{ evento.fecha|date:"d M Y" }}</h2>' +
-    '<p>{{ evento.get_tipo_display }} · {{ evento.personas }} personas</p>' +
-    '<table><thead><tr>' +
-    '<th>Mesa</th><th>Pax</th><th>Carne</th><th>Pescado</th><th>Veg.</th><th>Infantil</th><th>Notas / Restricciones</th>' +
-    '</tr></thead><tbody>' + filas + '</tbody></table>' +
-    '<script>window.print();<\/script></body></html>';
-
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-});
-
 // ── Historial Undo/Redo ───────────────────────────────────────────────────
-const EXTRA_PROPS = ['_tipo','_etiqueta','_color','_main'];
+const EXTRA_PROPS = ['_tipo','_etiqueta','_color','_main','_info'];
 const MAX_HIST = 60;
 let history = [], histIdx = -1, isUndoRedo = false;
 
@@ -792,7 +881,12 @@ function snapshot() {
 
 function applySnapshot(json) {
   isUndoRedo = true;
-  canvas.loadFromJSON(json, function() { canvas.renderAll(); isUndoRedo = false; updateUndoRedo(); });
+  canvas.loadFromJSON(json, function() {
+    canvas.renderAll();
+    recalcularContadores();
+    isUndoRedo = false;
+    updateUndoRedo();
+  });
 }
 
 function updateUndoRedo() {
@@ -853,12 +947,44 @@ function guardarPlano() {
     .catch(function() { setSaveStatus('error'); });
 }
 
+// ── Resumen mesas: guardar antes de navegar ───────────────────────────────
+document.getElementById('btn-resumen-mesas').addEventListener('click', function(e) {
+  e.preventDefault();
+  const href = this.href;
+  clearTimeout(saveTimer);
+  const json = canvas.toJSON(EXTRA_PROPS);
+  fetch(SAVE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify({ plano: json }),
+  }).finally(function() { window.location.href = href; });
+});
+
+// Recalcular contadores a partir de los objetos ya cargados en el canvas
+function recalcularContadores() {
+  canvas.getObjects().forEach(function(o) {
+    if (!o._tipo || !o._etiqueta) return;
+    const base = BASE_NOMBRE[o._tipo];
+    if (!base) return;
+    // Extraer el número al final de la etiqueta (p.ej. "Mesa 3" → 3)
+    const re = new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*(\\d+)$');
+    const m = o._etiqueta.match(re);
+    if (m) {
+      const n = parseInt(m[1]);
+      if (!contadores[o._tipo] || n > contadores[o._tipo]) {
+        contadores[o._tipo] = n;
+      }
+    }
+  });
+}
+
 // Cargar plano guardado al iniciar
 (function() {
   const stored = {{ plano_json|default:"''"|safe }};
   if (stored && stored.objects) {
     canvas.loadFromJSON(stored, function() {
       canvas.renderAll();
+      recalcularContadores();
       snapshot();  // primer snapshot tras carga
     });
   } else {
@@ -877,22 +1003,45 @@ document.getElementById('btn-reset').addEventListener('click', function() {
   guardarPlano();
 });
 
-// ── Exportar ─────────────────────────────────────────────────────────────
-document.getElementById('btn-exportar-img').addEventListener('click', function() {
+// ── Vista previa / Exportar ───────────────────────────────────────────────
+const modalPreview = document.getElementById('modal-preview');
+const previewImg   = document.getElementById('preview-img');
+const SLUG = '{{ evento.cliente|slugify }}';
+
+document.getElementById('btn-preview-plano').addEventListener('click', function() {
   const url = canvas.toDataURL({ format: 'png', multiplier: 2 });
+  previewImg.src = url;
+  modalPreview.style.display = '';
+});
+document.getElementById('btn-cerrar-preview').addEventListener('click', function() {
+  modalPreview.style.display = 'none';
+});
+modalPreview.addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+document.getElementById('btn-preview-guardar-img').addEventListener('click', function() {
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'plano-{{ evento.cliente|slugify }}.png';
+  a.href = previewImg.src;
+  a.download = 'plano-' + SLUG + '.png';
   a.click();
 });
 
-document.getElementById('btn-exportar-pdf').addEventListener('click', function() {
+document.getElementById('btn-preview-guardar-pdf').addEventListener('click', function() {
   const { jsPDF } = window.jspdf;
-  const url = canvas.toDataURL({ format: 'png', multiplier: 2 });
   const w = canvas.getWidth(), h = canvas.getHeight();
-  const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] });
-  pdf.addImage(url, 'PNG', 0, 0, w, h);
-  pdf.save('plano-{{ evento.cliente|slugify }}.pdf');
+  const pdf = new jsPDF({ orientation: w >= h ? 'landscape' : 'portrait', unit: 'px', format: [w, h] });
+  pdf.addImage(previewImg.src, 'PNG', 0, 0, w, h);
+  pdf.save('plano-' + SLUG + '.pdf');
+});
+
+document.getElementById('btn-preview-imprimir').addEventListener('click', function() {
+  const win = window.open('', '_blank');
+  win.document.write('<html><head><title>Plano — {{ evento.cliente }}</title>' +
+    '<style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff;}' +
+    'img{max-width:100%;max-height:100vh;}@media print{body{margin:0;}}</style></head>' +
+    '<body><img src="' + previewImg.src + '" onload="window.print();window.close();"></body></html>');
+  win.document.close();
 });
 </script>
 {% endblock %}

@@ -57,6 +57,30 @@ class Evento(models.Model):
         return f"{self.cliente} — {self.get_tipo_display()} — {self.fecha}"
 
 
+class EventoRango(models.Model):
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='rangos')
+    nombre = models.CharField(max_length=100)
+    orden = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden', 'id']
+
+    def __str__(self):
+        return self.nombre
+
+
+class EventoCamarero(models.Model):
+    rango = models.ForeignKey(EventoRango, on_delete=models.CASCADE, related_name='camareros')
+    nombre = models.CharField(max_length=100)
+    funcion = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return self.nombre
+
+
 class EventoDocumento(models.Model):
     evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='documentos')
     archivo = models.FileField(upload_to='eventos/documentos/')
