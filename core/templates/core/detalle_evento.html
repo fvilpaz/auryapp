@@ -402,6 +402,7 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ plano_json|default:"{}"|json_script:"plano-data" }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -438,19 +439,25 @@ document.getElementById('btn-cancelar-doc').addEventListener('click', function()
 
 // ── Plano Fabric.js ──────────────────────────────────────────────────────
 const wrap = document.getElementById('plano-wrap');
-const isMobile = window.innerWidth < 768;
+const ES_MOVIL = window.innerWidth < 768;
+function calcCanvasW() {
+  return wrap.offsetWidth || window.innerWidth;
+}
+function calcCanvasH() {
+  const h = getComputedStyle(document.documentElement).getPropertyValue('--canvas-height');
+  return parseInt(h) || 620;
+}
 const canvas = new fabric.Canvas('plano-canvas', {
-  width: isMobile ? Math.max(wrap.offsetWidth, 600) : wrap.offsetWidth,
-  height: isMobile ? 420 : 620,
+  width: calcCanvasW(),
+  height: calcCanvasH(),
   backgroundColor: '#f8f9fb',
   selection: true,
   allowTouchScrolling: true,
 });
 
 window.addEventListener('resize', function() {
-  const mobile = window.innerWidth < 768;
-  const newW = mobile ? Math.max(wrap.offsetWidth, 600) : wrap.offsetWidth;
-  canvas.setWidth(newW);
+  canvas.setWidth(calcCanvasW());
+  canvas.setHeight(calcCanvasH());
   canvas.renderAll();
 });
 
@@ -922,14 +929,14 @@ function abrirInfoPanel(obj) {
     if (el) el.value = info[f] !== undefined ? info[f] : '';
   });
   infoPanel.style.display = 'flex';
-  setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
+  setTimeout(function() { canvas.setWidth(calcCanvasW()); canvas.renderAll(); }, 50);
 }
 
 function cerrarInfoPanel() {
   guardarInfoPanel();
   infoPanel.style.display = 'none';
   infoTarget = null;
-  setTimeout(function() { canvas.setWidth(document.getElementById('plano-wrap').offsetWidth); canvas.renderAll(); }, 50);
+  setTimeout(function() { canvas.setWidth(calcCanvasW()); canvas.renderAll(); }, 50);
 }
 
 function guardarInfoPanel() {
@@ -1028,7 +1035,6 @@ const saveStatus = document.getElementById('plano-save-status');
 let saveTimer = null;
 
 const btnGuardarManual = document.getElementById('btn-guardar-manual');
-const ES_MOVIL = window.innerWidth < 768;
 
 if (ES_MOVIL) {
   btnGuardarManual.style.display = '';
@@ -1103,7 +1109,7 @@ function recalcularContadores() {
 
 // Cargar plano guardado al iniciar
 (function() {
-  const stored = {{ plano_json|default:"''"|safe }};
+  const stored = JSON.parse(document.getElementById('plano-data').textContent);
   if (stored && stored.objects) {
     canvas.loadFromJSON(stored, function() {
       canvas.renderAll();

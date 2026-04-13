@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — Beach Club</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="bc-login-page">
+
+  <div class="bc-login-bg"></div>
+  <div class="bc-login-overlay"></div>
+
+  <div class="bc-login-wrap">
+    <div class="bc-login-card">
+
+      <div class="bc-login-header">
+        <div class="bc-login-logo">BC</div>
+        <h1 class="bc-login-title">Beach Club</h1>
+        <p class="bc-login-subtitle" id="saludo"></p>
+      </div>
+
+      {% if form.errors %}
+      <div class="bc-login-error">
+        <i class="ti ti-alert-circle"></i>
+        Usuario o contraseña incorrectos
+      </div>
+      {% endif %}
+
+      <form method="post" class="bc-login-form">
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        <div class="bc-form-field">
+          <label class="bc-label" for="id_username">Usuario</label>
+          <input class="bc-input" type="text" name="username" id="id_username"
+                 autocomplete="username" autofocus required>
+        </div>
+
+        <div class="bc-form-field">
+          <label class="bc-label" for="id_password">Contraseña</label>
+          <input class="bc-input" type="password" name="password" id="id_password"
+                 autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="bc-btn bc-btn-primary bc-login-btn">
+          <i class="ti ti-login"></i> Entrar
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var h = new Date().getHours();
+      var saludo;
+      if (h >= 6 && h < 14)       saludo = 'Buenos días';
+      else if (h >= 14 && h < 21) saludo = 'Buenas tardes';
+      else                         saludo = 'Buenas noches';
+      document.getElementById('saludo').textContent = saludo;
+    })();
+  </script>
+
+</body>
+</html>

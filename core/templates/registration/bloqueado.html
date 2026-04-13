@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso bloqueado — Beach Club</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="bc-login-page">
+
+  <div class="bc-login-wrap">
+    <div class="bc-login-card" style="text-align:center;">
+      <div style="font-size:48px; color:var(--color-danger); margin-bottom:16px;">
+        <i class="ti ti-lock"></i>
+      </div>
+      <h1 class="bc-login-title" style="margin-bottom:8px;">Acceso bloqueado</h1>
+      <p class="bc-login-subtitle" style="margin-bottom:24px;">
+        Demasiados intentos fallidos. Inténtalo de nuevo en <strong>1 hora</strong>
+        o contacta con el administrador.
+      </p>
+      <a href="{% url 'login' %}" class="bc-btn bc-btn-secondary bc-btn-sm">
+        <i class="ti ti-arrow-left"></i> Volver al login
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

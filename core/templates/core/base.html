@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Beach Club{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
@@ -17,9 +17,18 @@
       Beach Club
     </a>
     <ul class="bc-navbar-nav">
-      <li><a href="#" title="Temas" onclick="openPanel(); return false;">🎨</a></li>
     </ul>
-    <div class="bc-navbar-user">AB</div>
+    <div class="bc-navbar-user-wrap">
+      <div class="bc-navbar-user" title="{{ request.user.get_full_name|default:request.user.username }}">
+        {% if request.user.first_name %}{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}
+      </div>
+      <form method="post" action="{% url 'logout' %}" class="bc-logout-form">
+        {% csrf_token %}
+        <button type="submit" class="bc-logout-btn" title="Cerrar sesión">
+          <i class="ti ti-logout"></i>
+        </button>
+      </form>
+    </div>
   </nav>
 
   <main class="bc-page">

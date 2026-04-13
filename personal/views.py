@@ -1,8 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse
 from datetime import timedelta, date
 from .models import Empleado, Turno, SolicitudAusencia
+
+
+def _redirect_seguro(request, next_param, fallback_view, fallback_pk=None):
+    """Redirige solo a URLs internas; nunca a dominios externos."""
+    url = next_param or ''
+    if url and url_has_allowed_host_and_scheme(url, allowed_hosts={request.get_host()}):
+        return redirect(url)
+    if fallback_pk is not None:
+        return redirect(fallback_view, pk=fallback_pk)
+    return redirect(fallback_view)
 
 def cuadrante(request):
     semana_param = request.GET.get('semana')
@@ -195,9 +206,8 @@ def aprobar_solicitud(request, pk):
                 defaults={'estado': solicitud.tipo}
             )
             dia_actual += timedelta(days=1)
-        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
-        if next_url:
-            return redirect(next_url)
+        next_url = request.POST.get('next', '')
+        return _redirect_seguro(request, next_url, 'detalle_empleado', solicitud.empleado.pk)
     return redirect('detalle_empleado', pk=solicitud.empleado.pk)
 
 def rechazar_solicitud(request, pk):
@@ -205,9 +215,8 @@ def rechazar_solicitud(request, pk):
     if request.method == 'POST':
         solicitud.estado = 'rechazada'
         solicitud.save()
-        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
-        if next_url:
-            return redirect(next_url)
+        next_url = request.POST.get('next', '')
+        return _redirect_seguro(request, next_url, 'detalle_empleado', solicitud.empleado.pk)
     return redirect('detalle_empleado', pk=solicitud.empleado.pk)
 
 def lista_solicitudes(request):
@@ -268,4 +277,4 @@ def crear_solicitud(request):
                 fecha_fin=fecha_fin,
                 notas=notas,
             )
-    return redirect(request.POST.get('next', 'lista_solicitudes'))
+    return _redirect_seguro(request, request.POST.get('next', ''), 'lista_solicitudes')

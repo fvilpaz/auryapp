@@ -6,7 +6,15 @@ from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
 
 def dashboard(request):
-    hoy = timezone.now().date()
+    ahora = timezone.localtime(timezone.now())
+    hoy = ahora.date()
+    hora = ahora.hour
+    if 6 <= hora < 14:
+        saludo = 'Buenos días'
+    elif hora < 21:
+        saludo = 'Buenas tardes'
+    else:
+        saludo = 'Buenas noches'
     espacios = Espacio.objects.filter(activo=True)
     eventos_proximos = Evento.objects.filter(fecha__gte=hoy).order_by('fecha')[:5]
     total_eventos_mes = Evento.objects.filter(
@@ -77,6 +85,7 @@ def dashboard(request):
     ).exclude(estado='rechazada').count()
 
     context = {
+        'saludo': saludo,
         'resumen_espacios': resumen_espacios,
         'total_espacios': espacios.count(),
         'eventos_proximos': eventos_proximos,
@@ -345,14 +354,21 @@ def guardar_plano(request, pk):
             evento.plano_json = _json.dumps(data.get('plano', {}))
             evento.save(update_fields=['plano_json'])
             return JsonResponse({'ok': True})
-        except Exception as e:
-            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+        except Exception:
+            return JsonResponse({'ok': False, 'error': 'Error al guardar el plano'}, status=400)
     return JsonResponse({'ok': False}, status=405)
+
+_EXTENSIONES_PERMITIDAS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg', '.gif', '.webp'}
+_TAMANO_MAXIMO = 10 * 1024 * 1024  # 10 MB
 
 def subir_documento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST' and request.FILES.get('archivo'):
         archivo = request.FILES['archivo']
+        import os as _os
+        ext = _os.path.splitext(archivo.name)[1].lower()
+        if ext not in _EXTENSIONES_PERMITIDAS or archivo.size > _TAMANO_MAXIMO:
+            return redirect('detalle_evento', pk=pk)
         nombre = request.POST.get('nombre', '').strip() or archivo.name
         EventoDocumento.objects.create(evento=evento, archivo=archivo, nombre=nombre)
     return redirect('detalle_evento', pk=pk)
