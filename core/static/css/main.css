@@ -1469,41 +1469,49 @@ form { margin: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  background: #06132e;
+  gap: 48px;
+  padding: 40px 32px;
 }
-.bc-login-bg {
-  position: fixed;
-  inset: 0;
-  background-image: url('../img/fondo_login.webp');
-  background-size: cover;
-  background-position: center;
-  filter: blur(1px) brightness(0.75);
-  transform: scale(1.05); /* evita bordes blancos del blur */
-  z-index: 0;
+.bc-login-img-wrap {
+  flex-shrink: 0;
 }
-.bc-login-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 30, 70, 0.45);
-  z-index: 1;
+.bc-login-img {
+  width: 425px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  align-self: stretch;
+  object-fit: cover;
 }
 .bc-login-wrap {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 400px;
-  padding: 20px;
+  width: 380px;
+  flex-shrink: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
 }
 .bc-login-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.97);
   border-radius: var(--radius-lg);
-  padding: 40px 36px;
+  padding: 28px 36px;
   box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+
+/* Móvil: imagen arriba, form abajo */
+@media (max-width: 640px) {
+  .bc-login-page { flex-direction: column; gap: 24px; padding: 24px 20px; }
+  .bc-login-img { width: 240px; margin: 0 auto; }
 }
 .bc-login-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 .bc-login-logo {
   width: 56px;
@@ -1540,8 +1548,26 @@ form { margin: 0; }
   gap: 8px;
   margin-bottom: 20px;
 }
-.bc-login-form { display: flex; flex-direction: column; gap: 16px; }
-.bc-login-btn { width: 100%; justify-content: center; margin-top: 4px; }
+.bc-login-form { display: flex; flex-direction: column; gap: 12px; }
+.bc-login-btn { width: 100%; justify-content: center; padding: 12px; font-size: 14px; }
+.bc-login-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.bc-login-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,111,196,0.12);
+}
+.bc-login-input::placeholder { color: var(--color-muted); }
 
 /* ============================================
    DASHBOARD — SALUDO

@@ -10,8 +10,9 @@
 </head>
 <body class="bc-login-page">
 
-  <div class="bc-login-bg"></div>
-  <div class="bc-login-overlay"></div>
+  <div class="bc-login-img-wrap">
+    <img src="{% static 'img/fondo_login.webp' %}" alt="" class="bc-login-img">
+  </div>
 
   <div class="bc-login-wrap">
     <div class="bc-login-card">
@@ -33,17 +34,11 @@
         {% csrf_token %}
         {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
-        <div class="bc-form-field">
-          <label class="bc-label" for="id_username">Usuario</label>
-          <input class="bc-input" type="text" name="username" id="id_username"
-                 autocomplete="username" autofocus required>
-        </div>
+        <input class="bc-login-input" type="text" name="username" id="id_username"
+               placeholder="Usuario" autocomplete="username" autofocus required>
 
-        <div class="bc-form-field">
-          <label class="bc-label" for="id_password">Contraseña</label>
-          <input class="bc-input" type="password" name="password" id="id_password"
-                 autocomplete="current-password" required>
-        </div>
+        <input class="bc-login-input" type="password" name="password" id="id_password"
+               placeholder="Contraseña" autocomplete="current-password" required>
 
         <button type="submit" class="bc-btn bc-btn-primary bc-login-btn">
           <i class="ti ti-login"></i> Entrar
