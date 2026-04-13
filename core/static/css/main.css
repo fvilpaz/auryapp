@@ -1478,7 +1478,7 @@ form { margin: 0; }
   background-image: url('../img/fondo_login.webp');
   background-size: cover;
   background-position: center;
-  filter: blur(3px) brightness(0.6);
+  filter: blur(1px) brightness(0.75);
   transform: scale(1.05); /* evita bordes blancos del blur */
   z-index: 0;
 }
