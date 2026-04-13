@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  <div class="bc-card-grid bc-grid-2">
+  <div class="bc-grid-auto">
 
     <!-- Info del evento -->
     <div class="bc-card">
@@ -287,6 +287,13 @@
     <button class="bc-btn bc-btn-sm bc-btn-danger-ghost" id="btn-eliminar-elemento">
       <i class="ti ti-trash"></i> Eliminar
     </button>
+    <div class="bc-plano-sep bc-plano-pan-only"></div>
+    <div class="bc-plano-pan-only bc-plano-pan-pad">
+      <button class="bc-btn bc-btn-sm" data-pan="up"    title="Mover arriba"><i class="ti ti-arrow-up"></i></button>
+      <button class="bc-btn bc-btn-sm" data-pan="down"  title="Mover abajo"><i class="ti ti-arrow-down"></i></button>
+      <button class="bc-btn bc-btn-sm" data-pan="left"  title="Mover izquierda"><i class="ti ti-arrow-left"></i></button>
+      <button class="bc-btn bc-btn-sm" data-pan="right" title="Mover derecha"><i class="ti ti-arrow-right"></i></button>
+    </div>
   </div>
 
   <!-- Barra de color (activa cuando hay selección) -->
@@ -1135,6 +1142,17 @@ function recalcularContadores() {
     snapshot();  // snapshot inicial vacío
   }
 })();
+
+// ── Pan del canvas (flechas, solo móvil) ─────────────────────────────────
+const PAN_STEP = 80;
+document.querySelectorAll('[data-pan]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const dir = this.dataset.pan;
+    const dx = dir === 'left' ? PAN_STEP : dir === 'right' ? -PAN_STEP : 0;
+    const dy = dir === 'up'   ? PAN_STEP : dir === 'down'  ? -PAN_STEP : 0;
+    canvas.relativePan(new fabric.Point(dx, dy));
+  });
+});
 
 // ── Resetear ─────────────────────────────────────────────────────────────
 document.getElementById('btn-reset').addEventListener('click', function() {

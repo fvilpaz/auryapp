@@ -1061,6 +1061,18 @@ form { margin: 0; }
   .bc-grid-2 { grid-template-columns: 1fr; }
 }
 
+/* Utilidades responsive: apilar columnas según breakpoint */
+/* bc-stack-sm: apila en ≤480px  */
+/* bc-stack-md: apila en ≤768px  (tablet portrait y móvil) */
+/* bc-stack-lg: apila en ≤900px  */
+@media (max-width: 480px)  { .bc-stack-sm { grid-template-columns: 1fr !important; } }
+@media (max-width: 768px)  { .bc-stack-md { grid-template-columns: 1fr !important; } }
+@media (max-width: 900px)  { .bc-stack-lg { grid-template-columns: 1fr !important; } }
+@media (max-width: 1024px) { .bc-stack-xl { grid-template-columns: 1fr !important; } }
+
+/* bc-grid-auto: apila automáticamente cuando las columnas no caben (sin breakpoints fijos) */
+.bc-grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+
 /* Navbar: ocultar texto "Beach Club" en pantallas muy pequeñas */
 @media (max-width: 420px) {
   .bc-navbar-brand-text { display: none; }
@@ -1312,6 +1324,13 @@ form { margin: 0; }
 .bc-editar-input-nombre { min-width: 120px; }
 .bc-editar-input-num    { min-width: 60px; max-width: 70px; text-align: center; }
 .bc-editar-input-notas  { min-width: 180px; }
+
+/* Flechas de pan del plano (solo en pantallas táctiles, sin importar tamaño) */
+.bc-plano-pan-only { display: none; }
+.bc-plano-pan-pad  { display: flex; gap: 4px; flex-shrink: 0; }
+@media (hover: none) and (pointer: coarse) {
+  .bc-plano-pan-only { display: flex; }
+}
 
 /* Botón guardar manual plano (móvil) */
 .bc-plano-btn-pendiente {
