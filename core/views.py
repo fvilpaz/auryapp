@@ -1,3 +1,5 @@
+import json as _json
+import re as _re
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento, EventoRango, EventoCamarero
@@ -188,7 +190,7 @@ def detalle_evento(request, pk):
         'evento': evento,
         'documentos': documentos,
         'rangos': rangos,
-        'plano_json': evento.plano_json or '',
+        'plano_data': _json.loads(evento.plano_json) if evento.plano_json else {},
     })
 
 def nuevo_rango(request, pk):
@@ -235,7 +237,6 @@ def eliminar_camarero(request, camarero_pk):
     return redirect('detalle_evento', pk=evento_pk)
 
 def editar_mesas(request, pk):
-    import json as _json
     evento = get_object_or_404(Evento, pk=pk)
     MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
     rangos = evento.rangos.all()
@@ -302,7 +303,6 @@ def editar_mesas(request, pk):
     })
 
 def resumen_mesas(request, pk):
-    import json as _json, re as _re
     evento = get_object_or_404(Evento, pk=pk)
     TIPOS_DISPONIBLES = [
         ('mesa-redonda', 'Mesas redondas'),
@@ -346,7 +346,6 @@ def resumen_mesas(request, pk):
     })
 
 def guardar_plano(request, pk):
-    import json as _json
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST':
         try:

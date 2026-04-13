@@ -402,7 +402,7 @@
 {% endblock %}
 
 {% block extra_js %}
-{{ plano_json|default:"{}"|json_script:"plano-data" }}
+{{ plano_data|json_script:"plano-data" }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
