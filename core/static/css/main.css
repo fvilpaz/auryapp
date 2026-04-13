@@ -1328,7 +1328,8 @@ form { margin: 0; }
 /* Scrollbars del plano en táctil/tablet — gordas y con color de tema */
 @media (max-width: 1024px), (hover: none) and (pointer: coarse) {
   .bc-plano-wrap {
-    overflow: auto;
+    overflow: auto !important;
+    height: var(--canvas-height) !important;
     -webkit-overflow-scrolling: touch;
   }
   .bc-plano-wrap::-webkit-scrollbar        { width: 14px; height: 14px; }

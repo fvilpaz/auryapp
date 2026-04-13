@@ -440,12 +440,14 @@ document.getElementById('btn-cancelar-doc').addEventListener('click', function()
 // ── Plano Fabric.js ──────────────────────────────────────────────────────
 const wrap = document.getElementById('plano-wrap');
 const ES_MOVIL = window.innerWidth < 1024;
-const CANVAS_W_MOVIL = 1100; // canvas fijo en táctil, el wrapper scrollea
+const CANVAS_W_MOVIL = 1100; // canvas más ancho que el wrapper → scroll horizontal
+const CANVAS_H_MOVIL = 900;  // canvas más alto que el wrapper  → scroll vertical
 function calcCanvasW() {
   if (ES_MOVIL) return CANVAS_W_MOVIL;
   return wrap.offsetWidth || window.innerWidth;
 }
 function calcCanvasH() {
+  if (ES_MOVIL) return CANVAS_H_MOVIL;
   const h = getComputedStyle(document.documentElement).getPropertyValue('--canvas-height');
   return parseInt(h) || 620;
 }
