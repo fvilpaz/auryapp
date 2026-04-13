@@ -1057,6 +1057,9 @@ form { margin: 0; }
 
 /* Grid 2 columnas */
 .bc-grid-2 { grid-template-columns: 1fr 1fr; }
+@media (max-width: 640px) {
+  .bc-grid-2 { grid-template-columns: 1fr; }
+}
 
 /* Badge pequeño */
 .bc-badge-sm { font-size: 10px; padding: 1px 6px; }
@@ -1365,7 +1368,11 @@ form { margin: 0; }
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+  }
+  /* El canvas en sí necesita touch-action:none para que Fabric.js
+     gestione los eventos y puedas mover mesas con el dedo */
+  .bc-plano-wrap canvas {
+    touch-action: none;
   }
 
   /* Toolbar de elementos (desplazable horizontalmente) */
