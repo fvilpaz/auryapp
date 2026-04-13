@@ -12,4 +12,15 @@ class LoginRequeridoMiddleware:
             ruta = request.path_info
             if not any(ruta.startswith(p) for p in RUTAS_PUBLICAS):
                 return redirect(f"{settings.LOGIN_URL}?next={ruta}")
-        return self.get_response(request)
+        response = self.get_response(request)
+        # Fabric.js necesita unsafe-eval para cargar el canvas desde JSON
+        response['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+            "img-src 'self' data: blob: https:; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none';"
+        )
+        return response
