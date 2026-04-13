@@ -35,6 +35,14 @@
     {% block content %}{% endblock %}
   </main>
 
+  <footer class="bc-footer">
+    <span>AuryApp &copy; {{ request.user.username|default:"" }} 2026</span>
+    <span class="bc-footer-sep">·</span>
+    <a href="https://github.com/fvilpaz" target="_blank" rel="noopener" class="bc-footer-link">
+      <i class="ti ti-brand-github"></i> fvilpaz
+    </a>
+  </footer>
+
   <script>
     window.BC = {
       urls: {
