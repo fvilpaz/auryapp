@@ -1321,36 +1321,71 @@ form { margin: 0; }
    El JS solo lee wrap.offsetWidth y la variable --canvas-height.
    ──────────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  :root {
-    --canvas-height: 460px;
-  }
+  :root { --canvas-height: 460px; }
+
+  /* Evita scroll horizontal en body (rompe position:sticky del nav) */
+  body { overflow-x: clip; }
+
   /* Escapar del padding del bc-page para ocupar el ancho completo */
   .bc-plano-section {
     margin-left: calc(-1 * var(--page-padding)) !important;
     margin-right: calc(-1 * var(--page-padding)) !important;
     width: calc(100% + 2 * var(--page-padding)) !important;
   }
-  .bc-plano-section .bc-section-header { padding: 0 12px 10px; }
+
+  /* Header del plano: título arriba, botones abajo en fila scrollable */
+  .bc-plano-section .bc-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .bc-plano-section .bc-section-header > div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .bc-plano-section .bc-section-header > div::-webkit-scrollbar { display: none; }
+  .bc-plano-section .bc-section-header .bc-btn,
+  .bc-plano-section .bc-section-header a.bc-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  /* Canvas */
   .bc-plano-main { flex-direction: column; }
   .bc-plano-wrap {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x pan-y;
+    touch-action: pan-x;
   }
+
+  /* Toolbar de elementos (desplazable horizontalmente) */
   .bc-plano-toolbar {
     overflow-x: auto; flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     padding: 8px 12px; gap: 4px;
   }
   .bc-plano-toolbar::-webkit-scrollbar { display: none; }
-  .bc-plano-toolbar .bc-btn { font-size: 12px; padding: 5px 8px; white-space: nowrap; }
+  .bc-plano-toolbar .bc-btn { font-size: 12px; padding: 5px 8px; white-space: nowrap; flex-shrink: 0; }
+
+  /* Colorbar */
   .bc-plano-colorbar {
     overflow-x: auto; flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     padding: 6px 12px;
   }
   .bc-plano-colorbar::-webkit-scrollbar { display: none; }
+
+  /* Panel info mesa */
   .bc-info-panel {
     width: 100% !important;
     max-height: none !important;
