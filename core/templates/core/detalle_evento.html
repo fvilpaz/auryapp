@@ -301,17 +301,8 @@
 
   <!-- Canvas + panel lateral -->
   <div class="bc-plano-main">
-    <div class="bc-plano-wrap" id="plano-wrap" style="position:relative;">
+    <div class="bc-plano-wrap" id="plano-wrap">
       <canvas id="plano-canvas"></canvas>
-      <!-- Pad de navegación flotante (solo táctil / tablet) -->
-      <div class="bc-plano-pan-only bc-plano-pan-float">
-        <button class="bc-plano-pan-btn" data-pan="up"><i class="ti ti-arrow-up"></i></button>
-        <div class="bc-plano-pan-row">
-          <button class="bc-plano-pan-btn" data-pan="left"><i class="ti ti-arrow-left"></i></button>
-          <button class="bc-plano-pan-btn" data-pan="down"><i class="ti ti-arrow-down"></i></button>
-          <button class="bc-plano-pan-btn" data-pan="right"><i class="ti ti-arrow-right"></i></button>
-        </div>
-      </div>
     </div>
 
     <!-- Panel info mesa -->
@@ -448,8 +439,10 @@ document.getElementById('btn-cancelar-doc').addEventListener('click', function()
 
 // ── Plano Fabric.js ──────────────────────────────────────────────────────
 const wrap = document.getElementById('plano-wrap');
-const ES_MOVIL = window.innerWidth < 768;
+const ES_MOVIL = window.innerWidth < 1024;
+const CANVAS_W_MOVIL = 1100; // canvas fijo en táctil, el wrapper scrollea
 function calcCanvasW() {
+  if (ES_MOVIL) return CANVAS_W_MOVIL;
   return wrap.offsetWidth || window.innerWidth;
 }
 function calcCanvasH() {
@@ -1144,17 +1137,6 @@ function recalcularContadores() {
     snapshot();  // snapshot inicial vacío
   }
 })();
-
-// ── Pan del canvas (flechas, solo móvil) ─────────────────────────────────
-const PAN_STEP = 80;
-document.querySelectorAll('[data-pan]').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    const dir = this.dataset.pan;
-    const dx = dir === 'left' ? PAN_STEP : dir === 'right' ? -PAN_STEP : 0;
-    const dy = dir === 'up'   ? PAN_STEP : dir === 'down'  ? -PAN_STEP : 0;
-    canvas.relativePan(new fabric.Point(dx, dy));
-  });
-});
 
 // ── Resetear ─────────────────────────────────────────────────────────────
 document.getElementById('btn-reset').addEventListener('click', function() {
