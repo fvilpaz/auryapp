@@ -16,19 +16,29 @@
       <div class="bc-navbar-avatar">BC</div>
       Beach Club
     </a>
-    <ul class="bc-navbar-nav">
-      <li><a href="#" title="Temas" onclick="openPanel(); return false;">🎨</a></li>
-    </ul>
-    <div class="bc-navbar-user-wrap">
-      <div class="bc-navbar-user" title="{{ request.user.get_full_name|default:request.user.username }}">
-        {% if request.user.first_name %}{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}
+    <div class="bc-user-menu" id="bc-user-menu">
+      <button class="bc-user-menu-btn" id="bc-user-menu-btn" type="button">
+        <div class="bc-navbar-user">
+          {% if request.user.first_name %}{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}
+        </div>
+        <i class="ti ti-chevron-down bc-user-caret"></i>
+      </button>
+      <div class="bc-user-menu-dropdown" id="bc-user-menu-dropdown">
+        <div class="bc-user-menu-header">
+          <i class="ti ti-user-circle"></i>
+          {{ request.user.first_name|default:request.user.username }}
+        </div>
+        <div class="bc-user-menu-divider"></div>
+        <div class="bc-user-menu-section-label">🎨 Tema</div>
+        <div class="bc-user-theme-chips" id="bc-user-theme-chips"></div>
+        <div class="bc-user-menu-divider"></div>
+        <form method="post" action="{% url 'logout' %}" style="display:contents;">
+          {% csrf_token %}
+          <button type="submit" class="bc-user-menu-item bc-user-menu-logout">
+            <i class="ti ti-logout"></i> Cerrar sesión
+          </button>
+        </form>
       </div>
-      <form method="post" action="{% url 'logout' %}" class="bc-logout-form">
-        {% csrf_token %}
-        <button type="submit" class="bc-logout-btn" title="Cerrar sesión">
-          <i class="ti ti-logout"></i>
-        </button>
-      </form>
     </div>
   </nav>
 
