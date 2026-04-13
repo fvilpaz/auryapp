@@ -452,7 +452,7 @@ const canvas = new fabric.Canvas('plano-canvas', {
   height: calcCanvasH(),
   backgroundColor: '#f8f9fb',
   selection: true,
-  allowTouchScrolling: true,
+  allowTouchScrolling: false,
 });
 
 window.addEventListener('resize', function() {
@@ -1125,11 +1125,13 @@ function recalcularContadores() {
         }
       });
       canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
+      if (ES_MOVIL) { setModoMover(true); }
       recalcularContadores();
       snapshot();
       guardarPlano(); // persiste la sincronización de nombres
     });
   } else {
+    if (ES_MOVIL) { setModoMover(true); }
     snapshot();  // snapshot inicial vacío
   }
 })();

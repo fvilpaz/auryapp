@@ -1056,9 +1056,14 @@ form { margin: 0; }
 .bc-card-wide    { max-width: 560px; }
 
 /* Grid 2 columnas */
-.bc-grid-2 { grid-template-columns: 1fr 1fr; }
+.bc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 640px) {
   .bc-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Navbar: ocultar texto "Beach Club" en pantallas muy pequeñas */
+@media (max-width: 420px) {
+  .bc-navbar-brand-text { display: none; }
 }
 
 /* Badge pequeño */
