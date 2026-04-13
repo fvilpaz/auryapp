@@ -287,13 +287,6 @@
     <button class="bc-btn bc-btn-sm bc-btn-danger-ghost" id="btn-eliminar-elemento">
       <i class="ti ti-trash"></i> Eliminar
     </button>
-    <div class="bc-plano-sep bc-plano-pan-only"></div>
-    <div class="bc-plano-pan-only bc-plano-pan-pad">
-      <button class="bc-btn bc-btn-sm" data-pan="up"    title="Mover arriba"><i class="ti ti-arrow-up"></i></button>
-      <button class="bc-btn bc-btn-sm" data-pan="down"  title="Mover abajo"><i class="ti ti-arrow-down"></i></button>
-      <button class="bc-btn bc-btn-sm" data-pan="left"  title="Mover izquierda"><i class="ti ti-arrow-left"></i></button>
-      <button class="bc-btn bc-btn-sm" data-pan="right" title="Mover derecha"><i class="ti ti-arrow-right"></i></button>
-    </div>
   </div>
 
   <!-- Barra de color (activa cuando hay selección) -->
@@ -308,8 +301,17 @@
 
   <!-- Canvas + panel lateral -->
   <div class="bc-plano-main">
-    <div class="bc-plano-wrap" id="plano-wrap">
+    <div class="bc-plano-wrap" id="plano-wrap" style="position:relative;">
       <canvas id="plano-canvas"></canvas>
+      <!-- Pad de navegación flotante (solo táctil / tablet) -->
+      <div class="bc-plano-pan-only bc-plano-pan-float">
+        <button class="bc-plano-pan-btn" data-pan="up"><i class="ti ti-arrow-up"></i></button>
+        <div class="bc-plano-pan-row">
+          <button class="bc-plano-pan-btn" data-pan="left"><i class="ti ti-arrow-left"></i></button>
+          <button class="bc-plano-pan-btn" data-pan="down"><i class="ti ti-arrow-down"></i></button>
+          <button class="bc-plano-pan-btn" data-pan="right"><i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
     </div>
 
     <!-- Panel info mesa -->
