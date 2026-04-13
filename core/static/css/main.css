@@ -1325,24 +1325,8 @@ form { margin: 0; }
 .bc-editar-input-num    { min-width: 60px; max-width: 70px; text-align: center; }
 .bc-editar-input-notas  { min-width: 180px; }
 
-/* Scrollbars del plano en táctil/tablet — gordas y con color de tema */
-@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
-  .bc-plano-wrap {
-    overflow: auto !important;
-    height: var(--canvas-height) !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  .bc-plano-wrap::-webkit-scrollbar        { width: 14px; height: 14px; }
-  .bc-plano-wrap::-webkit-scrollbar-track  { background: var(--color-bg); border-radius: 8px; }
-  .bc-plano-wrap::-webkit-scrollbar-thumb  {
-    background: var(--color-primary);
-    border-radius: 8px;
-    border: 3px solid var(--color-bg);
-  }
-  .bc-plano-wrap::-webkit-scrollbar-corner { background: var(--color-bg); }
-  /* Scrollbar estándar (Firefox) */
-  .bc-plano-wrap { scrollbar-width: auto; scrollbar-color: var(--color-primary) var(--color-bg); }
-}
+/* Gestos táctiles en plano: 1 dedo = mover objetos, 2 dedos = pan del viewport
+   El JS intercepta touchstart/touchmove de 2 dedos con canvas.relativePan() */
 
 /* Botón guardar manual plano (móvil) */
 .bc-plano-btn-pendiente {
