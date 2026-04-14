@@ -1146,13 +1146,79 @@ form { margin: 0; }
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background 0.2s, color 0.2s;
 }
+.bc-mic-btn.active {
+  background: var(--color-primary); color: #fff; border-color: var(--color-primary);
+}
 
 /* Nota card */
 .bc-nota-card { flex-direction: row; align-items: flex-start; gap: 12px; padding: 14px 16px; }
-.bc-nota-texto { font-size: 13px; color: var(--color-text); white-space: pre-wrap; }
+.bc-nota-texto { font-size: 13px; color: var(--color-text); white-space: pre-wrap; line-height: 1.5; }
 .bc-nota-fecha { font-size: 11px; color: var(--color-muted); margin-top: 4px; }
 .bc-nota-list  { display: flex; flex-direction: column; gap: 8px; }
+.bc-nota-del   { opacity: 0.4; transition: opacity 0.15s; }
+.bc-nota-del:hover { opacity: 1; color: var(--color-danger); }
 .bc-btn-ghost  { background: none; border: none; cursor: pointer; color: var(--color-muted); padding: 0; line-height: 1; }
+
+/* Agenda 2 columnas */
+.bc-agenda-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.bc-agenda-sidebar .bc-card { padding: 20px; }
+.bc-agenda-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 100px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 13px;
+  color: var(--color-text);
+  font-family: inherit;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.bc-agenda-textarea:focus { border-color: var(--color-primary); }
+.bc-agenda-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: center;
+}
+.bc-agenda-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.bc-agenda-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.bc-agenda-empty i { font-size: 36px; opacity: 0.4; }
+@media (max-width: 768px) {
+  .bc-agenda-layout { grid-template-columns: 1fr; }
+}
 
 /* Date picker input */
 .bc-date-picker {
