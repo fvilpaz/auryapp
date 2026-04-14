@@ -81,6 +81,7 @@ def dashboard(request):
         fecha_vencimiento__isnull=False,
         fecha_vencimiento__year=hoy.year,
     ).order_by('fecha_vencimiento')
+    hay_contratos_vencidos = contratos_proximos.filter(fecha_vencimiento__lt=hoy).exists()
 
     solicitudes_pendientes = SolicitudAusencia.objects.filter(estado='pendiente').count()
     solicitudes_vacaciones = SolicitudAusencia.objects.filter(
@@ -107,6 +108,7 @@ def dashboard(request):
         'solicitudes_pendientes': solicitudes_pendientes,
         'solicitudes_vacaciones': solicitudes_vacaciones,
         'solicitudes_dias': solicitudes_dias,
+        'hay_contratos_vencidos': hay_contratos_vencidos,
         'hoy': hoy,
     }
     return render(request, 'core/dashboard.html', context)

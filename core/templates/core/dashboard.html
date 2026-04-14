@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="bc-dashboard-hero">
-  <img src="https://pngtotal.com/wp-content/uploads/2024/07/cartoon-stitch-png.png"
+  <img src="{% static 'img/stitch.png' %}"
        alt="Stitch"
        class="bc-dashboard-hero-img">
   <div class="bc-dashboard-saludo">
@@ -17,7 +17,7 @@
 
 <div class="bc-section">
   <div class="bc-section-title">Módulos</div>
-  <div class="bc-card-grid bc-card-dock" data-cols="2">
+  <div class="bc-card-grid">
 
     <a href="{% url 'agenda' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-notebook"></i></div>
@@ -55,6 +55,7 @@
     </a>
 
     <a href="{% url 'lista_vacaciones' %}" class="bc-card">
+      {% if solicitudes_pendientes > 0 %}<span class="bc-card-dot"></span>{% endif %}
       <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
       <div class="bc-card-value">{{ solicitudes_vacaciones }}</div>
       <div class="bc-card-label">Vacaciones</div>
@@ -62,6 +63,7 @@
     </a>
 
     <a href="{% url 'lista_dias_sueltos' %}" class="bc-card">
+      {% if solicitudes_pendientes > 0 %}<span class="bc-card-dot"></span>{% endif %}
       <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
       <div class="bc-card-value">{{ solicitudes_dias }}</div>
       <div class="bc-card-label">Días sueltos</div>
@@ -200,6 +202,7 @@
     </div>
 
     <a href="{% url 'lista_vencimientos' %}" class="bc-card bc-card-compact bc-link-plain">
+      {% if hay_contratos_vencidos %}<span class="bc-card-dot danger"></span>{% endif %}
       <div class="bc-notif-label"><i class="ti ti-file-invoice"></i> Vencimientos</div>
       {% for emp in contratos_proximos %}
       <div class="bc-notif-item">

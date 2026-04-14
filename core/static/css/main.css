@@ -233,6 +233,7 @@ body {
   align-items: flex-start;
   gap: 6px;
   min-width: 160px;
+  position: relative;
 }
 .bc-card-grid {
   display: grid;
@@ -259,9 +260,10 @@ body {
 }
 .bc-card-value {
   font-size: 24px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
   align-self: center;
+  color: var(--color-primary);
 }
 .bc-card-label {
   font-size: 13px;
@@ -271,12 +273,26 @@ body {
 }
 .bc-card-sub {
   font-size: 11px;
-  color: var(--color-primary);
+  color: var(--color-muted);
   align-self: center;
 }
 a.bc-card {
   text-decoration: none;
   color: inherit;
+}
+/* Dot de urgencia (notificación pendiente) */
+.bc-card-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-warning);
+  border: 2px solid var(--color-surface);
+}
+.bc-card-dot.danger {
+  background: var(--color-danger);
 }
 
 /* ============================================
