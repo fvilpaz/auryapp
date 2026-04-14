@@ -242,41 +242,40 @@
     el.style.width = el.dataset.pct + '%';
   });
 
-  /* ── Live Tiles: ticker CNN ── */
+  /* ── Live Tiles ── */
   (function() {
-    var PX_PER_CHAR = 0.18;   // segundos por carácter (ajusta velocidad)
-    var MIN_S = 4;             // mínimo 4s aunque el texto sea corto
-    var PAUSE_MS = 600;        // pausa entre ítems
+    var DUR_S   = 2.8;    // segundos por ítem (visible ~65% del tiempo)
+    var GAP_MS  = 200;    // pausa mínima entre ítems
+    var ANIMS   = ['bc-anim-fade', 'bc-anim-up', 'bc-anim-left', 'bc-anim-flip', 'bc-anim-bounce'];
+    var allTiles = Array.from(document.querySelectorAll('.bc-live-tile'));
 
-    document.querySelectorAll('.bc-live-tile').forEach(function(tile) {
+    allTiles.forEach(function(tile, tileIdx) {
       var sub   = tile.querySelector('.bc-live-sub');
       var raw   = tile.dataset.live || '';
       var items = raw.split('|').map(function(s){ return s.trim(); }).filter(Boolean);
       if (!sub || items.length < 2) return;
 
+      var anim   = ANIMS[tileIdx % ANIMS.length];
       var idx    = 0;
       var paused = false;
-      var timer  = null;
 
-      tile.addEventListener('mouseenter', function() { paused = true; });
+      tile.addEventListener('mouseenter', function() { paused = true;  });
       tile.addEventListener('mouseleave', function() { paused = false; });
 
       function showNext() {
-        if (paused) { timer = setTimeout(showNext, 300); return; }
+        if (paused) { setTimeout(showNext, 400); return; }
 
         idx = (idx + 1) % items.length;
-        var text = items[idx];
-        var dur  = Math.max(MIN_S, text.length * PX_PER_CHAR * 10);
+        /* Recrea el span para relanzar la animación */
+        sub.innerHTML = '<span style="animation-name:' + anim
+                      + ';animation-duration:' + DUR_S + 's">'
+                      + items[idx] + '</span>';
 
-        /* Envuelve en span para la animación */
-        sub.innerHTML = '<span style="animation-duration:' + dur + 's">' + text + '</span>';
-
-        timer = setTimeout(showNext, dur * 1000 + PAUSE_MS);
+        setTimeout(showNext, DUR_S * 1000 + GAP_MS);
       }
 
-      /* Arranca tras 2s, escalonado por posición en el grid */
-      var delay = 2000 + Array.from(document.querySelectorAll('.bc-live-tile')).indexOf(tile) * 600;
-      timer = setTimeout(showNext, delay);
+      /* Arranca escalonado: 1.5s + 0.7s por tile */
+      setTimeout(showNext, 1500 + tileIdx * 700);
     });
   })();
 </script>

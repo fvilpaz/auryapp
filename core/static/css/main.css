@@ -286,23 +286,54 @@ body {
   .bc-modules-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── Live Tiles: ticker horizontal estilo CNN ── */
+/* ── Live Tiles ── */
 .bc-live-sub {
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 100%;
   display: block;
+  width: 100%;
+  min-height: 1.4em;
+  text-align: center;
+  will-change: opacity, transform;
 }
 .bc-live-sub span {
   display: inline-block;
-  animation: bc-ticker linear forwards;
-  will-change: transform;
+  animation-fill-mode: both;
+  animation-timing-function: ease;
 }
-@keyframes bc-ticker {
-  0%   { transform: translateX(120%); opacity: 0; }
-  8%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { transform: translateX(-120%); opacity: 0; }
+/* Fade + escala */
+@keyframes bc-anim-fade {
+  0%   { opacity: 0; transform: scale(0.93); }
+  18%  { opacity: 1; transform: scale(1); }
+  78%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+/* Sube desde abajo */
+@keyframes bc-anim-up {
+  0%   { opacity: 0; transform: translateY(10px); }
+  18%  { opacity: 1; transform: translateY(0); }
+  78%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+/* Entra desde la izquierda */
+@keyframes bc-anim-left {
+  0%   { opacity: 0; transform: translateX(-14px); }
+  18%  { opacity: 1; transform: translateX(0); }
+  78%  { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(10px); }
+}
+/* Flip sutil en Y */
+@keyframes bc-anim-flip {
+  0%   { opacity: 0; transform: rotateX(40deg); }
+  18%  { opacity: 1; transform: rotateX(0deg); }
+  78%  { opacity: 1; transform: rotateX(0deg); }
+  100% { opacity: 0; transform: rotateX(-30deg); }
+}
+/* Rebote */
+@keyframes bc-anim-bounce {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.95); }
+  22%  { opacity: 1; transform: translateY(-3px) scale(1.02); }
+  35%  { transform: translateY(0) scale(1); }
+  78%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-6px); }
 }
 a.bc-card {
   text-decoration: none;
