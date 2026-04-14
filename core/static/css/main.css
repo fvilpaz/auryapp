@@ -335,6 +335,14 @@ body {
   78%  { opacity: 1; transform: translateY(0) scale(1); }
   100% { opacity: 0; transform: translateY(-6px); }
 }
+/* Hoja de calendario — Calendario */
+@keyframes bc-anim-page {
+  0%   { opacity: 0; transform: translateY(-18px) scaleY(0.5) rotateX(40deg); transform-origin: top center; }
+  18%  { opacity: 1; transform: translateY(2px)   scaleY(1)   rotateX(-4deg); }
+  28%  { transform: translateY(0) scaleY(1) rotateX(0deg); }
+  75%  { opacity: 1; transform: translateY(0) scaleY(1) rotateX(0deg); }
+  100% { opacity: 0; transform: translateY(14px) scaleY(0.85) rotateX(-20deg); transform-origin: bottom center; }
+}
 /* Baraja — Pedidos */
 @keyframes bc-anim-deal {
   0%   { opacity: 0; transform: translateX(32px) rotate(6deg) scale(0.88); }

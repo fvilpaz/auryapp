@@ -39,11 +39,13 @@
     </a>
 
     <!-- Calendario -->
-    <a href="{% url 'calendario' %}" class="bc-card">
+    <a href="{% url 'calendario' %}" class="bc-card bc-live-tile"
+       data-anim="bc-anim-page"
+       data-live="Esta semana{% for ev in eventos_proximos|slice:':5' %}|{{ ev.fecha|date:'D d M' }}{% endfor %}">
       <div class="bc-card-icon"><i class="ti ti-calendar-month"></i></div>
       <div class="bc-card-value">{{ eventos_esta_semana }}</div>
       <div class="bc-card-label">Calendario</div>
-      <div class="bc-card-sub">Esta semana</div>
+      <div class="bc-card-sub bc-live-sub">Esta semana</div>
     </a>
 
     <!-- Eventos -->
