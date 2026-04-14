@@ -1194,6 +1194,34 @@ function recalcularContadores() {
   });
 }
 
+// Ajusta el zoom del canvas para que todos los objetos sean visibles
+function fitToViewport() {
+  var objs = canvas.getObjects();
+  if (!objs.length) return;
+  var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  objs.forEach(function(o) {
+    var b = o.getBoundingRect(true);
+    if (b.left            < minX) minX = b.left;
+    if (b.top             < minY) minY = b.top;
+    if (b.left + b.width  > maxX) maxX = b.left + b.width;
+    if (b.top  + b.height > maxY) maxY = b.top  + b.height;
+  });
+  var pad   = 24;
+  var cW    = canvas.getWidth();
+  var cH    = canvas.getHeight();
+  var scale = Math.min(
+    cW / (maxX - minX + pad * 2),
+    cH / (maxY - minY + pad * 2),
+    1   // nunca ampliar, solo reducir
+  );
+  canvas.setViewportTransform([
+    scale, 0, 0, scale,
+    pad - minX * scale,
+    pad - minY * scale
+  ]);
+  canvas.renderAll();
+}
+
 // Cargar plano guardado al iniciar
 (function() {
   const stored = JSON.parse(document.getElementById('plano-data').textContent);
@@ -1213,34 +1241,51 @@ function recalcularContadores() {
         }
       });
       canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
-      if (ES_MOVIL) { setModoMover(true); }
+      setModoMover(false);  // siempre arranca bloqueado — pulsa "Mover" para editar
+      if (ES_MOVIL) { fitToViewport(); }
       recalcularContadores();
       snapshot();
       guardarPlano(); // persiste la sincronización de nombres
     });
   } else {
-    if (ES_MOVIL) { setModoMover(true); }
-    snapshot();  // snapshot inicial vacío
+    setModoMover(false);  // plano vacío — también arranca bloqueado
+    snapshot();
   }
 })();
 
 // ── Dropdowns de grupos de herramientas ──────────────────────────────────
+// En móvil (≤768px) la toolbar tiene overflow-x:auto, lo que recorta los
+// dropdowns absolutos. Solución: usar position:fixed con coordenadas del botón.
+function cerrarDropdowns() {
+  document.querySelectorAll('.bc-toolbar-dropdown').forEach(function(d) {
+    d.classList.remove('open');
+    d.style.cssText = '';  // limpia override de position:fixed
+  });
+  document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(b) { b.classList.remove('active'); });
+}
+
 document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(btn) {
   btn.addEventListener('click', function(e) {
     e.stopPropagation();
-    const group = this.dataset.group;
-    const drop  = document.querySelector('.bc-toolbar-dropdown[data-for="' + group + '"]');
-    const isOpen = drop.classList.contains('open');
-    // Cerrar todos
-    document.querySelectorAll('.bc-toolbar-dropdown').forEach(function(d) { d.classList.remove('open'); });
-    document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(b) { b.classList.remove('active'); });
-    if (!isOpen) { drop.classList.add('open'); this.classList.add('active'); }
+    var group  = this.dataset.group;
+    var drop   = document.querySelector('.bc-toolbar-dropdown[data-for="' + group + '"]');
+    var isOpen = drop.classList.contains('open');
+    cerrarDropdowns();
+    if (!isOpen) {
+      drop.classList.add('open');
+      this.classList.add('active');
+      // En móvil: sacar el dropdown del contexto de overflow usando position:fixed
+      if (window.innerWidth <= 768) {
+        var rect = this.getBoundingClientRect();
+        drop.style.position = 'fixed';
+        drop.style.top      = (rect.bottom + 4) + 'px';
+        drop.style.left     = Math.min(rect.left, window.innerWidth - 175) + 'px';
+        drop.style.zIndex   = '500';
+      }
+    }
   });
 });
-document.addEventListener('click', function() {
-  document.querySelectorAll('.bc-toolbar-dropdown').forEach(function(d) { d.classList.remove('open'); });
-  document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(b) { b.classList.remove('active'); });
-});
+document.addEventListener('click', cerrarDropdowns);
 
 // ── Añadir en lote ───────────────────────────────────────────────────────
 const modalLote = document.getElementById('modal-lote');

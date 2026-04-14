@@ -282,8 +282,13 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
+/* Las tarjetas en grid no deben respetar min-width del padre (provoca overflow) */
+.bc-modules-grid .bc-card { min-width: 0; }
 @media (max-width: 900px) {
   .bc-modules-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 380px) {
+  .bc-modules-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Live Tiles ── */
@@ -346,12 +351,13 @@ body {
 .bc-date-flip {
   display: inline-block;
   transform-origin: center center;
-  animation: bc-solari 6s ease infinite;
+  /* Entra al cargar la página y se queda fija — sin bucle continuo */
+  animation: bc-solari 1.5s ease forwards;
 }
 @keyframes bc-solari {
-  0%          { opacity: 0; transform: rotateX(-80deg) scaleY(0.3); }
-  10%, 78%    { opacity: 1; transform: rotateX(0deg)   scaleY(1);   }
-  88%, 100%   { opacity: 0; transform: rotateX(80deg)  scaleY(0.3); }
+  0%   { opacity: 0; transform: rotateX(-80deg) scaleY(0.3); }
+  65%  { opacity: 1; transform: rotateX(0deg)   scaleY(1);   }
+  100% { opacity: 1; transform: rotateX(0deg)   scaleY(1);   }
 }
 /* Baraja — Pedidos */
 @keyframes bc-anim-deal {
@@ -977,6 +983,20 @@ a.bc-link-plain:hover { opacity: 0.7; }
   font-weight: 500;
   color: var(--color-text);
 }
+/* Las flechas prev/next usan una fuente propia de FullCalendar que a veces
+   no carga (se ven cuadrados). Reemplazamos con caracteres de sistema. */
+#fc-toolbar-placeholder .fc-icon-chevron-left::before {
+  content: '\2039' !important;   /* ‹ */
+  font-family: system-ui, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+#fc-toolbar-placeholder .fc-icon-chevron-right::before {
+  content: '\203A' !important;   /* › */
+  font-family: system-ui, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
 
 /* ============================================
    RESPONSIVE
@@ -988,6 +1008,7 @@ a.bc-link-plain:hover { opacity: 0.7; }
   .bc-card-dock {
     grid-template-columns: repeat(2, 1fr);
   }
+  .bc-card-dock .bc-card { min-width: 0; }
 }
 
 /* Móvil landscape y pequeño */
@@ -1063,6 +1084,10 @@ a.bc-link-plain:hover { opacity: 0.7; }
   .bc-card-dock[data-cols="1"] .bc-card { flex: 0 0 85vw !important; }
   .bc-calendar-wrapper { overflow-x: auto !important; }
   .bc-calendar-wrapper .fc .fc-scrollgrid { min-width: 600px !important; }
+  /* Hero: imagen más pequeña para ganar espacio en portrait */
+  .bc-dashboard-hero-img { height: 68px !important; }
+  .bc-dashboard-hero { gap: 12px !important; }
+  .bc-dashboard-saludo-nombre { font-size: 22px !important; }
 }
 /* ============================================
    UTILIDADES
@@ -1212,7 +1237,18 @@ form { margin: 0; }
 
 /* Notif grid 4 columnas */
 .bc-notif-grid-4 { grid-template-columns: repeat(4, 1fr); }
+/* Igual que bc-modules-grid: las cells no deben rebasar la col del grid */
+.bc-notif-grid .bc-card,
+.bc-notif-grid-4 .bc-card { min-width: 0; }
+/* Tablet/landscape móvil: 2 cols para evitar overflow */
+@media (max-width: 768px) {
+  .bc-notif-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .bc-notif-grid   { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 480px) and (orientation: portrait) {
+  .bc-notif-grid   { grid-template-columns: 1fr !important; }
   .bc-notif-grid-4 { grid-template-columns: 1fr !important; }
 }
 
@@ -1254,7 +1290,8 @@ form { margin: 0; }
   gap: 24px;
   align-items: start;
 }
-.bc-agenda-sidebar .bc-card { padding: 20px; }
+.bc-agenda-sidebar .bc-card { padding: 20px; align-items: stretch; }
+.bc-agenda-sidebar .bc-card form { width: 100%; }
 .bc-agenda-textarea {
   width: 100%;
   resize: vertical;
@@ -1826,7 +1863,22 @@ form { margin: 0; }
   90%,97%     { transform: scale(1.15); opacity: 0.7; }
 }
 .bc-w-storm { animation: bc-storm-flash 2s ease-in-out infinite; display: inline-block; }
-@media (max-width: 480px) { .bc-weather { display: none; } }
+/* En móvil portrait el weather baja bajo el saludo en vez de ocultarse */
+@media (max-width: 480px) {
+  .bc-dashboard-hero {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .bc-weather {
+    order: 3;          /* va después de imagen y saludo               */
+    width: 100%;
+    margin-left: 0;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .bc-weather-anim { font-size: 26px; }
+  .bc-weather-temp { font-size: 18px; }
+}
 .bc-dashboard-hero-img {
   height: 100px;
   object-fit: contain;

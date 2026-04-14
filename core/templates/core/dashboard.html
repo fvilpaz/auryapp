@@ -14,12 +14,16 @@
     <span class="bc-dashboard-saludo-nombre">{{ request.user.first_name|default:request.user.username }}</span>
   </div>
 
-  <div class="bc-weather" id="bc-weather" aria-live="polite">
-    <div class="bc-weather-anim" id="bc-weather-anim"></div>
-    <div class="bc-weather-data">
-      <div class="bc-weather-temp" id="bc-weather-temp">--°</div>
-      <div class="bc-weather-desc" id="bc-weather-desc">Cargando...</div>
+  <div class="bc-weather">
+    {% if weather.temp is not None %}
+    <div class="bc-weather-anim">
+      <span class="bc-w-icon {% if weather.desc == 'Despejado' or weather.desc == 'Casi despejado' %}bc-w-sun{% elif weather.desc == 'Lluvia' or weather.desc == 'Llovizna' or weather.desc == 'Chubascos' %}bc-w-rain{% elif weather.desc == 'Nieve' %}bc-w-snow{% elif weather.desc == 'Niebla' %}bc-w-fog{% elif weather.desc == 'Tormenta' %}bc-w-storm{% else %}bc-w-cloud{% endif %}" style="font-size:32px;line-height:1">{{ weather.emoji }}</span>
     </div>
+    <div class="bc-weather-data">
+      <div class="bc-weather-temp">{{ weather.temp }}°</div>
+      <div class="bc-weather-desc">{{ weather.desc }}</div>
+    </div>
+    {% endif %}
   </div>
 </div>
 
@@ -39,7 +43,7 @@
 
     <!-- Turnos -->
     <a href="{% url 'cuadrante' %}" class="bc-card bc-live-tile"
-       data-live="Trabajando hoy{% for t in turnos_hoy %}|{{ t.empleado.nombre }}{% endfor %}">
+       data-live="Trabajando hoy{% for t in turnos_hoy %}|{{ t.empleado.nombre }}{% if t.hora_inicio %} · {{ t.hora_inicio|time:"H:i" }}–{{ t.hora_fin|time:"H:i" }}{% endif %}{% endfor %}">
       <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
       <div class="bc-card-value">{{ turnos_activos_hoy }}</div>
       <div class="bc-card-label">Turnos</div>
@@ -66,11 +70,13 @@
     </a>
 
     <!-- Personal -->
-    <a href="{% url 'lista_empleados' %}" class="bc-card">
+    <a href="{% url 'lista_empleados' %}" class="bc-card bc-live-tile"
+       data-marquee="1"
+       data-live="Plantilla{% for e in empleados_activos %}|{{ e.nombre }} · {{ e.get_rol_display }}{% endfor %}">
       <div class="bc-card-icon"><i class="ti ti-users"></i></div>
       <div class="bc-card-value">{{ total_personal }}</div>
       <div class="bc-card-label">Personal</div>
-      <div class="bc-card-sub">Activos</div>
+      <div class="bc-card-sub bc-live-sub">Plantilla</div>
     </a>
 
     <!-- Vacaciones -->
@@ -255,111 +261,93 @@
     el.style.width = el.dataset.pct + '%';
   });
 
-  /* ── Widget del tiempo ── */
+
+
+  /* ── Live Tiles: ciclo completo por tile, aleatorio, ritmo tranquilo ── */
   (function() {
-    var animEl = document.getElementById('bc-weather-anim');
-    var tempEl = document.getElementById('bc-weather-temp');
-    var descEl = document.getElementById('bc-weather-desc');
-    var LAT_DEFAULT = 39.47, LON_DEFAULT = -0.38; // Valencia por defecto
+    /*
+     * Flujo por tile:
+     *   ítem 1 → [pausa corta] → ítem 2 → [pausa corta] → … → último ítem
+     *   → vuelve al label → [PAUSE_TILE] → siguiente tile (aleatorio)
+     *
+     * DUR_NORMAL   = tiempo visible de cada ítem normal
+     * INNER_GAP_MS = silencio breve entre ítems del mismo tile
+     * PAUSE_TILE   = respiro largo entre tiles distintos
+     * Marquee      = duración ∝ longitud del texto (mín 14 s, máx 24 s)
+     */
+    var DUR_NORMAL   = 4.0;
+    var INNER_GAP_MS = 500;
+    var PAUSE_TILE   = 3500;
+    var ANIMS = ['bc-anim-fade','bc-anim-up','bc-anim-left',
+                 'bc-anim-flip','bc-anim-bounce'];
 
-    var WEATHER = [
-      { max:0,  emoji:'☀️',  cls:'bc-w-sun',     txt:'Despejado'      },
-      { max:2,  emoji:'🌤️', cls:'bc-w-sun',     txt:'Casi despejado' },
-      { max:3,  emoji:'☁️',  cls:'bc-w-cloud',   txt:'Nublado'        },
-      { max:48, emoji:'🌫️', cls:'bc-w-fog',     txt:'Niebla'         },
-      { max:57, emoji:'🌦️', cls:'bc-w-drizzle', txt:'Llovizna'       },
-      { max:67, emoji:'🌧️', cls:'bc-w-rain',    txt:'Lluvia'         },
-      { max:77, emoji:'❄️',  cls:'bc-w-snow',    txt:'Nieve'          },
-      { max:82, emoji:'🌧️', cls:'bc-w-rain',    txt:'Chubascos'      },
-      { max:99, emoji:'⛈️',  cls:'bc-w-storm',   txt:'Tormenta'       },
-    ];
-
-    function weatherFor(code) {
-      return WEATHER.find(function(w){ return code <= w.max; }) || WEATHER[WEATHER.length-1];
-    }
-
-    function render(temp, code) {
-      var w = weatherFor(code);
-      tempEl.textContent = Math.round(temp) + '°';
-      descEl.textContent = w.txt;
-      animEl.innerHTML   = '<span class="bc-w-icon ' + w.cls + '" style="font-size:32px;line-height:1">' + w.emoji + '</span>';
-    }
-
-    function fetchWeather(lat, lon) {
-      var CACHE_KEY = 'bc-weather-cache';
-      var cached = null;
-      try { cached = JSON.parse(localStorage.getItem(CACHE_KEY)); } catch(e) {}
-      if (cached && (Date.now() - cached.ts < 30 * 60 * 1000)) {
-        render(cached.temp, cached.code); return;
-      }
-      var url = 'https://api.open-meteo.com/v1/forecast'
-              + '?latitude=' + lat + '&longitude=' + lon
-              + '&current=temperature_2m,weather_code'
-              + '&timezone=auto';
-      fetch(url)
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          var temp = d.current.temperature_2m;
-          var code = d.current.weather_code;
-          render(temp, code);
-          try { localStorage.setItem(CACHE_KEY, JSON.stringify({temp:temp, code:code, ts:Date.now()})); } catch(e){}
-        })
-        .catch(function(){ descEl.textContent = ''; });
-    }
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function(pos){ fetchWeather(pos.coords.latitude, pos.coords.longitude); },
-        function()   { fetchWeather(LAT_DEFAULT, LON_DEFAULT); },
-        { timeout: 5000 }
-      );
-    } else {
-      fetchWeather(LAT_DEFAULT, LON_DEFAULT);
-    }
-  })();
-
-  /* ── Live Tiles ── */
-  (function() {
-    var DUR_S  = 2.8;
-    var GAP_MS = 200;
-    var ANIMS  = ['bc-anim-fade', 'bc-anim-up', 'bc-anim-left', 'bc-anim-flip', 'bc-anim-bounce'];
-    var allTiles = Array.from(document.querySelectorAll('.bc-live-tile'));
-
-    allTiles.forEach(function(tile, tileIdx) {
-      var sub   = tile.querySelector('.bc-live-sub');
-      var raw   = tile.dataset.live || '';
+    /* ── Construir lista de tiles ── */
+    var tiles = [];
+    Array.from(document.querySelectorAll('.bc-live-tile')).forEach(function(el, i) {
+      var sub   = el.querySelector('.bc-live-sub');
+      var raw   = el.dataset.live || '';
       var items = raw.split('|').map(function(s){ return s.trim(); }).filter(Boolean);
       if (!sub || items.length < 2) return;
 
-      var isMarquee = tile.dataset.marquee === '1';
-      var anim      = isMarquee ? 'bc-anim-marquee'
-                    : (tile.dataset.anim || ANIMS[tileIdx % ANIMS.length]);
-      var idx       = 0;
-      var paused    = false;
+      var isMarquee = el.dataset.marquee === '1';
+      var anim = isMarquee
+        ? 'bc-anim-marquee'
+        : (el.dataset.anim || ANIMS[i % ANIMS.length]);
 
       if (isMarquee) sub.classList.add('bc-live-sub-marquee');
+      sub.textContent = items[0];
 
-      tile.addEventListener('mouseenter', function() { paused = true;  });
-      tile.addEventListener('mouseleave', function() { paused = false; });
+      tiles.push({ sub: sub, items: items, isMarquee: isMarquee, anim: anim });
+    });
 
-      function showNext() {
-        if (paused) { setTimeout(showNext, 400); return; }
+    if (!tiles.length) return;
 
-        /* Salta el índice 0 (label estático) al dar la vuelta */
-        idx = (idx >= items.length - 1) ? 1 : idx + 1;
-        var text = items[idx];
-        /* Duración marquee: proporcional al texto (más largo = más lento para leer) */
-        var dur  = isMarquee ? Math.max(7, text.length * 0.22) : DUR_S;
+    /* ── Cola aleatoria: todos los tiles pasan una vez antes de repetir ── */
+    var cola = [];
+    function rellenarCola() {
+      cola = tiles.slice();
+      for (var i = cola.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cola[i]; cola[i] = cola[j]; cola[j] = tmp;
+      }
+    }
 
-        sub.innerHTML = '<span style="animation-name:' + anim
-                      + ';animation-duration:' + dur + 's">'
-                      + text + '</span>';
-
-        setTimeout(showNext, dur * 1000 + GAP_MS);
+    /* ── Muestra todos los ítems de un tile en orden, luego llama a done() ── */
+    function mostrarTile(t, idx, done) {
+      if (idx >= t.items.length) {
+        /* Ciclo completado: etiqueta estática → respiro → siguiente tile */
+        t.sub.textContent = t.items[0];
+        done();
+        return;
       }
 
-      setTimeout(showNext, 1500 + tileIdx * 700);
-    });
+      var texto = t.items[idx];
+      var dur   = t.isMarquee
+        ? Math.min(24, Math.max(14, texto.length * 0.5))
+        : DUR_NORMAL;
+
+      t.sub.innerHTML = '<span style="animation-name:' + t.anim
+                      + ';animation-duration:' + dur + 's">'
+                      + texto + '</span>';
+
+      setTimeout(function() {
+        t.sub.innerHTML = '';           /* breve silencio entre ítems */
+        setTimeout(function() {
+          mostrarTile(t, idx + 1, done);
+        }, INNER_GAP_MS);
+      }, dur * 1000);
+    }
+
+    /* ── Elegir y lanzar el siguiente tile ── */
+    function siguiente() {
+      if (!cola.length) rellenarCola();
+      var t = cola.shift();
+      mostrarTile(t, 1, function() {
+        setTimeout(siguiente, PAUSE_TILE);
+      });
+    }
+
+    setTimeout(siguiente, 3000);
   })();
 </script>
 {% endblock %}

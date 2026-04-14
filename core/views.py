@@ -1,5 +1,8 @@
 import json as _json
 import re as _re
+import time as _time
+from urllib.request import urlopen as _urlopen
+from urllib.error import URLError as _URLError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento, EventoRango, EventoCamarero
@@ -7,6 +10,45 @@ from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+# ── Weather cache (module-level, 30-min TTL) ──────────────────────────────────
+_weather_cache = {'data': None, 'ts': 0}
+
+_WEATHER_CODES = [
+    (0,  '☀️',  'Despejado'),
+    (2,  '🌤️', 'Casi despejado'),
+    (3,  '☁️',  'Nublado'),
+    (48, '🌫️', 'Niebla'),
+    (57, '🌦️', 'Llovizna'),
+    (67, '🌧️', 'Lluvia'),
+    (77, '❄️',  'Nieve'),
+    (82, '🌧️', 'Chubascos'),
+    (99, '⛈️',  'Tormenta'),
+]
+
+def _get_weather():
+    """Fetch current weather from Open-Meteo for Valencia. Cached 30 min."""
+    global _weather_cache
+    if _weather_cache['data'] and (_time.time() - _weather_cache['ts'] < 1800):
+        return _weather_cache['data']
+    try:
+        url = ('https://api.open-meteo.com/v1/forecast'
+               '?latitude=39.47&longitude=-0.38'
+               '&current=temperature_2m,weather_code&timezone=auto')
+        with _urlopen(url, timeout=4) as resp:
+            d = _json.loads(resp.read())
+        temp = round(d['current']['temperature_2m'])
+        code = d['current']['weather_code']
+        emoji, desc = '🌡️', 'Valencia'
+        for max_code, em, tx in _WEATHER_CODES:
+            if code <= max_code:
+                emoji, desc = em, tx
+                break
+        result = {'temp': temp, 'emoji': emoji, 'desc': desc}
+    except (_URLError, Exception):
+        result = {'temp': None, 'emoji': '🌡️', 'desc': ''}
+    _weather_cache = {'data': result, 'ts': _time.time()}
+    return result
 
 staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
 
@@ -28,6 +70,7 @@ def dashboard(request):
         fecha__month=hoy.month
     ).count()
     total_personal = Empleado.objects.filter(activo=True).count()
+    empleados_activos = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
     turnos_hoy = Turno.objects.filter(
         fecha=hoy,
         estado='trabajo'
@@ -91,13 +134,17 @@ def dashboard(request):
         tipo__in=['libre', 'inamovible', 'libre_vacaciones', 'finde_largo'], fecha_fin__gte=hoy
     ).exclude(estado='rechazada').count()
 
+    weather = _get_weather()
+
     context = {
         'saludo': saludo,
+        'weather': weather,
         'resumen_espacios': resumen_espacios,
         'total_espacios': espacios.count(),
         'eventos_proximos': eventos_proximos,
         'total_eventos_mes': total_eventos_mes,
         'total_personal': total_personal,
+        'empleados_activos': empleados_activos,
         'turnos_hoy': turnos_hoy,
         'turnos_activos_hoy': turnos_hoy.count(),
         'eventos_esta_semana': eventos_esta_semana,
