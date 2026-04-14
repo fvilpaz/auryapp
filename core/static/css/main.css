@@ -21,7 +21,7 @@
   --radius-md:         10px;
   --radius-lg:         14px;
   --navbar-h:          56px;
-  --canvas-height:     620px;
+  --canvas-height:     min(620px, calc(100vh - 180px));
   --page-padding:      24px;
 }
 /* --- Reset mínimo --- */
