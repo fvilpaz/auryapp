@@ -500,7 +500,7 @@ function calcCanvasH() {
 const canvas = new fabric.Canvas('plano-canvas', {
   width: calcCanvasW(),
   height: calcCanvasH(),
-  backgroundColor: '#f8f9fb',
+  backgroundColor: '',   // transparente → se ve la cuadrícula del wrapper
   selection: true,
   allowTouchScrolling: false,
 });
@@ -520,17 +520,19 @@ const PALETA = [
 // Paleta de colores temáticos (más suaves, estilo arquitectónico)
 const PALETA_COLORES = [
   // Azules
-  '#1a6fc4','#3b82f6','#06b6d4',
+  '#1e40af','#1a6fc4','#3b82f6','#60a5fa','#06b6d4','#22d3ee',
   // Verdes
-  '#10b981','#16a34a','#84cc16',
+  '#14532d','#16a34a','#10b981','#34d399','#84cc16','#bef264',
   // Amarillos / naranjas
-  '#f59e0b','#fbbf24','#f97316',
+  '#92400e','#d97706','#f59e0b','#fbbf24','#f97316','#fb923c',
   // Rojos / rosas
-  '#ef4444','#ec4899','#e11d48',
+  '#991b1b','#ef4444','#f87171','#e11d48','#ec4899','#f9a8d4',
   // Morados
-  '#8b5cf6','#a855f7',
-  // Neutros / oscuros
-  '#64748b','#374151','#92400e','#111827',
+  '#4c1d95','#7c3aed','#8b5cf6','#a855f7','#c084fc','#6d28d9',
+  // Neutros
+  '#111827','#374151','#64748b','#94a3b8','#cbd5e1','#92400e',
+  // Especiales
+  '#ffffff','#f0fdf4','#fef9c3','#fce7f3',
 ];
 
 const COLOR_DEFECTO = {
@@ -1296,9 +1298,17 @@ const modalPreview = document.getElementById('modal-preview');
 const previewImg   = document.getElementById('preview-img');
 const SLUG = '{{ evento.cliente|slugify }}';
 
-document.getElementById('btn-preview-plano').addEventListener('click', function() {
+function canvasToDataURL() {
+  canvas.setBackgroundColor('#ffffff', function() {});
+  canvas.renderAll();
   const url = canvas.toDataURL({ format: 'png', multiplier: 2 });
-  previewImg.src = url;
+  canvas.setBackgroundColor('', function() {});
+  canvas.renderAll();
+  return url;
+}
+
+document.getElementById('btn-preview-plano').addEventListener('click', function() {
+  previewImg.src = canvasToDataURL();
   modalPreview.style.display = '';
 });
 document.getElementById('btn-cerrar-preview').addEventListener('click', function() {
@@ -1310,7 +1320,7 @@ modalPreview.addEventListener('click', function(e) {
 
 document.getElementById('btn-preview-guardar-img').addEventListener('click', function() {
   const a = document.createElement('a');
-  a.href = previewImg.src;
+  a.href = canvasToDataURL();
   a.download = 'plano-' + SLUG + '.png';
   a.click();
 });
