@@ -269,23 +269,58 @@
       <i class="ti ti-stack-2"></i> En lote
     </button>
     <div class="bc-plano-sep"></div>
-    <button class="bc-btn bc-btn-sm" data-add="mesa-redonda"><i class="ti ti-circle-filled"></i> Mesa redonda</button>
-    <button class="bc-btn bc-btn-sm" data-add="mesa-rect"><i class="ti ti-rectangle-filled"></i> Mesa rect.</button>
-    <button class="bc-btn bc-btn-sm" data-add="coctel"><i class="ti ti-circle-dashed"></i> Cóctel</button>
-    <div class="bc-plano-sep"></div>
-    <button class="bc-btn bc-btn-sm" data-add="escenario"><i class="ti ti-device-tv"></i> Escenario</button>
-    <button class="bc-btn bc-btn-sm" data-add="barra"><i class="ti ti-glass"></i> Barra</button>
-    <button class="bc-btn bc-btn-sm" data-add="zona"><i class="ti ti-border-outer"></i> Área</button>
-    <div class="bc-plano-sep"></div>
-    <button class="bc-btn bc-btn-sm" data-add="dj"><i class="ti ti-vinyl"></i> DJ</button>
-    <button class="bc-btn bc-btn-sm" data-add="tv"><i class="ti ti-device-tv"></i> TV</button>
-    <button class="bc-btn bc-btn-sm" data-add="altavoz"><i class="ti ti-speakerphone"></i> Altavoz</button>
-    <button class="bc-btn bc-btn-sm" data-add="planta"><i class="ti ti-leaf"></i> Planta</button>
-    <button class="bc-btn bc-btn-sm" data-add="columna"><i class="ti ti-square-filled"></i> Columna</button>
-    <button class="bc-btn bc-btn-sm" data-add="entrada"><i class="ti ti-door-enter"></i> Entrada</button>
-    <button class="bc-btn bc-btn-sm" data-add="salida"><i class="ti ti-door-exit"></i> Salida</button>
-    <div class="bc-plano-sep"></div>
+
+    <!-- Grupo: Mesas -->
+    <div class="bc-toolbar-group">
+      <button class="bc-btn bc-btn-sm bc-toolbar-group-btn" data-group="mesas">
+        <i class="ti ti-circle-filled"></i> Mesas <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+      </button>
+      <div class="bc-toolbar-dropdown" data-for="mesas">
+        <button class="bc-btn bc-btn-sm" data-add="mesa-redonda"><i class="ti ti-circle-filled"></i> Mesa redonda</button>
+        <button class="bc-btn bc-btn-sm" data-add="mesa-rect"><i class="ti ti-rectangle-filled"></i> Mesa rect.</button>
+        <button class="bc-btn bc-btn-sm" data-add="coctel"><i class="ti ti-circle-dashed"></i> Cóctel</button>
+      </div>
+    </div>
+
+    <!-- Grupo: Elementos -->
+    <div class="bc-toolbar-group">
+      <button class="bc-btn bc-btn-sm bc-toolbar-group-btn" data-group="elementos">
+        <i class="ti ti-device-tv"></i> Elementos <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+      </button>
+      <div class="bc-toolbar-dropdown" data-for="elementos">
+        <button class="bc-btn bc-btn-sm" data-add="escenario"><i class="ti ti-device-tv"></i> Escenario</button>
+        <button class="bc-btn bc-btn-sm" data-add="barra"><i class="ti ti-glass"></i> Barra</button>
+        <button class="bc-btn bc-btn-sm" data-add="dj"><i class="ti ti-vinyl"></i> DJ</button>
+        <button class="bc-btn bc-btn-sm" data-add="tv"><i class="ti ti-device-tv"></i> TV</button>
+        <button class="bc-btn bc-btn-sm" data-add="altavoz"><i class="ti ti-speakerphone"></i> Altavoz</button>
+      </div>
+    </div>
+
+    <!-- Grupo: Espacio -->
+    <div class="bc-toolbar-group">
+      <button class="bc-btn bc-btn-sm bc-toolbar-group-btn" data-group="espacio">
+        <i class="ti ti-border-outer"></i> Espacio <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+      </button>
+      <div class="bc-toolbar-dropdown" data-for="espacio">
+        <button class="bc-btn bc-btn-sm" data-add="zona"><i class="ti ti-border-outer"></i> Área</button>
+        <button class="bc-btn bc-btn-sm" data-add="planta"><i class="ti ti-leaf"></i> Planta</button>
+        <button class="bc-btn bc-btn-sm" data-add="columna"><i class="ti ti-square-filled"></i> Columna</button>
+      </div>
+    </div>
+
+    <!-- Grupo: Accesos -->
+    <div class="bc-toolbar-group">
+      <button class="bc-btn bc-btn-sm bc-toolbar-group-btn" data-group="accesos">
+        <i class="ti ti-door-enter"></i> Accesos <i class="ti ti-chevron-down" style="font-size:11px;"></i>
+      </button>
+      <div class="bc-toolbar-dropdown" data-for="accesos">
+        <button class="bc-btn bc-btn-sm" data-add="entrada"><i class="ti ti-door-enter"></i> Entrada</button>
+        <button class="bc-btn bc-btn-sm" data-add="salida"><i class="ti ti-door-exit"></i> Salida</button>
+      </div>
+    </div>
+
     <button class="bc-btn bc-btn-sm" data-add="texto"><i class="ti ti-text-size"></i> Texto</button>
+
     <div class="bc-plano-sep"></div>
     <button class="bc-btn bc-btn-sm bc-btn-danger-ghost" id="btn-eliminar-elemento">
       <i class="ti ti-trash"></i> Eliminar
@@ -1188,6 +1223,24 @@ function recalcularContadores() {
     snapshot();  // snapshot inicial vacío
   }
 })();
+
+// ── Dropdowns de grupos de herramientas ──────────────────────────────────
+document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const group = this.dataset.group;
+    const drop  = document.querySelector('.bc-toolbar-dropdown[data-for="' + group + '"]');
+    const isOpen = drop.classList.contains('open');
+    // Cerrar todos
+    document.querySelectorAll('.bc-toolbar-dropdown').forEach(function(d) { d.classList.remove('open'); });
+    document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (!isOpen) { drop.classList.add('open'); this.classList.add('active'); }
+  });
+});
+document.addEventListener('click', function() {
+  document.querySelectorAll('.bc-toolbar-dropdown').forEach(function(d) { d.classList.remove('open'); });
+  document.querySelectorAll('.bc-toolbar-group-btn').forEach(function(b) { b.classList.remove('active'); });
+});
 
 // ── Añadir en lote ───────────────────────────────────────────────────────
 const modalLote = document.getElementById('modal-lote');

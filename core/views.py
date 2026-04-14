@@ -6,7 +6,11 @@ from .models import Espacio, Evento, ArticuloPedido, Nota, EventoDocumento, Even
 from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
+
+@login_required(login_url='/login/')
 def dashboard(request):
     ahora = timezone.localtime(timezone.now())
     hoy = ahora.date()
@@ -107,6 +111,7 @@ def dashboard(request):
     }
     return render(request, 'core/dashboard.html', context)
 
+@login_required(login_url='/login/')
 def lista_eventos(request):
     eventos = Evento.objects.all().order_by('fecha')
     context = {
@@ -114,6 +119,7 @@ def lista_eventos(request):
     }
     return render(request, 'core/eventos.html', context)
 
+@login_required(login_url='/login/')
 def eventos_json(request):
     eventos = Evento.objects.all()
     data = []
@@ -134,6 +140,7 @@ def eventos_json(request):
         })
     return JsonResponse(data, safe=False)
 
+@staff_required
 def nuevo_evento(request):
     espacios = Espacio.objects.filter(activo=True)
     if request.method == 'POST':
@@ -155,6 +162,7 @@ def nuevo_evento(request):
         'fecha_inicial': request.GET.get('fecha', ''),
     })
 
+@staff_required
 def editar_evento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     espacios = Espacio.objects.filter(activo=True)
@@ -176,12 +184,14 @@ def editar_evento(request, pk):
         'fecha_inicial': '',
     })
 
+@staff_required
 def eliminar_evento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST':
         evento.delete()
     return redirect('lista_eventos')
 
+@login_required(login_url='/login/')
 def detalle_evento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     documentos = evento.documentos.all()
@@ -193,6 +203,7 @@ def detalle_evento(request, pk):
         'plano_data': _json.loads(evento.plano_json) if evento.plano_json else {},
     })
 
+@staff_required
 def nuevo_rango(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST':
@@ -201,6 +212,7 @@ def nuevo_rango(request, pk):
             EventoRango.objects.create(evento=evento, nombre=nombre, orden=evento.rangos.count())
     return redirect('detalle_evento', pk=pk)
 
+@staff_required
 def eliminar_rango(request, rango_pk):
     rango = get_object_or_404(EventoRango, pk=rango_pk)
     evento_pk = rango.evento.pk
@@ -208,6 +220,7 @@ def eliminar_rango(request, rango_pk):
         rango.delete()
     return redirect('detalle_evento', pk=evento_pk)
 
+@staff_required
 def nuevo_camarero(request, rango_pk):
     rango = get_object_or_404(EventoRango, pk=rango_pk)
     if request.method == 'POST':
@@ -217,6 +230,7 @@ def nuevo_camarero(request, rango_pk):
             EventoCamarero.objects.create(rango=rango, nombre=nombre, funcion=funcion)
     return redirect('detalle_evento', pk=rango.evento.pk)
 
+@staff_required
 def editar_camarero(request, camarero_pk):
     camarero = get_object_or_404(EventoCamarero, pk=camarero_pk)
     evento_pk = camarero.rango.evento.pk
@@ -229,6 +243,7 @@ def editar_camarero(request, camarero_pk):
             camarero.save()
     return redirect('detalle_evento', pk=evento_pk)
 
+@staff_required
 def eliminar_camarero(request, camarero_pk):
     camarero = get_object_or_404(EventoCamarero, pk=camarero_pk)
     evento_pk = camarero.rango.evento.pk
@@ -236,6 +251,7 @@ def eliminar_camarero(request, camarero_pk):
         camarero.delete()
     return redirect('detalle_evento', pk=evento_pk)
 
+@staff_required
 def editar_mesas(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
@@ -302,6 +318,7 @@ def editar_mesas(request, pk):
         'rangos': rangos,
     })
 
+@login_required(login_url='/login/')
 def resumen_mesas(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     TIPOS_DISPONIBLES = [
@@ -345,6 +362,7 @@ def resumen_mesas(request, pk):
         'tipos_activos': tipos_activos,
     })
 
+@staff_required
 def guardar_plano(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST':
@@ -360,6 +378,7 @@ def guardar_plano(request, pk):
 _EXTENSIONES_PERMITIDAS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg', '.gif', '.webp'}
 _TAMANO_MAXIMO = 10 * 1024 * 1024  # 10 MB
 
+@staff_required
 def subir_documento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST' and request.FILES.get('archivo'):
@@ -372,6 +391,7 @@ def subir_documento(request, pk):
         EventoDocumento.objects.create(evento=evento, archivo=archivo, nombre=nombre)
     return redirect('detalle_evento', pk=pk)
 
+@staff_required
 def eliminar_documento(request, doc_pk):
     doc = get_object_or_404(EventoDocumento, pk=doc_pk)
     evento_pk = doc.evento.pk
@@ -380,9 +400,11 @@ def eliminar_documento(request, doc_pk):
         doc.delete()
     return redirect('detalle_evento', pk=evento_pk)
 
+@login_required(login_url='/login/')
 def calendario(request):
     return render(request, 'core/calendario.html')
 
+@staff_required
 def agenda(request):
     if request.method == 'POST':
         texto = request.POST.get('texto', '').strip()
@@ -392,16 +414,19 @@ def agenda(request):
     notas = Nota.objects.all()
     return render(request, 'core/agenda.html', {'notas': notas})
 
+@staff_required
 def eliminar_nota(request, pk):
     nota = get_object_or_404(Nota, pk=pk)
     if request.method == 'POST':
         nota.delete()
     return redirect('agenda')
 
+@login_required(login_url='/login/')
 def lista_espacios(request):
     espacios = Espacio.objects.filter(activo=True)
     return render(request, 'core/lista_espacios.html', {'espacios': espacios})
 
+@login_required(login_url='/login/')
 def detalle_espacio(request, pk):
     espacio = get_object_or_404(Espacio, pk=pk)
     hoy = timezone.now().date()
@@ -452,6 +477,7 @@ def detalle_espacio(request, pk):
     }
     return render(request, 'core/detalle_espacio.html', context)
 
+@staff_required
 def desasignar_empleado(request, pk, turno_id):
     if request.method == 'POST':
         turno = get_object_or_404(Turno, pk=turno_id)
@@ -463,6 +489,7 @@ def desasignar_empleado(request, pk, turno_id):
         url += f'?fecha={fecha}'
     return redirect(url)
 
+@staff_required
 def mover_empleado(request, pk, turno_id):
     if request.method == 'POST':
         turno = get_object_or_404(Turno, pk=turno_id)
@@ -476,6 +503,7 @@ def mover_empleado(request, pk, turno_id):
         url += f'?fecha={fecha}'
     return redirect(url)
 
+@login_required(login_url='/login/')
 def toggle_tarea(request, pk):
     if request.method == 'POST':
         tarea = get_object_or_404(TareaDelDia, pk=pk)
@@ -484,6 +512,7 @@ def toggle_tarea(request, pk):
         return JsonResponse({'completada': tarea.completada})
     return JsonResponse({'error': 'método no permitido'}, status=405)
 
+@staff_required
 def asignar_empleado(request, pk):
     if request.method == 'POST':
         espacio = get_object_or_404(Espacio, pk=pk)
@@ -498,6 +527,7 @@ def asignar_empleado(request, pk):
         url += f'?fecha={fecha}'
     return redirect(url)
 
+@login_required(login_url='/login/')
 def pedidos_espacio(request, pk):
     espacio = get_object_or_404(Espacio, pk=pk)
     articulos = ArticuloPedido.objects.filter(espacio=espacio)
@@ -506,6 +536,7 @@ def pedidos_espacio(request, pk):
         'articulos': articulos,
     })
 
+@staff_required
 def nuevo_articulo(request, pk):
     espacio = get_object_or_404(Espacio, pk=pk)
     if request.method == 'POST':
@@ -515,6 +546,7 @@ def nuevo_articulo(request, pk):
         return redirect('pedidos_espacio', pk=pk)
     return render(request, 'core/nuevo_articulo.html', {'espacio': espacio})
 
+@staff_required
 def editar_articulo(request, pk):
     articulo = get_object_or_404(ArticuloPedido, pk=pk)
     if request.method == 'POST':
@@ -525,6 +557,7 @@ def editar_articulo(request, pk):
         return redirect('pedidos_espacio', pk=articulo.espacio.pk)
     return render(request, 'core/editar_articulo.html', {'articulo': articulo})
 
+@staff_required
 def eliminar_articulo(request, pk):
     articulo = get_object_or_404(ArticuloPedido, pk=pk)
     espacio_pk = articulo.espacio.pk
@@ -532,6 +565,7 @@ def eliminar_articulo(request, pk):
         articulo.delete()
     return redirect('pedidos_espacio', pk=espacio_pk)
 
+@staff_required
 def actualizar_cantidad(request, pk):
     if request.method == 'POST':
         articulo = get_object_or_404(ArticuloPedido, pk=pk)

@@ -1182,6 +1182,26 @@ form { margin: 0; }
 .bc-plano-section { padding-left: 0 !important; padding-right: 0 !important; }
 .bc-plano-section .bc-section-header { padding: 0 20px 12px; }
 .bc-plano-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 20px; border-bottom: 1px solid var(--color-border); }
+
+/* Grupos desplegables de la toolbar */
+.bc-toolbar-group { position: relative; }
+.bc-toolbar-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  padding: 6px;
+  z-index: 200;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+.bc-toolbar-dropdown.open { display: flex; }
+.bc-toolbar-dropdown .bc-btn { justify-content: flex-start; white-space: nowrap; }
 .bc-plano-colorbar { display: flex; align-items: center; gap: 8px; padding: 8px 20px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
 .bc-plano-swatches { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .bc-plano-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s, border-color 0.15s; flex-shrink: 0; }

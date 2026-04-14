@@ -4,6 +4,9 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse
 from datetime import timedelta, date
 from .models import Empleado, Turno, SolicitudAusencia
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
 
 
 def _redirect_seguro(request, next_param, fallback_view, fallback_pk=None):
@@ -15,6 +18,7 @@ def _redirect_seguro(request, next_param, fallback_view, fallback_pk=None):
         return redirect(fallback_view, pk=fallback_pk)
     return redirect(fallback_view)
 
+@login_required(login_url='/login/')
 def cuadrante(request):
     semana_param = request.GET.get('semana')
     if semana_param:
@@ -69,6 +73,7 @@ def cuadrante(request):
     }
     return render(request, 'personal/cuadrante.html', context)
 
+@login_required(login_url='/login/')
 def lista_empleados(request):
     empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
     context = {
@@ -76,6 +81,7 @@ def lista_empleados(request):
     }
     return render(request, 'personal/lista_empleados.html', context)
 
+@login_required(login_url='/login/')
 def detalle_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     solicitudes = SolicitudAusencia.objects.filter(empleado=empleado).order_by('-fecha_inicio')
@@ -91,6 +97,7 @@ def detalle_empleado(request, pk):
     }
     return render(request, 'personal/detalle_empleado.html', context)
 
+@staff_required
 def nuevo_empleado(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -115,6 +122,7 @@ def nuevo_empleado(request):
         'contratos': Empleado.CONTRATO_CHOICES,
     })
 
+@staff_required
 def editar_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == 'POST':
@@ -135,6 +143,7 @@ def editar_empleado(request, pk):
         'contratos': Empleado.CONTRATO_CHOICES,
     })
 
+@staff_required
 def guardar_turno(request):
     if request.method == 'POST':
         empleado_id = request.POST.get('empleado_id')
@@ -164,6 +173,7 @@ def guardar_turno(request):
         })
     return JsonResponse({'ok': False}, status=405)
 
+@staff_required
 def guardar_posiciones(request):
     if request.method == 'POST':
         for key, val in request.POST.items():
@@ -176,6 +186,7 @@ def guardar_posiciones(request):
         return JsonResponse({'ok': True})
     return JsonResponse({'ok': False}, status=405)
 
+@staff_required
 def nueva_solicitud(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == 'POST':
@@ -193,6 +204,7 @@ def nueva_solicitud(request, pk):
             )
     return redirect('detalle_empleado', pk=pk)
 
+@staff_required
 def aprobar_solicitud(request, pk):
     solicitud = get_object_or_404(SolicitudAusencia, pk=pk)
     if request.method == 'POST':
@@ -210,6 +222,7 @@ def aprobar_solicitud(request, pk):
         return _redirect_seguro(request, next_url, 'detalle_empleado', solicitud.empleado.pk)
     return redirect('detalle_empleado', pk=solicitud.empleado.pk)
 
+@staff_required
 def rechazar_solicitud(request, pk):
     solicitud = get_object_or_404(SolicitudAusencia, pk=pk)
     if request.method == 'POST':
@@ -219,11 +232,13 @@ def rechazar_solicitud(request, pk):
         return _redirect_seguro(request, next_url, 'detalle_empleado', solicitud.empleado.pk)
     return redirect('detalle_empleado', pk=solicitud.empleado.pk)
 
+@login_required(login_url='/login/')
 def lista_solicitudes(request):
     solicitudes = SolicitudAusencia.objects.filter(estado='pendiente').select_related('empleado').order_by('fecha_inicio')
     context = {'solicitudes': solicitudes}
     return render(request, 'personal/lista_solicitudes.html', context)
 
+@login_required(login_url='/login/')
 def lista_vencimientos(request):
     hoy = timezone.now().date()
     empleados = Empleado.objects.filter(
@@ -239,6 +254,7 @@ def lista_vencimientos(request):
     context = {'datos': datos, 'hoy': hoy}
     return render(request, 'personal/lista_vencimientos.html', context)
 
+@login_required(login_url='/login/')
 def lista_vacaciones(request):
     hoy = timezone.now().date()
     solicitudes = SolicitudAusencia.objects.filter(
@@ -250,6 +266,7 @@ def lista_vacaciones(request):
     context = {'solicitudes': solicitudes, 'titulo': 'Vacaciones', 'empleados': empleados, 'tipos': tipos}
     return render(request, 'personal/lista_ausencias.html', context)
 
+@login_required(login_url='/login/')
 def lista_dias_sueltos(request):
     hoy = timezone.now().date()
     solicitudes = SolicitudAusencia.objects.filter(
@@ -261,6 +278,7 @@ def lista_dias_sueltos(request):
     context = {'solicitudes': solicitudes, 'titulo': 'Días sueltos', 'empleados': empleados, 'tipos': tipos}
     return render(request, 'personal/lista_ausencias.html', context)
 
+@staff_required
 def crear_solicitud(request):
     if request.method == 'POST':
         empleado_id = request.POST.get('empleado_id')
