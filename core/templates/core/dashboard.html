@@ -242,31 +242,41 @@
     el.style.width = el.dataset.pct + '%';
   });
 
-  /* ── Live Tiles: cicla el subtexto de cada card ── */
+  /* ── Live Tiles: ticker CNN ── */
   (function() {
-    var TICK_MS = 2800;   // tiempo por ítem
+    var PX_PER_CHAR = 0.18;   // segundos por carácter (ajusta velocidad)
+    var MIN_S = 4;             // mínimo 4s aunque el texto sea corto
+    var PAUSE_MS = 600;        // pausa entre ítems
 
     document.querySelectorAll('.bc-live-tile').forEach(function(tile) {
-      var sub    = tile.querySelector('.bc-live-sub');
-      var raw    = tile.dataset.live || '';
-      var items  = raw.split('|').map(function(s){ return s.trim(); }).filter(Boolean);
+      var sub   = tile.querySelector('.bc-live-sub');
+      var raw   = tile.dataset.live || '';
+      var items = raw.split('|').map(function(s){ return s.trim(); }).filter(Boolean);
       if (!sub || items.length < 2) return;
 
-      var idx = 0;
+      var idx    = 0;
       var paused = false;
+      var timer  = null;
 
-      tile.addEventListener('mouseenter', function(){ paused = true; });
-      tile.addEventListener('mouseleave', function(){ paused = false; });
+      tile.addEventListener('mouseenter', function() { paused = true; });
+      tile.addEventListener('mouseleave', function() { paused = false; });
 
-      setInterval(function() {
-        if (paused) return;
-        sub.classList.add('bc-live-sub-out');
-        setTimeout(function() {
-          idx = (idx + 1) % items.length;
-          sub.textContent = items[idx];
-          sub.classList.remove('bc-live-sub-out');
-        }, 300);
-      }, TICK_MS);
+      function showNext() {
+        if (paused) { timer = setTimeout(showNext, 300); return; }
+
+        idx = (idx + 1) % items.length;
+        var text = items[idx];
+        var dur  = Math.max(MIN_S, text.length * PX_PER_CHAR * 10);
+
+        /* Envuelve en span para la animación */
+        sub.innerHTML = '<span style="animation-duration:' + dur + 's">' + text + '</span>';
+
+        timer = setTimeout(showNext, dur * 1000 + PAUSE_MS);
+      }
+
+      /* Arranca tras 2s, escalonado por posición en el grid */
+      var delay = 2000 + Array.from(document.querySelectorAll('.bc-live-tile')).indexOf(tile) * 600;
+      timer = setTimeout(showNext, delay);
     });
   })();
 </script>

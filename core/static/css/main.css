@@ -286,13 +286,23 @@ body {
   .bc-modules-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── Live Tiles: subtexto animado ── */
+/* ── Live Tiles: ticker horizontal estilo CNN ── */
 .bc-live-sub {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
 }
-.bc-live-sub-out {
-  opacity: 0;
-  transform: translateY(4px);
+.bc-live-sub span {
+  display: inline-block;
+  animation: bc-ticker linear forwards;
+  will-change: transform;
+}
+@keyframes bc-ticker {
+  0%   { transform: translateX(120%); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateX(-120%); opacity: 0; }
 }
 a.bc-card {
   text-decoration: none;
@@ -1179,8 +1189,8 @@ form { margin: 0; }
 .bc-agenda-textarea {
   width: 100%;
   resize: vertical;
-  min-height: 100px;
-  overflow: hidden;
+  min-height: 180px;
+  overflow: auto;
   background: var(--color-surface);
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-sm);
