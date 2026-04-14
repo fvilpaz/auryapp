@@ -335,6 +335,18 @@ body {
   78%  { opacity: 1; transform: translateY(0) scale(1); }
   100% { opacity: 0; transform: translateY(-6px); }
 }
+/* Marquee CNN — Agenda */
+@keyframes bc-anim-marquee {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-100%); }
+}
+.bc-live-sub-marquee {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+.bc-live-sub-marquee span {
+  animation-timing-function: linear !important;
+}
 a.bc-card {
   text-decoration: none;
   color: inherit;
@@ -1212,7 +1224,7 @@ form { margin: 0; }
 /* Agenda 2 columnas */
 .bc-agenda-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 420px 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -1220,7 +1232,7 @@ form { margin: 0; }
 .bc-agenda-textarea {
   width: 100%;
   resize: vertical;
-  min-height: 180px;
+  min-height: 240px;
   overflow: auto;
   background: var(--color-surface);
   border: 0.5px solid var(--color-border);
