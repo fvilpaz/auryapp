@@ -19,20 +19,44 @@
   <div class="bc-section-title">Módulos</div>
   <div class="bc-modules-grid">
 
-    <a href="{% url 'agenda' %}" class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-notebook"></i></div>
-      <div class="bc-card-value">{{ total_notas }}</div>
-      <div class="bc-card-label">Agenda</div>
-      <div class="bc-card-sub">Notas del día</div>
+    <!-- Agenda — live: últimas notas -->
+    <a href="{% url 'agenda' %}" class="bc-card bc-live-tile">
+      <div class="bc-tile-face bc-tile-front">
+        <div class="bc-card-icon"><i class="ti ti-notebook"></i></div>
+        <div class="bc-card-value">{{ total_notas }}</div>
+        <div class="bc-card-label">Agenda</div>
+        <div class="bc-card-sub">Notas del día</div>
+      </div>
+      <div class="bc-tile-face bc-tile-back">
+        <div class="bc-tile-back-title"><i class="ti ti-notebook"></i> Últimas notas</div>
+        {% for nota in notas_recientes %}
+        <div class="bc-tile-back-item">{{ nota.texto|truncatechars:48 }}</div>
+        {% empty %}
+        <div class="bc-tile-back-empty">Sin notas</div>
+        {% endfor %}
+      </div>
     </a>
 
-    <a href="{% url 'cuadrante' %}" class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
-      <div class="bc-card-value">{{ turnos_activos_hoy }}</div>
-      <div class="bc-card-label">Turnos</div>
-      <div class="bc-card-sub">Trabajando hoy</div>
+    <!-- Turnos — live: quién trabaja hoy -->
+    <a href="{% url 'cuadrante' %}" class="bc-card bc-live-tile">
+      <div class="bc-tile-face bc-tile-front">
+        <div class="bc-card-icon"><i class="ti ti-clock"></i></div>
+        <div class="bc-card-value">{{ turnos_activos_hoy }}</div>
+        <div class="bc-card-label">Turnos</div>
+        <div class="bc-card-sub">Trabajando hoy</div>
+      </div>
+      <div class="bc-tile-face bc-tile-back">
+        <div class="bc-tile-back-title"><i class="ti ti-clock"></i> Hoy trabajan</div>
+        {% for turno in turnos_hoy|slice:":4" %}
+        <div class="bc-tile-back-item">{{ turno.empleado.nombre }}</div>
+        {% empty %}
+        <div class="bc-tile-back-empty">Nadie asignado</div>
+        {% endfor %}
+        {% if turnos_hoy.count > 4 %}<div class="bc-tile-back-more">+{{ turnos_hoy.count|add:"-4" }} más</div>{% endif %}
+      </div>
     </a>
 
+    <!-- Calendario — estático -->
     <a href="{% url 'calendario' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-calendar-month"></i></div>
       <div class="bc-card-value">{{ eventos_esta_semana }}</div>
@@ -40,13 +64,28 @@
       <div class="bc-card-sub">Esta semana</div>
     </a>
 
-    <a href="{% url 'lista_eventos' %}" class="bc-card">
-      <div class="bc-card-icon"><i class="ti ti-calendar-event"></i></div>
-      <div class="bc-card-value">{{ total_eventos_mes }}</div>
-      <div class="bc-card-label">Eventos</div>
-      <div class="bc-card-sub">Este mes</div>
+    <!-- Eventos — live: próximos eventos -->
+    <a href="{% url 'lista_eventos' %}" class="bc-card bc-live-tile">
+      <div class="bc-tile-face bc-tile-front">
+        <div class="bc-card-icon"><i class="ti ti-calendar-event"></i></div>
+        <div class="bc-card-value">{{ total_eventos_mes }}</div>
+        <div class="bc-card-label">Eventos</div>
+        <div class="bc-card-sub">Este mes</div>
+      </div>
+      <div class="bc-tile-face bc-tile-back">
+        <div class="bc-tile-back-title"><i class="ti ti-calendar-event"></i> Próximos</div>
+        {% for ev in eventos_proximos|slice:":4" %}
+        <div class="bc-tile-back-item">
+          <span>{{ ev.cliente|default:ev.get_tipo_display|truncatechars:22 }}</span>
+          <span class="bc-tile-back-date">{{ ev.fecha|date:"d M" }}</span>
+        </div>
+        {% empty %}
+        <div class="bc-tile-back-empty">Sin eventos</div>
+        {% endfor %}
+      </div>
     </a>
 
+    <!-- Personal — estático -->
     <a href="{% url 'lista_empleados' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-users"></i></div>
       <div class="bc-card-value">{{ total_personal }}</div>
@@ -54,22 +93,51 @@
       <div class="bc-card-sub">Activos</div>
     </a>
 
-    <a href="{% url 'lista_vacaciones' %}" class="bc-card">
+    <!-- Vacaciones — live: quién está de vacaciones -->
+    <a href="{% url 'lista_vacaciones' %}" class="bc-card bc-live-tile">
       {% if solicitudes_pendientes > 0 %}<span class="bc-card-dot"></span>{% endif %}
-      <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
-      <div class="bc-card-value">{{ solicitudes_vacaciones }}</div>
-      <div class="bc-card-label">Vacaciones</div>
-      <div class="bc-card-sub">Próximas</div>
+      <div class="bc-tile-face bc-tile-front">
+        <div class="bc-card-icon"><i class="ti ti-sunset-2"></i></div>
+        <div class="bc-card-value">{{ solicitudes_vacaciones }}</div>
+        <div class="bc-card-label">Vacaciones</div>
+        <div class="bc-card-sub">Próximas</div>
+      </div>
+      <div class="bc-tile-face bc-tile-back">
+        <div class="bc-tile-back-title"><i class="ti ti-sunset-2"></i> Vacaciones</div>
+        {% for sol in vacaciones_proximas|slice:":4" %}
+        <div class="bc-tile-back-item">
+          <span>{{ sol.empleado.nombre }}</span>
+          <span class="bc-tile-back-date">{{ sol.fecha_inicio|date:"d M" }}</span>
+        </div>
+        {% empty %}
+        <div class="bc-tile-back-empty">Ninguna próxima</div>
+        {% endfor %}
+      </div>
     </a>
 
-    <a href="{% url 'lista_dias_sueltos' %}" class="bc-card">
+    <!-- Días sueltos — live -->
+    <a href="{% url 'lista_dias_sueltos' %}" class="bc-card bc-live-tile">
       {% if solicitudes_pendientes > 0 %}<span class="bc-card-dot"></span>{% endif %}
-      <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
-      <div class="bc-card-value">{{ solicitudes_dias }}</div>
-      <div class="bc-card-label">Días sueltos</div>
-      <div class="bc-card-sub">Próximos</div>
+      <div class="bc-tile-face bc-tile-front">
+        <div class="bc-card-icon"><i class="ti ti-calendar-off"></i></div>
+        <div class="bc-card-value">{{ solicitudes_dias }}</div>
+        <div class="bc-card-label">Días sueltos</div>
+        <div class="bc-card-sub">Próximos</div>
+      </div>
+      <div class="bc-tile-face bc-tile-back">
+        <div class="bc-tile-back-title"><i class="ti ti-calendar-off"></i> Días libres</div>
+        {% for sol in dias_sueltos_proximos|slice:":4" %}
+        <div class="bc-tile-back-item">
+          <span>{{ sol.empleado.nombre }}</span>
+          <span class="bc-tile-back-date">{{ sol.fecha_inicio|date:"d M" }}</span>
+        </div>
+        {% empty %}
+        <div class="bc-tile-back-empty">Ninguno próximo</div>
+        {% endfor %}
+      </div>
     </a>
 
+    <!-- Pedidos — estático -->
     <a href="{% url 'pedidos' %}" class="bc-card">
       <div class="bc-card-icon"><i class="ti ti-clipboard-list"></i></div>
       <div class="bc-card-value">{{ total_espacios }}</div>
@@ -228,5 +296,38 @@
   document.querySelectorAll('.bc-progress-fill[data-pct]').forEach(function(el) {
     el.style.width = el.dataset.pct + '%';
   });
+
+  /* ── Live Tiles ── */
+  (function() {
+    var tiles = Array.from(document.querySelectorAll('.bc-live-tile'));
+    if (!tiles.length) return;
+
+    var idx = 0;
+    var SHOW_MS  = 4000;   // cuánto tiempo se ve la cara trasera
+    var WAIT_MS  = 3500;   // tiempo entre tiles
+
+    function flipNext() {
+      var tile = tiles[idx];
+      tile.classList.add('bc-tile-flipped');
+      setTimeout(function() {
+        tile.classList.remove('bc-tile-flipped');
+        idx = (idx + 1) % tiles.length;
+        setTimeout(flipNext, WAIT_MS);
+      }, SHOW_MS);
+    }
+
+    /* Arranca tras 2 s para que la página se asiente */
+    setTimeout(flipNext, 2000);
+
+    /* Pausa al hover para poder leer */
+    tiles.forEach(function(tile) {
+      tile.addEventListener('mouseenter', function() {
+        tile.classList.add('bc-tile-hover-pause');
+      });
+      tile.addEventListener('mouseleave', function() {
+        tile.classList.remove('bc-tile-hover-pause');
+      });
+    });
+  })();
 </script>
 {% endblock %}
