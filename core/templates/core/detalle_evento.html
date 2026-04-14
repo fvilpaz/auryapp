@@ -1164,6 +1164,7 @@ function recalcularContadores() {
   const stored = JSON.parse(document.getElementById('plano-data').textContent);
   if (stored && stored.objects) {
     canvas.loadFromJSON(stored, function() {
+      canvas.backgroundColor = ''; // transparente → cuadrícula visible
       canvas.renderAll();
       // Sincronizar _etiqueta con el texto visual real (corrige bug de rename antiguo)
       canvas.getObjects().forEach(function(o) {

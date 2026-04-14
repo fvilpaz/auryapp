@@ -1504,10 +1504,11 @@ form { margin: 0; }
   box-shadow: 0 24px 80px rgba(0,0,0,0.4);
 }
 
-/* Móvil: imagen arriba, form abajo */
-@media (max-width: 640px) {
+/* Tablet portrait y móvil: imagen arriba, form abajo */
+@media (max-width: 768px) {
   .bc-login-page { flex-direction: column; gap: 24px; padding: 24px 20px; }
   .bc-login-img { width: 240px; margin: 0 auto; }
+  .bc-login-wrap { width: 100%; }
 }
 .bc-login-header {
   text-align: center;
