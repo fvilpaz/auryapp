@@ -13,6 +13,14 @@
     <span class="bc-dashboard-saludo-texto">{{ saludo }},</span>
     <span class="bc-dashboard-saludo-nombre">{{ request.user.first_name|default:request.user.username }}</span>
   </div>
+
+  <div class="bc-weather" id="bc-weather" aria-live="polite">
+    <div class="bc-weather-anim" id="bc-weather-anim"></div>
+    <div class="bc-weather-data">
+      <div class="bc-weather-temp" id="bc-weather-temp">--°</div>
+      <div class="bc-weather-desc" id="bc-weather-desc">Cargando...</div>
+    </div>
+  </div>
 </div>
 
 <div class="bc-section">
@@ -246,6 +254,65 @@
   document.querySelectorAll('.bc-progress-fill[data-pct]').forEach(function(el) {
     el.style.width = el.dataset.pct + '%';
   });
+
+  /* ── Widget del tiempo ── */
+  (function() {
+    var animEl = document.getElementById('bc-weather-anim');
+    var tempEl = document.getElementById('bc-weather-temp');
+    var descEl = document.getElementById('bc-weather-desc');
+    var LAT_DEFAULT = 39.47, LON_DEFAULT = -0.38; // Valencia por defecto
+
+    function weatherIcon(code) {
+      if (code === 0)                     return { icon:'ti-sun',         cls:'bc-w-sun',    txt:'Despejado'   };
+      if (code <= 2)                      return { icon:'ti-sun',         cls:'bc-w-sun',    txt:'Casi despejado' };
+      if (code === 3)                     return { icon:'ti-cloud',       cls:'bc-w-cloud',  txt:'Nublado'     };
+      if (code <= 48)                     return { icon:'ti-cloud-fog',   cls:'bc-w-fog',    txt:'Niebla'      };
+      if (code <= 57)                     return { icon:'ti-cloud-drizzle',cls:'bc-w-drizzle',txt:'Llovizna'  };
+      if (code <= 67)                     return { icon:'ti-cloud-rain',  cls:'bc-w-rain',   txt:'Lluvia'      };
+      if (code <= 77)                     return { icon:'ti-snowflake',   cls:'bc-w-snow',   txt:'Nieve'       };
+      if (code <= 82)                     return { icon:'ti-cloud-rain',  cls:'bc-w-rain',   txt:'Chubascos'   };
+      return                               { icon:'ti-bolt',              cls:'bc-w-storm',  txt:'Tormenta'    };
+    }
+
+    function render(temp, code) {
+      var w = weatherIcon(code);
+      tempEl.textContent = Math.round(temp) + '°';
+      descEl.textContent = w.txt;
+      animEl.innerHTML   = '<i class="ti ' + w.icon + ' bc-w-icon ' + w.cls + '"></i>';
+    }
+
+    function fetchWeather(lat, lon) {
+      var CACHE_KEY = 'bc-weather-cache';
+      var cached = null;
+      try { cached = JSON.parse(localStorage.getItem(CACHE_KEY)); } catch(e) {}
+      if (cached && (Date.now() - cached.ts < 30 * 60 * 1000)) {
+        render(cached.temp, cached.code); return;
+      }
+      var url = 'https://api.open-meteo.com/v1/forecast'
+              + '?latitude=' + lat + '&longitude=' + lon
+              + '&current=temperature_2m,weather_code'
+              + '&timezone=auto';
+      fetch(url)
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var temp = d.current.temperature_2m;
+          var code = d.current.weather_code;
+          render(temp, code);
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify({temp:temp, code:code, ts:Date.now()})); } catch(e){}
+        })
+        .catch(function(){ descEl.textContent = ''; });
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ fetchWeather(pos.coords.latitude, pos.coords.longitude); },
+        function()   { fetchWeather(LAT_DEFAULT, LON_DEFAULT); },
+        { timeout: 5000 }
+      );
+    } else {
+      fetchWeather(LAT_DEFAULT, LON_DEFAULT);
+    }
+  })();
 
   /* ── Live Tiles ── */
   (function() {
