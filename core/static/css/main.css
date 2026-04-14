@@ -273,8 +273,17 @@ body {
 }
 .bc-card-sub {
   font-size: 11px;
-  color: var(--color-muted);
+  color: var(--color-primary);
   align-self: center;
+}
+/* Grid de módulos del dashboard: 4 cols desktop, 2 cols tablet/móvil, nunca scroll */
+.bc-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .bc-modules-grid { grid-template-columns: repeat(2, 1fr); }
 }
 a.bc-card {
   text-decoration: none;
