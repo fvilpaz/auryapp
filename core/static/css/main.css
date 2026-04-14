@@ -1795,44 +1795,38 @@ form { margin: 0; }
 .bc-weather-temp { font-size: 22px; font-weight: 600; color: var(--color-text); line-height: 1; }
 .bc-weather-desc { font-size: 11px; color: var(--color-muted); }
 .bc-w-icon { display: inline-block; }
-/* Sol */
-@keyframes bc-sun-spin  { to { transform: rotate(360deg); } }
-@keyframes bc-sun-glow  {
-  0%,100% { filter: drop-shadow(0 0 4px rgba(255,200,0,.5)); }
-  50%     { filter: drop-shadow(0 0 14px rgba(255,180,0,.9)); }
-}
-.bc-w-sun  { color: #f59e0b; animation: bc-sun-spin 12s linear infinite, bc-sun-glow 3s ease infinite; }
-/* Nube */
+/* Sol — giro lento */
+@keyframes bc-sun-spin { to { transform: rotate(360deg); } }
+.bc-w-sun { animation: bc-sun-spin 10s linear infinite; display: inline-block; }
+/* Nube — deriva lateral */
 @keyframes bc-cloud-drift {
   0%,100% { transform: translateX(0); }
-  50%     { transform: translateX(5px); }
+  50%     { transform: translateX(6px); }
 }
-.bc-w-cloud { color: var(--color-muted); animation: bc-cloud-drift 4s ease-in-out infinite; }
-/* Lluvia */
+.bc-w-cloud { animation: bc-cloud-drift 4s ease-in-out infinite; display: inline-block; }
+/* Lluvia — sacudida */
 @keyframes bc-rain-shake {
-  0%,100% { transform: translateY(0) rotate(-2deg); }
-  50%     { transform: translateY(3px) rotate(2deg); }
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%     { transform: translateY(4px) rotate(3deg); }
 }
-.bc-w-rain    { color: #3b82f6; animation: bc-rain-shake 1.2s ease-in-out infinite; }
-.bc-w-drizzle { color: #60a5fa; animation: bc-rain-shake 2s   ease-in-out infinite; }
-/* Nieve */
-@keyframes bc-snow-spin {
-  to { transform: rotate(360deg); }
-}
-.bc-w-snow { color: #93c5fd; animation: bc-snow-spin 6s linear infinite; }
-/* Niebla */
+.bc-w-rain    { animation: bc-rain-shake 1s   ease-in-out infinite; display: inline-block; }
+.bc-w-drizzle { animation: bc-rain-shake 1.8s ease-in-out infinite; display: inline-block; }
+/* Nieve — giro */
+@keyframes bc-snow-spin { to { transform: rotate(360deg); } }
+.bc-w-snow { animation: bc-snow-spin 5s linear infinite; display: inline-block; }
+/* Niebla — pulso opacidad */
 @keyframes bc-fog-pulse {
-  0%,100% { opacity: 0.5; }
-  50%     { opacity: 1;   }
+  0%,100% { opacity: 0.45; }
+  50%     { opacity: 1; }
 }
-.bc-w-fog { color: var(--color-muted); animation: bc-fog-pulse 3s ease-in-out infinite; }
-/* Tormenta */
+.bc-w-fog { animation: bc-fog-pulse 2.5s ease-in-out infinite; display: inline-block; }
+/* Tormenta — flash */
 @keyframes bc-storm-flash {
-  0%,90%,100% { color: #f59e0b; }
-  92%,98%     { color: #fde68a; filter: drop-shadow(0 0 8px #fde68a); }
+  0%,85%,100% { transform: scale(1);    opacity: 1; }
+  90%,97%     { transform: scale(1.15); opacity: 0.7; }
 }
-.bc-w-storm { animation: bc-storm-flash 2.5s ease-in-out infinite; }
-@media (max-width: 600px) { .bc-weather { display: none; } }
+.bc-w-storm { animation: bc-storm-flash 2s ease-in-out infinite; display: inline-block; }
+@media (max-width: 480px) { .bc-weather { display: none; } }
 .bc-dashboard-hero-img {
   height: 100px;
   object-fit: contain;

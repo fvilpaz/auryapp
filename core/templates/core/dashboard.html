@@ -262,23 +262,27 @@
     var descEl = document.getElementById('bc-weather-desc');
     var LAT_DEFAULT = 39.47, LON_DEFAULT = -0.38; // Valencia por defecto
 
-    function weatherIcon(code) {
-      if (code === 0)                     return { icon:'ti-sun',         cls:'bc-w-sun',    txt:'Despejado'   };
-      if (code <= 2)                      return { icon:'ti-sun',         cls:'bc-w-sun',    txt:'Casi despejado' };
-      if (code === 3)                     return { icon:'ti-cloud',       cls:'bc-w-cloud',  txt:'Nublado'     };
-      if (code <= 48)                     return { icon:'ti-cloud-fog',   cls:'bc-w-fog',    txt:'Niebla'      };
-      if (code <= 57)                     return { icon:'ti-cloud-drizzle',cls:'bc-w-drizzle',txt:'Llovizna'  };
-      if (code <= 67)                     return { icon:'ti-cloud-rain',  cls:'bc-w-rain',   txt:'Lluvia'      };
-      if (code <= 77)                     return { icon:'ti-snowflake',   cls:'bc-w-snow',   txt:'Nieve'       };
-      if (code <= 82)                     return { icon:'ti-cloud-rain',  cls:'bc-w-rain',   txt:'Chubascos'   };
-      return                               { icon:'ti-bolt',              cls:'bc-w-storm',  txt:'Tormenta'    };
+    var WEATHER = [
+      { max:0,  emoji:'☀️',  cls:'bc-w-sun',     txt:'Despejado'      },
+      { max:2,  emoji:'🌤️', cls:'bc-w-sun',     txt:'Casi despejado' },
+      { max:3,  emoji:'☁️',  cls:'bc-w-cloud',   txt:'Nublado'        },
+      { max:48, emoji:'🌫️', cls:'bc-w-fog',     txt:'Niebla'         },
+      { max:57, emoji:'🌦️', cls:'bc-w-drizzle', txt:'Llovizna'       },
+      { max:67, emoji:'🌧️', cls:'bc-w-rain',    txt:'Lluvia'         },
+      { max:77, emoji:'❄️',  cls:'bc-w-snow',    txt:'Nieve'          },
+      { max:82, emoji:'🌧️', cls:'bc-w-rain',    txt:'Chubascos'      },
+      { max:99, emoji:'⛈️',  cls:'bc-w-storm',   txt:'Tormenta'       },
+    ];
+
+    function weatherFor(code) {
+      return WEATHER.find(function(w){ return code <= w.max; }) || WEATHER[WEATHER.length-1];
     }
 
     function render(temp, code) {
-      var w = weatherIcon(code);
+      var w = weatherFor(code);
       tempEl.textContent = Math.round(temp) + '°';
       descEl.textContent = w.txt;
-      animEl.innerHTML   = '<i class="ti ' + w.icon + ' bc-w-icon ' + w.cls + '"></i>';
+      animEl.innerHTML   = '<span class="bc-w-icon ' + w.cls + '" style="font-size:32px;line-height:1">' + w.emoji + '</span>';
     }
 
     function fetchWeather(lat, lon) {
@@ -341,7 +345,8 @@
       function showNext() {
         if (paused) { setTimeout(showNext, 400); return; }
 
-        idx = (idx + 1) % items.length;
+        /* Salta el índice 0 (label estático) al dar la vuelta */
+        idx = (idx >= items.length - 1) ? 1 : idx + 1;
         var text = items[idx];
         /* Duración marquee: proporcional al texto (más largo = más lento para leer) */
         var dur  = isMarquee ? Math.max(7, text.length * 0.22) : DUR_S;
