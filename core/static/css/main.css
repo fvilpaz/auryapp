@@ -335,6 +335,14 @@ body {
   78%  { opacity: 1; transform: translateY(0) scale(1); }
   100% { opacity: 0; transform: translateY(-6px); }
 }
+/* Baraja — Pedidos */
+@keyframes bc-anim-deal {
+  0%   { opacity: 0; transform: translateX(32px) rotate(6deg) scale(0.88); }
+  20%  { opacity: 1; transform: translateX(0)    rotate(0deg) scale(1);    }
+  75%  { opacity: 1; transform: translateX(0)    rotate(0deg) scale(1);    }
+  90%  { opacity: 0.4; transform: translateX(-8px) rotate(-2deg) scale(0.97); }
+  100% { opacity: 0; transform: translateX(-16px) rotate(-4deg) scale(0.94); }
+}
 /* Marquee CNN — Agenda */
 @keyframes bc-anim-marquee {
   from { transform: translateX(100%); }
