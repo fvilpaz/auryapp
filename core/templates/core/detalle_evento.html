@@ -265,6 +265,9 @@
     <button class="bc-btn bc-btn-sm bc-btn-secondary" id="btn-sel-todo" title="Seleccionar todo (Ctrl+A)">
       <i class="ti ti-select-all"></i> Sel. todo
     </button>
+    <button class="bc-btn bc-btn-sm bc-btn-secondary" id="btn-lote" title="Añadir varios elementos de golpe">
+      <i class="ti ti-stack-2"></i> En lote
+    </button>
     <div class="bc-plano-sep"></div>
     <button class="bc-btn bc-btn-sm" data-add="mesa-redonda"><i class="ti ti-circle-filled"></i> Mesa redonda</button>
     <button class="bc-btn bc-btn-sm" data-add="mesa-rect"><i class="ti ti-rectangle-filled"></i> Mesa rect.</button>
@@ -372,6 +375,53 @@
 
 <!-- Input flotante para renombrar -->
 <input type="text" id="plano-rename-input" class="bc-plano-rename-input" style="display:none;">
+
+<!-- Modal añadir en lote -->
+<div id="modal-lote" class="bc-modal-overlay" style="display:none;">
+  <div class="bc-modal-box" style="max-width:420px;">
+    <div class="bc-modal-header">
+      <span class="bc-font-medium">Añadir elementos en lote</span>
+      <button id="btn-cerrar-lote" class="bc-btn bc-btn-sm"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="bc-modal-body" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="bc-form-group">
+        <label>Tipo de elemento</label>
+        <select id="lote-tipo">
+          <option value="mesa-redonda">Mesa redonda</option>
+          <option value="mesa-rect">Mesa rectangular</option>
+          <option value="coctel" selected>Mesa cóctel</option>
+          <option value="escenario">Escenario</option>
+          <option value="barra">Barra</option>
+          <option value="planta">Planta</option>
+          <option value="columna">Columna</option>
+          <option value="altavoz">Altavoz</option>
+        </select>
+      </div>
+      <div class="bc-form-group">
+        <label>Cantidad</label>
+        <input type="number" id="lote-cantidad" value="10" min="1" max="50">
+      </div>
+      <div class="bc-form-group">
+        <label>Disposición</label>
+        <select id="lote-disposicion">
+          <option value="fila">Fila horizontal →</option>
+          <option value="columna">Columna vertical ↓</option>
+          <option value="grid">Cuadrícula</option>
+        </select>
+      </div>
+      <div class="bc-form-group" id="lote-cols-wrap" style="display:none;">
+        <label>Columnas</label>
+        <input type="number" id="lote-cols" value="5" min="1" max="20">
+      </div>
+    </div>
+    <div class="bc-modal-footer">
+      <button class="bc-btn bc-btn-secondary bc-btn-sm" id="btn-cerrar-lote2">Cancelar</button>
+      <button class="bc-btn bc-btn-primary bc-btn-sm" id="btn-lote-ok">
+        <i class="ti ti-map-pin"></i> Colocar en canvas →
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal vista previa plano -->
 <div id="modal-preview" class="bc-modal-overlay" style="display:none;">
@@ -1135,6 +1185,78 @@ function recalcularContadores() {
     snapshot();  // snapshot inicial vacío
   }
 })();
+
+// ── Añadir en lote ───────────────────────────────────────────────────────
+const modalLote = document.getElementById('modal-lote');
+document.getElementById('btn-lote').addEventListener('click', function() {
+  modalLote.style.display = '';
+});
+['btn-cerrar-lote','btn-cerrar-lote2'].forEach(function(id) {
+  document.getElementById(id).addEventListener('click', function() { modalLote.style.display = 'none'; });
+});
+modalLote.addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
+
+// Tamaño aproximado de cada tipo para calcular el gap
+const LOTE_TAMS = {
+  'mesa-redonda': { w: 100, h: 100 },
+  'mesa-rect':    { w: 110, h: 80  },
+  'coctel':       { w: 60,  h: 60  },
+  'escenario':    { w: 230, h: 80  },
+  'barra':        { w: 160, h: 60  },
+  'planta':       { w: 40,  h: 40  },
+  'columna':      { w: 30,  h: 30  },
+  'altavoz':      { w: 40,  h: 40  },
+};
+
+// Mostrar/ocultar campo columnas según disposición
+document.getElementById('lote-disposicion').addEventListener('change', function() {
+  document.getElementById('lote-cols-wrap').style.display = this.value === 'grid' ? '' : 'none';
+});
+
+let loteConfig = null; // config pendiente de click-to-place
+
+function colocarLote(ox, oy) {
+  const { tipo, cant, cols, tam, gap } = loteConfig;
+  let col = 0, row = 0;
+  for (let i = 0; i < cant; i++) {
+    const etiqueta = siguienteNombre(tipo);
+    const color    = COLOR_DEFECTO[tipo] || '#3b82f6';
+    const obj      = crearGrupo(tipo, etiqueta, color);
+    if (!obj) continue;
+    obj._color = color;
+    obj.set({ left: ox + col * (tam.w + gap), top: oy + row * (tam.h + gap) });
+    canvas.add(obj);
+    col++;
+    if (col >= cols) { col = 0; row++; }
+  }
+  canvas.renderAll();
+  snapshot();
+  loteConfig = null;
+  document.getElementById('plano-canvas').style.cursor = 'default';
+}
+
+// Click en canvas para colocar lote
+canvas.on('mouse:down', function(opt) {
+  if (!loteConfig) return;
+  const p = canvas.getPointer(opt.e);
+  colocarLote(p.x, p.y);
+});
+
+document.getElementById('btn-lote-ok').addEventListener('click', function() {
+  const tipo = document.getElementById('lote-tipo').value;
+  const cant = Math.min(50, Math.max(1, parseInt(document.getElementById('lote-cantidad').value) || 1));
+  const disp = document.getElementById('lote-disposicion').value;
+  const tam  = LOTE_TAMS[tipo] || { w: 80, h: 80 };
+  const gap  = 16;
+  const cols = disp === 'grid'    ? Math.max(1, parseInt(document.getElementById('lote-cols').value) || 5)
+             : disp === 'fila'    ? cant
+             : 1;
+
+  loteConfig = { tipo, cant, cols, tam, gap };
+  modalLote.style.display = 'none';
+  // Cursor de crosshair para indicar modo colocación
+  document.getElementById('plano-canvas').style.cursor = 'crosshair';
+});
 
 // ── Gestos táctiles: 2 dedos = pan del canvas ────────────────────────────
 if (ES_MOVIL) {
