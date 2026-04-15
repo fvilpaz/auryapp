@@ -261,6 +261,9 @@
     el.style.width = el.dataset.pct + '%';
   });
 
+  /* Recarga silenciosa cada 10 min para mantener datos actualizados */
+  setTimeout(function() { location.reload(); }, 10 * 60 * 1000);
+
 
 
   /* ── Live Tiles: ciclo completo por tile, aleatorio, ritmo tranquilo ── */

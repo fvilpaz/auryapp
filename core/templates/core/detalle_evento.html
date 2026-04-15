@@ -524,7 +524,7 @@ document.getElementById('btn-cancelar-doc').addEventListener('click', function()
 
 // ── Plano Fabric.js ──────────────────────────────────────────────────────
 const wrap = document.getElementById('plano-wrap');
-const ES_MOVIL = window.innerWidth < 1024;
+const ES_MOVIL = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 1024;
 function calcCanvasW() {
   return wrap.offsetWidth || window.innerWidth;
 }
