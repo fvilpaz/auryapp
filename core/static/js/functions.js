@@ -54,8 +54,7 @@ function buildUserMenu() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var saved = localStorage.getItem('bc-theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  /* tema ya aplicado en <head> antes de renderizar */
   buildUserMenu();
 
   var calendarEl = document.getElementById('calendario');
