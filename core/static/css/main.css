@@ -1284,19 +1284,13 @@ form { margin: 0; }
 .bc-btn-ghost  { background: none; border: none; cursor: pointer; color: var(--color-muted); padding: 0; line-height: 1; }
 
 /* Agenda 2 columnas */
-.bc-agenda-layout {
-  display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-.bc-agenda-sidebar .bc-card { padding: 20px; align-items: stretch; }
-.bc-agenda-sidebar .bc-card form { width: 100%; }
+.bc-agenda-wrap { max-width: 760px; }
+.bc-agenda-form-card { padding: 20px; }
+.bc-agenda-form-card form { display: flex; flex-direction: column; gap: 12px; }
 .bc-agenda-textarea {
   width: 100%;
   resize: vertical;
-  min-height: 240px;
-  overflow: auto;
+  min-height: 80px;
   background: var(--color-surface);
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -1307,14 +1301,53 @@ form { margin: 0; }
   line-height: 1.5;
   outline: none;
   transition: border-color 0.15s;
+  box-sizing: border-box;
 }
 .bc-agenda-textarea:focus { border-color: var(--color-primary); }
+.bc-agenda-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 .bc-agenda-form-actions {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
   align-items: center;
+  flex-shrink: 0;
 }
+
+/* Chips de prioridad */
+.bc-prioridad-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.bc-pchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--color-border);
+  color: var(--color-muted);
+  transition: all 0.15s;
+  user-select: none;
+}
+.bc-pchip input[type=radio] { display: none; }
+.bc-pchip-urgente.active  { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+.bc-pchip-moderado.active { border-color: #f59e0b; color: #b45309; background: rgba(245,158,11,0.08); }
+.bc-pchip-normal.active   { border-color: #22c55e; color: #16a34a; background: rgba(34,197,94,0.08); }
+
+/* Notas con borde de prioridad */
+.bc-nota-prioridad-urgente  { border-left: 4px solid #ef4444 !important; }
+.bc-nota-prioridad-moderado { border-left: 4px solid #f59e0b !important; }
+.bc-nota-prioridad-normal   { border-left: 4px solid #22c55e !important; }
+.bc-nota-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.bc-nota-resuelta { opacity: 0.5; }
+.bc-nota-tachado  { text-decoration: line-through; }
+.bc-nota-list-resueltas .bc-nota-card { padding: 10px 16px; }
+
 .bc-agenda-count {
   display: inline-flex;
   align-items: center;
@@ -1341,9 +1374,7 @@ form { margin: 0; }
   font-size: 13px;
 }
 .bc-agenda-empty i { font-size: 36px; opacity: 0.4; }
-@media (max-width: 768px) {
-  .bc-agenda-layout { grid-template-columns: 1fr; }
-}
+.bc-mt-24 { margin-top: 24px; }
 
 /* Date picker input */
 .bc-date-picker {

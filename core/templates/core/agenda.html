@@ -4,63 +4,92 @@
 
 {% block content %}
 
-<div class="bc-agenda-layout">
+<div class="bc-agenda-wrap">
 
-  <!-- Columna izquierda: formulario -->
-  <aside class="bc-agenda-sidebar">
-    <div class="bc-section-title">Nueva nota</div>
-    <div class="bc-card">
-      <form method="post" id="nota-form">
-        {% csrf_token %}
-        <div class="bc-form-group">
-          <textarea name="texto" id="nota-texto" rows="4"
-                    placeholder="Escribe o dicta una nota..."
-                    class="bc-agenda-textarea"></textarea>
+  <!-- Formulario arriba -->
+  <div class="bc-section-title">Nueva nota</div>
+  <div class="bc-card bc-agenda-form-card">
+    <form method="post" id="nota-form">
+      {% csrf_token %}
+      <textarea name="texto" id="nota-texto" rows="3"
+                placeholder="Escribe o dicta una nota..."
+                class="bc-agenda-textarea"></textarea>
+
+      <div class="bc-agenda-bottom-row">
+        <div class="bc-prioridad-chips">
+          <label class="bc-pchip bc-pchip-urgente">
+            <input type="radio" name="prioridad" value="urgente"> Urgente
+          </label>
+          <label class="bc-pchip bc-pchip-moderado">
+            <input type="radio" name="prioridad" value="moderado"> Moderado
+          </label>
+          <label class="bc-pchip bc-pchip-normal">
+            <input type="radio" name="prioridad" value="normal" checked> Normal
+          </label>
         </div>
         <div class="bc-agenda-form-actions">
           <button type="button" id="btn-mic" title="Dictar nota" class="bc-mic-btn">
             <i class="ti ti-microphone" style="font-size:18px;"></i>
           </button>
-          <button type="submit" class="bc-btn bc-btn-primary bc-flex-1">
+          <button type="submit" class="bc-btn bc-btn-primary">
             <i class="ti ti-plus"></i> Añadir nota
           </button>
         </div>
-      </form>
-    </div>
-  </aside>
-
-  <!-- Columna derecha: lista de notas -->
-  <section class="bc-agenda-main">
-    <div class="bc-section-title">
-      Notas
-      {% if notas %}<span class="bc-agenda-count">{{ notas|length }}</span>{% endif %}
-    </div>
-
-    {% if notas %}
-    <div class="bc-nota-list">
-      {% for nota in notas %}
-      <div class="bc-card bc-nota-card">
-        <div class="bc-flex-1">
-          <div class="bc-nota-texto">{{ nota.texto }}</div>
-          <div class="bc-nota-fecha">{{ nota.fecha|date:"d M Y, H:i" }}</div>
-        </div>
-        <form method="post" action="{% url 'eliminar_nota' nota.pk %}"
-              onsubmit="return confirm('¿Eliminar esta nota?')">
-          {% csrf_token %}
-          <button type="submit" class="bc-btn-ghost bc-nota-del">
-            <i class="ti ti-trash" style="font-size:15px;"></i>
-          </button>
-        </form>
       </div>
-      {% endfor %}
+    </form>
+  </div>
+
+  <!-- Lista de notas -->
+  <div class="bc-section-title bc-mt-24">
+    Notas
+    {% if notas %}<span class="bc-agenda-count">{{ notas|length }}</span>{% endif %}
+  </div>
+
+  {% if notas %}
+  <div class="bc-nota-list">
+    {% for nota in notas %}
+    <div class="bc-card bc-nota-card bc-nota-prioridad-{{ nota.prioridad }}" id="nota-{{ nota.pk }}">
+      <div class="bc-flex-1">
+        <div class="bc-nota-texto">{{ nota.texto }}</div>
+        <div class="bc-nota-fecha">{{ nota.fecha|date:"d M Y, H:i" }}</div>
+      </div>
+      <div class="bc-nota-actions">
+        <button class="bc-btn-ghost bc-nota-resolve" data-pk="{{ nota.pk }}" title="Marcar como resuelta">
+          <i class="ti ti-check" style="font-size:15px;"></i>
+        </button>
+        <button class="bc-btn-ghost bc-nota-del" data-pk="{{ nota.pk }}" title="Eliminar">
+          <i class="ti ti-trash" style="font-size:15px;"></i>
+        </button>
+      </div>
     </div>
-    {% else %}
-    <div class="bc-agenda-empty">
-      <i class="ti ti-notebook-off"></i>
-      <span>Sin notas todavía</span>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bc-agenda-empty">
+    <i class="ti ti-notebook-off"></i>
+    <span>Sin notas todavía</span>
+  </div>
+  {% endif %}
+
+  <!-- Resueltas -->
+  {% if resueltas %}
+  <div class="bc-section-title bc-mt-24">Resueltas recientemente</div>
+  <div class="bc-nota-list bc-nota-list-resueltas">
+    {% for nota in resueltas %}
+    <div class="bc-card bc-nota-card bc-nota-resuelta" id="nota-{{ nota.pk }}">
+      <div class="bc-flex-1">
+        <div class="bc-nota-texto bc-nota-tachado">
+          <i class="ti ti-circle-check" style="color:var(--color-success);font-size:14px;margin-right:4px;"></i>{{ nota.texto }}
+        </div>
+        <div class="bc-nota-fecha">{{ nota.fecha|date:"d M Y, H:i" }}</div>
+      </div>
+      <button class="bc-btn-ghost bc-nota-del" data-pk="{{ nota.pk }}" title="Eliminar">
+        <i class="ti ti-trash" style="font-size:15px;"></i>
+      </button>
     </div>
-    {% endif %}
-  </section>
+    {% endfor %}
+  </div>
+  {% endif %}
 
 </div>
 
@@ -68,57 +97,64 @@
 
 {% block extra_js %}
 <script>
-/* Auto-grow del textarea */
+const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+/* Auto-grow */
 const textarea = document.getElementById('nota-texto');
 function autoGrow() {
   textarea.style.height = 'auto';
   textarea.style.height = textarea.scrollHeight + 'px';
 }
 textarea.addEventListener('input', autoGrow);
-
-/* Ctrl+Enter envía */
 textarea.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-    document.getElementById('nota-form').submit();
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) document.getElementById('nota-form').submit();
+});
+
+/* Chip activo */
+document.querySelectorAll('.bc-pchip input[type=radio]').forEach(function(r) {
+  r.addEventListener('change', function() {
+    document.querySelectorAll('.bc-pchip').forEach(function(c) { c.classList.remove('active'); });
+    this.closest('.bc-pchip').classList.add('active');
+  });
+});
+document.querySelector('.bc-pchip-normal').classList.add('active');
+
+/* Resolver / Eliminar AJAX */
+document.addEventListener('click', async function(e) {
+  const btnR = e.target.closest('.bc-nota-resolve');
+  const btnE = e.target.closest('.bc-nota-del');
+  const btn  = btnR || btnE;
+  if (!btn) return;
+
+  const pk   = btn.dataset.pk;
+  const card = document.getElementById('nota-' + pk);
+  const url  = btnR ? '/agenda/' + pk + '/resolver/' : '/agenda/' + pk + '/eliminar/';
+
+  await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF } });
+  if (card) {
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(10px)';
+    setTimeout(function() { card.remove(); }, 300);
   }
 });
 
-/* Dictado por voz */
+/* Voz */
 const btnMic = document.getElementById('btn-mic');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (!SpeechRecognition) {
-  btnMic.title = 'Tu navegador no soporta dictado de voz';
-  btnMic.style.opacity = '0.4';
-  btnMic.disabled = true;
-} else {
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'es-ES';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  let escuchando = false;
-
-  btnMic.addEventListener('click', function() {
-    if (escuchando) { recognition.stop(); } else { recognition.start(); }
-  });
-
-  recognition.addEventListener('start', function() {
-    escuchando = true;
-    btnMic.classList.add('active');
-  });
-
-  recognition.addEventListener('end', function() {
-    escuchando = false;
-    btnMic.classList.remove('active');
-  });
-
-  recognition.addEventListener('result', function(e) {
-    const texto = e.results[0][0].transcript;
-    textarea.value = textarea.value ? textarea.value + ' ' + texto : texto;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SR) { btnMic.style.opacity = '0.4'; btnMic.disabled = true; }
+else {
+  const rec = new SR();
+  rec.lang = 'es-ES'; rec.continuous = false; rec.interimResults = false;
+  let on = false;
+  btnMic.addEventListener('click', function() { on ? rec.stop() : rec.start(); });
+  rec.addEventListener('start', function() { on = true;  btnMic.classList.add('active'); });
+  rec.addEventListener('end',   function() { on = false; btnMic.classList.remove('active'); });
+  rec.addEventListener('result', function(e) {
+    const t = e.results[0][0].transcript;
+    textarea.value = textarea.value ? textarea.value + ' ' + t : t;
     autoGrow();
   });
-
-  recognition.addEventListener('error', function(e) { console.error('Error dictado:', e.error); });
 }
 </script>
 {% endblock %}

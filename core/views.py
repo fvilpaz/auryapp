@@ -458,18 +458,34 @@ def calendario(request):
 @staff_required
 def agenda(request):
     if request.method == 'POST':
-        texto = request.POST.get('texto', '').strip()
+        texto     = request.POST.get('texto', '').strip()
+        prioridad = request.POST.get('prioridad', 'normal')
         if texto:
-            Nota.objects.create(texto=texto)
+            Nota.objects.create(texto=texto, prioridad=prioridad)
         return redirect('agenda')
-    notas = Nota.objects.all()
-    return render(request, 'core/agenda.html', {'notas': notas})
+    notas     = Nota.objects.filter(resuelta=False).order_by('prioridad', '-fecha')
+    resueltas = Nota.objects.filter(resuelta=True).order_by('-fecha')[:5]
+    return render(request, 'core/agenda.html', {'notas': notas, 'resueltas': resueltas})
 
 @staff_required
 def eliminar_nota(request, pk):
+    from django.http import JsonResponse
     nota = get_object_or_404(Nota, pk=pk)
     if request.method == 'POST':
         nota.delete()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True})
+    return redirect('agenda')
+
+@staff_required
+def resolver_nota(request, pk):
+    from django.http import JsonResponse
+    nota = get_object_or_404(Nota, pk=pk)
+    if request.method == 'POST':
+        nota.resuelta = True
+        nota.save()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True})
     return redirect('agenda')
 
 @login_required(login_url='/login/')

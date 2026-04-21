@@ -28,6 +28,7 @@ urlpatterns = [
     path('tareas/<int:pk>/toggle/', views.toggle_tarea, name='toggle_tarea'),
     path('agenda/', views.agenda, name='agenda'),
     path('agenda/<int:pk>/eliminar/', views.eliminar_nota, name='eliminar_nota'),
+    path('agenda/<int:pk>/resolver/', views.resolver_nota, name='resolver_nota'),
     path('pedidos/', views.lista_espacios, name='pedidos'),
     path('pedidos/<int:pk>/', views.pedidos_espacio, name='pedidos_espacio'),
     path('pedidos/<int:pk>/nuevo/', views.nuevo_articulo, name='nuevo_articulo'),

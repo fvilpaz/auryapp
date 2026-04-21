@@ -99,13 +99,22 @@ class EventoDocumento(models.Model):
 
 
 class Nota(models.Model):
-    texto = models.TextField()
-    fecha = models.DateTimeField(auto_now_add=True)
+    PRIORIDAD_CHOICES = [
+        ('urgente',  'Urgente'),
+        ('moderado', 'Moderado'),
+        ('normal',   'Normal'),
+    ]
+    PRIORIDAD_ORDER = {'urgente': 0, 'moderado': 1, 'normal': 2}
+
+    texto     = models.TextField()
+    fecha     = models.DateTimeField(auto_now_add=True)
+    prioridad = models.CharField(max_length=10, choices=PRIORIDAD_CHOICES, default='normal')
+    resuelta  = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Nota'
         verbose_name_plural = 'Notas'
-        ordering = ['-fecha']
+        ordering = ['resuelta', 'prioridad', '-fecha']
 
     def __str__(self):
         return self.texto[:50]
