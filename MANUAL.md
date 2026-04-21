@@ -1,0 +1,205 @@
+# Manual de uso — AuryApp
+
+Guía completa para el uso diario de la aplicación de gestión del Beach Club.
+
+---
+
+## Acceso
+
+Abre el navegador y entra en la dirección de la app. Introduce tu usuario y contraseña.
+
+> Si introduces mal la contraseña 5 veces seguidas, la cuenta se bloquea durante 1 hora automáticamente.
+
+El saludo de bienvenida (Buenos días / Buenas tardes / Buenas noches) y el clima se actualizan solos.
+
+---
+
+## Dashboard
+
+La pantalla de inicio muestra un resumen del día:
+
+- **Clima** — Temperatura y estado del tiempo en Valencia (se actualiza cada 30 minutos)
+- **Módulos** — Acceso rápido a todas las secciones con el dato más importante de cada una
+- **Puntos de venta** — Estado de cada espacio: quién trabaja hoy y progreso de tareas
+- **Próximos eventos** — Tabla con los eventos de los próximos días
+- **Avisos** — Cumpleaños, vacaciones aprobadas, días sueltos y contratos próximos a vencer
+
+Los módulos del dashboard muestran animaciones con información relevante (notas recientes, trabajadores del día, próximos eventos...). Se actualizan solos cada 10 minutos.
+
+---
+
+## Temas visuales
+
+En la esquina superior derecha, haz clic en tus iniciales para desplegar el menú de usuario. Desde ahí puedes cambiar el tema de la app:
+
+| Tema | Estilo |
+|------|--------|
+| Claro | Blanco y azul, predeterminado |
+| Oscuro | Fondo negro, iconos en azul |
+| Mint | Verde menta |
+| Barbie | Rosa |
+| Drácula | Morado oscuro |
+| Cyberpunk | Negro y amarillo |
+
+Tu elección se guarda automáticamente para las próximas visitas.
+
+---
+
+## Agenda
+
+Notas y recordatorios con prioridad. Accede desde el módulo **Agenda** del dashboard.
+
+### Añadir una nota
+
+1. Escribe el texto en el campo de texto
+2. Selecciona la prioridad:
+   - **Urgente** — aparece siempre arriba, borde rojo
+   - **Moderado** — borde amarillo
+   - **Normal** — borde verde (por defecto)
+3. Pulsa **Añadir nota** o usa `Ctrl + Enter`
+
+### Dictar por voz
+
+Pulsa el icono del micrófono y habla. El texto aparece automáticamente en el campo. Funciona en Chrome y Edge.
+
+### Resolver una nota
+
+Pulsa el icono ✓ en la nota. Desaparece de la lista principal y pasa a la sección **Resueltas recientemente** al fondo, con texto tachado.
+
+### Eliminar una nota
+
+Pulsa el icono de papelera. La nota se elimina sin confirmación.
+
+---
+
+## Eventos
+
+Gestión de celebraciones: bodas, graduaciones, comuniones, galas, prebodas y otros.
+
+### Ver todos los eventos
+
+Accede desde **Eventos** en el dashboard o en el menú.
+
+### Crear un evento
+
+1. Pulsa **Nuevo evento**
+2. Rellena: cliente, tipo, concepto, fecha, espacios, número de personas y notas
+3. Guarda
+
+### Detalle de un evento
+
+Desde la ficha del evento puedes:
+
+- **Editar** los datos del evento
+- **Subir documentos** (PDF, imágenes, presupuestos...)
+- **Rangos y camareros** — añadir grupos de trabajo (ej: "Salón principal") y asignar camareros con su función
+- **Plano de mesas** — editor visual para diseñar la distribución del espacio
+
+### Plano de mesas (editor visual)
+
+El editor permite diseñar la distribución de mesas y espacios de cada evento.
+
+- **Añadir elementos** — mesas redondas, cuadradas, rectangulares, sillas, barras, escenarios...
+- **Mover elementos** — arrastra con el dedo (móvil/tablet) o con el ratón
+- **Candado** — activa el modo candado para bloquear los elementos y evitar moverlos sin querer al deslizar
+- **Zoom** — pellizca con dos dedos en móvil/tablet para hacer zoom
+- **Guardar** — en escritorio se guarda automáticamente. En móvil pulsa el botón guardar
+- **Exportar** — descarga el plano como imagen PNG o PDF
+
+---
+
+## Cuadrante de turnos
+
+Vista semanal de todos los empleados y sus turnos.
+
+### Navegar entre semanas
+
+Usa las flechas **←** **→** para moverte semana a semana.
+
+### Asignar un turno
+
+Haz clic en el día de un empleado y selecciona el tipo de turno (trabajo, libre, vacaciones...).
+
+### Asignar espacio a un empleado
+
+Desde la ficha del espacio o desde el cuadrante, arrastra el empleado al espacio correspondiente.
+
+---
+
+## Personal
+
+Gestión de la plantilla del club.
+
+### Ficha de empleado
+
+Cada empleado tiene: nombre, apellidos, rol, teléfono, email, fecha de nacimiento, tipo de contrato y fecha de vencimiento (si aplica).
+
+### Alertas de vencimiento
+
+En el dashboard (sección **Vencimientos**) aparecen los contratos que vencen en los próximos días. Los vencidos aparecen en rojo.
+
+---
+
+## Vacaciones y días sueltos
+
+### Solicitar ausencia (como empleado)
+
+1. Ve a la ficha del empleado
+2. Pulsa **Nueva solicitud**
+3. Selecciona tipo (vacaciones / día suelto / libre...), fechas y notas opcionales
+4. La solicitud queda en estado **Pendiente**
+
+### Aprobar o rechazar (como admin)
+
+Desde **Vacaciones** o **Días sueltos** en el menú, verás todas las solicitudes pendientes con botones para aprobar o rechazar.
+
+Las solicitudes aprobadas aparecen en el dashboard en la sección **Avisos**.
+
+---
+
+## Tareas
+
+Checklists de apertura y cierre por espacio. Se generan automáticamente cada día.
+
+### Marcar una tarea como completada
+
+Haz clic en la tarea. Se marca al instante (sin recargar la página). La barra de progreso del espacio se actualiza en el dashboard.
+
+### Ver tareas de un espacio
+
+Accede desde **Puntos de venta** en el dashboard o desde **Espacios** en el menú.
+
+---
+
+## Pedidos
+
+Registro de artículos necesarios por punto de venta.
+
+### Añadir un artículo
+
+1. Entra en el espacio desde **Pedidos**
+2. Pulsa **Nuevo artículo**
+3. Introduce nombre y cantidad
+
+### Actualizar cantidad
+
+Usa los botones **+** y **−** directamente en la lista. Se guarda al instante.
+
+---
+
+## Calendario
+
+Vista mensual de todos los eventos. Navega con las flechas del mes. Haz clic en un evento para ver su detalle.
+
+---
+
+## Cerrar sesión
+
+Haz clic en tus iniciales (esquina superior derecha) y pulsa **Cerrar sesión**.
+
+---
+
+## Soporte
+
+Desarrollado por **Fernando Vilas Paz**  
+[GitHub](https://github.com/fvilpaz) · [LinkedIn](https://www.linkedin.com/in/fernando-vilas-paz-1626901a9)
