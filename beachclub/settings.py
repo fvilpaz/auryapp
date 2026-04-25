@@ -16,14 +16,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-(1!hm#nr-x$2ysmtrs$1y981@zd9c%4s$y-w_rzj(zo&p5ja*o'
-)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-only-do-not-use-in-production')
 
-DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com', 'aury-op.com', 'www.aury-op.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aury-op.com', 'www.aury-op.com']
 
 
 # Application definition
@@ -141,10 +138,9 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
-# En producción (DJANGO_DEBUG=false) activar también:
-# SECURE_SSL_REDIRECT = not DEBUG
-# SESSION_COOKIE_SECURE = not DEBUG
-# CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
 
 # ── Bloqueo de intentos (django-axes) ────────────────────────────────────────
 AXES_FAILURE_LIMIT = 5          # bloquea tras 5 intentos fallidos
