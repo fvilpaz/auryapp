@@ -1,2 +1,2 @@
-web: gunicorn beachclub.wsgi
+web: python manage.py migrate --noinput && gunicorn beachclub.wsgi
 
