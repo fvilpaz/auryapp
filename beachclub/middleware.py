@@ -20,7 +20,7 @@ class LoginRequeridoMiddleware:
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "font-src 'self' https://cdn.jsdelivr.net; "
             "img-src 'self' data: blob: https:; "
-            "connect-src 'self'; "
+            "connect-src 'self' https://cdn.jsdelivr.net https://api.open-meteo.com; "
             "frame-ancestors 'none';"
         )
         return response
