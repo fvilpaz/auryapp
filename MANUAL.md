@@ -10,6 +10,12 @@ Abre el navegador y entra en la dirección de la app. Introduce tu usuario y con
 
 > Si introduces mal la contraseña 5 veces seguidas, la cuenta se bloquea durante 1 hora automáticamente.
 
+### Crear cuenta nueva
+
+Si no tienes cuenta, pulsa **Crear cuenta nueva** en la pantalla de login. Rellena nombre, apellidos, usuario, correo y contraseña. Al registrarte entras directamente a la app.
+
+> Las cuentas nuevas no tienen permisos de administrador. Un administrador puede elevarlas desde el panel Admin.
+
 El saludo de bienvenida (Buenos días / Buenas tardes / Buenas noches) y el clima se actualizan solos.
 
 ---
@@ -190,6 +196,12 @@ Usa los botones **+** y **−** directamente en la lista. Se guarda al instante.
 ## Calendario
 
 Vista mensual de todos los eventos. Navega con las flechas del mes. Haz clic en un evento para ver su detalle.
+
+---
+
+## Panel de administración
+
+Si tu cuenta tiene permisos de staff, aparece el botón **Admin** (con icono de escudo) en la barra superior. Desde ahí puedes gestionar usuarios, grupos y todos los modelos de la app directamente.
 
 ---
 

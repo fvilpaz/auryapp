@@ -19,6 +19,8 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 - **Pedidos** — Registro de artículos necesarios por punto de venta
 - **Calendario** — Vista mensual de eventos con FullCalendar
 - **Temas** — 6 temas visuales (Claro, Oscuro, Mint, Barbie, Drácula, Cyberpunk)
+- **Registro de usuarios** — Formulario de alta con nombre, apellidos, usuario, email y contraseña
+- **Panel de administración** — Acceso directo al admin de Django desde la navbar (solo staff)
 
 ---
 
@@ -27,7 +29,7 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 | Capa | Tecnología |
 |------|-----------|
 | Backend | Django 6.0.3 |
-| Base de datos | SQLite3 (producción: PostgreSQL recomendado) |
+| Base de datos | PostgreSQL (Neon) |
 | Frontend | CSS propio con variables, Tabler Icons, Fabric.js |
 | Servidor | Gunicorn + WhiteNoise |
 | Deploy | Render.com |
@@ -68,7 +70,8 @@ python data/turnos.py
 
 ```env
 DJANGO_SECRET_KEY=tu_clave_secreta
-DJANGO_DEBUG=False
+DJANGO_DEBUG=false
+DATABASE_URL=postgresql://usuario:password@host/db?sslmode=require
 ```
 
 ---
@@ -78,7 +81,7 @@ DJANGO_DEBUG=False
 El proyecto incluye `Procfile` configurado:
 
 ```
-web: gunicorn beachclub.wsgi
+web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn beachclub.wsgi
 ```
 
 WhiteNoise gestiona los archivos estáticos. No se necesita servidor de ficheros externo.
