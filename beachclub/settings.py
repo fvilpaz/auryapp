@@ -23,7 +23,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-only-do-
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aury-op.com', 'www.aury-op.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aury-op.com', 'www.aury-op.com', '.run.app']
 
 
 # Application definition
@@ -144,6 +144,7 @@ CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ── Bloqueo de intentos (django-axes) ────────────────────────────────────────
 AXES_FAILURE_LIMIT = 5          # bloquea tras 5 intentos fallidos

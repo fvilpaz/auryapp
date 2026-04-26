@@ -219,6 +219,8 @@ body {
 .bc-user-menu-item:hover { background: var(--color-border); }
 .bc-user-menu-logout { color: var(--color-danger); }
 .bc-user-menu-logout:hover { background: rgba(192,57,43,0.08); }
+.bc-user-menu-admin { color: var(--color-primary); }
+.bc-user-menu-admin:hover { background: rgba(26,111,196,0.08); }
 
 /* ============================================
    LAYOUT

@@ -18,11 +18,6 @@
       <span class="bc-navbar-brand-text">Beach Club</span>
     </a>
     <div class="bc-navbar-right">
-      {% if request.user.is_staff %}
-      <a href="/admin/" class="bc-navbar-admin-link">
-        <i class="ti ti-shield-check"></i> Admin
-      </a>
-      {% endif %}
       <div class="bc-user-menu" id="bc-user-menu">
       <button class="bc-user-menu-btn" id="bc-user-menu-btn" type="button">
         <div class="bc-navbar-user">
@@ -39,6 +34,11 @@
         <div class="bc-user-menu-section-label">🎨 Tema</div>
         <div class="bc-user-theme-chips" id="bc-user-theme-chips"></div>
         <div class="bc-user-menu-divider"></div>
+        {% if request.user.is_staff %}
+        <a href="/admin/" class="bc-user-menu-item bc-user-menu-admin">
+          <i class="ti ti-shield-check"></i> Admin
+        </a>
+        {% endif %}
         <form method="post" action="{% url 'logout' %}" style="display:contents;">
           {% csrf_token %}
           <button type="submit" class="bc-user-menu-item bc-user-menu-logout">
