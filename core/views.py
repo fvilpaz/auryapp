@@ -38,7 +38,7 @@ def _get_weather():
         url = ('https://api.open-meteo.com/v1/forecast'
                '?latitude=39.47&longitude=-0.38'
                '&current=temperature_2m,weather_code&timezone=auto')
-        with _urlopen(url, timeout=4) as resp:
+        with _urlopen(url, timeout=8) as resp:
             d = _json.loads(resp.read())
         temp = round(d['current']['temperature_2m'])
         code = d['current']['weather_code']
@@ -190,7 +190,7 @@ def eventos_json(request):
             'title': evento.cliente if evento.cliente else evento.get_tipo_display(),
             'start': evento.fecha.isoformat(),
             'color': colores.get(evento.tipo, '#6b7280'),
-            'url': f'/eventos/',
+            'url': f'/eventos/{evento.pk}/',
         })
     return JsonResponse(data, safe=False)
 

@@ -14,8 +14,8 @@
     <span class="bc-dashboard-saludo-nombre">{{ request.user.first_name|default:request.user.username }}</span>
   </div>
 
+  {% if weather.temp is not None %}
   <div class="bc-weather">
-    {% if weather.temp is not None %}
     <div class="bc-weather-anim">
       <span class="bc-w-icon {% if weather.desc == 'Despejado' or weather.desc == 'Casi despejado' %}bc-w-sun{% elif weather.desc == 'Lluvia' or weather.desc == 'Llovizna' or weather.desc == 'Chubascos' %}bc-w-rain{% elif weather.desc == 'Nieve' %}bc-w-snow{% elif weather.desc == 'Niebla' %}bc-w-fog{% elif weather.desc == 'Tormenta' %}bc-w-storm{% else %}bc-w-cloud{% endif %}" style="font-size:32px;line-height:1">{{ weather.emoji }}</span>
     </div>
@@ -23,8 +23,8 @@
       <div class="bc-weather-temp">{{ weather.temp }}°</div>
       <div class="bc-weather-desc">{{ weather.desc }}</div>
     </div>
-    {% endif %}
   </div>
+  {% endif %}
 </div>
 
 <div class="bc-section">
