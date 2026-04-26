@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import redirect
 
-RUTAS_PUBLICAS = [settings.LOGIN_URL, '/admin/', '/static/', '/media/']
+RUTAS_PUBLICAS = [settings.LOGIN_URL, '/registro/', '/admin/', '/static/', '/media/']
 
 class LoginRequeridoMiddleware:
     def __init__(self, get_response):

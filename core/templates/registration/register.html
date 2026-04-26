@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear cuenta — Beach Club</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="bc-login-page">
+
+  <div class="bc-login-wrap" style="max-width:480px;">
+    <div class="bc-login-card">
+
+      <div class="bc-login-header">
+        <img src="{% static 'img/fondo_login.webp' %}" alt="Beach Club" class="bc-login-hero-img" style="width:100px;height:100px;">
+        <h1 class="bc-login-title">Crear cuenta</h1>
+        <p class="bc-login-subtitle">Beach Club · Gestión interna</p>
+      </div>
+
+      {% if form.errors %}
+      <div class="bc-login-error">
+        <i class="ti ti-alert-circle"></i>
+        Revisa los campos marcados en rojo
+      </div>
+      {% endif %}
+
+      <form method="post" class="bc-login-form">
+        {% csrf_token %}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="bc-login-field">
+            <label class="bc-login-label">
+              <i class="ti ti-user"></i> Nombre
+            </label>
+            <input class="bc-login-input{% if form.first_name.errors %} bc-login-input--error{% endif %}"
+                   type="text" name="first_name"
+                   value="{{ form.first_name.value|default:'' }}"
+                   placeholder="Nombre" autocomplete="given-name" autofocus required>
+          </div>
+          <div class="bc-login-field">
+            <label class="bc-login-label">Apellidos</label>
+            <input class="bc-login-input{% if form.last_name.errors %} bc-login-input--error{% endif %}"
+                   type="text" name="last_name"
+                   value="{{ form.last_name.value|default:'' }}"
+                   placeholder="Apellidos" autocomplete="family-name" required>
+          </div>
+        </div>
+
+        <div class="bc-login-field">
+          <label class="bc-login-label">
+            <i class="ti ti-at"></i> Nombre de usuario
+          </label>
+          <input class="bc-login-input{% if form.username.errors %} bc-login-input--error{% endif %}"
+                 type="text" name="username"
+                 value="{{ form.username.value|default:'' }}"
+                 placeholder="usuario" autocomplete="username" required>
+          {% if form.username.errors %}
+          <span style="font-size:12px;color:var(--color-danger);">{{ form.username.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="bc-login-field">
+          <label class="bc-login-label">
+            <i class="ti ti-mail"></i> Correo electrónico
+          </label>
+          <input class="bc-login-input{% if form.email.errors %} bc-login-input--error{% endif %}"
+                 type="email" name="email"
+                 value="{{ form.email.value|default:'' }}"
+                 placeholder="tu@correo.com" autocomplete="email" required>
+        </div>
+
+        <div class="bc-login-field">
+          <label class="bc-login-label">
+            <i class="ti ti-lock"></i> Contraseña
+          </label>
+          <input class="bc-login-input{% if form.password1.errors %} bc-login-input--error{% endif %}"
+                 type="password" name="password1"
+                 placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+          {% if form.password1.errors %}
+          <span style="font-size:12px;color:var(--color-danger);">{{ form.password1.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="bc-login-field">
+          <label class="bc-login-label">
+            <i class="ti ti-lock-check"></i> Confirmar contraseña
+          </label>
+          <input class="bc-login-input{% if form.password2.errors %} bc-login-input--error{% endif %}"
+                 type="password" name="password2"
+                 placeholder="Repite la contraseña" autocomplete="new-password" required>
+          {% if form.password2.errors %}
+          <span style="font-size:12px;color:var(--color-danger);">{{ form.password2.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="bc-btn bc-btn-primary bc-login-btn">
+          <i class="ti ti-user-plus"></i> Crear cuenta
+        </button>
+      </form>
+
+      <div class="bc-login-footer">
+        <span class="bc-login-footer-text">¿Ya tienes cuenta?</span>
+        <a href="{% url 'login' %}" class="bc-login-footer-link">Inicia sesión</a>
+      </div>
+
+      <div class="bc-login-credit">
+        <span>Desarrollado por <strong>Fernando Vilas Paz</strong></span>
+        <div class="bc-login-credit-links">
+          <a href="https://github.com/fvilpaz" target="_blank" rel="noopener">
+            <i class="ti ti-brand-github"></i> GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/fernando-vilas-paz-1626901a9" target="_blank" rel="noopener">
+            <i class="ti ti-brand-linkedin"></i> LinkedIn
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

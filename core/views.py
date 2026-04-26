@@ -10,6 +10,9 @@ from personal.models import Empleado, Turno, SolicitudAusencia
 from tareas.models import TareaPlantilla, TareaDelDia
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login as auth_login
+from django import forms
 
 # ── Weather cache (module-level, 30-min TTL) ──────────────────────────────────
 _weather_cache = {'data': None, 'ts': 0}
@@ -649,3 +652,26 @@ def actualizar_cantidad(request, pk):
         articulo.save()
         return JsonResponse({'cantidad': articulo.cantidad})
     return JsonResponse({'error': 'método no permitido'}, status=405)
+
+
+# ── Registro de usuario ────────────────────────────────────────────────────────
+class RegistroForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True, label='Nombre')
+    last_name  = forms.CharField(max_length=150, required=True, label='Apellidos')
+    email      = forms.EmailField(required=True, label='Correo electrónico')
+
+    class Meta(UserCreationForm.Meta):
+        fields = ('first_name', 'last_name', 'username', 'email', 'password1', 'password2')
+
+def registro(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect('dashboard')
+    else:
+        form = RegistroForm()
+    return render(request, 'registration/register.html', {'form': form})

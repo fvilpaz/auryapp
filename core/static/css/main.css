@@ -104,10 +104,30 @@ body {
   flex-shrink: 0;
 }
 
+/* ── Zona derecha de la navbar ── */
+.bc-navbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.bc-navbar-admin-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.bc-navbar-admin-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
 /* ── Menú de usuario (dropdown) ── */
 .bc-user-menu {
   position: relative;
-  margin-left: auto;
 }
 .bc-user-menu-btn {
   display: flex;
@@ -1871,6 +1891,10 @@ form { margin: 0; }
   box-shadow: 0 0 0 3px rgba(26,111,196,0.12);
 }
 .bc-login-input::placeholder { color: var(--color-muted); }
+.bc-login-input--error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.10);
+}
 
 /* ============================================
    DASHBOARD — SALUDO

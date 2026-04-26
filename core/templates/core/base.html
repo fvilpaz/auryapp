@@ -17,7 +17,13 @@
       <div class="bc-navbar-avatar">BC</div>
       <span class="bc-navbar-brand-text">Beach Club</span>
     </a>
-    <div class="bc-user-menu" id="bc-user-menu">
+    <div class="bc-navbar-right">
+      {% if request.user.is_staff %}
+      <a href="/admin/" class="bc-navbar-admin-link">
+        <i class="ti ti-shield-check"></i> Admin
+      </a>
+      {% endif %}
+      <div class="bc-user-menu" id="bc-user-menu">
       <button class="bc-user-menu-btn" id="bc-user-menu-btn" type="button">
         <div class="bc-navbar-user">
           {% if request.user.first_name %}{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}
@@ -40,7 +46,8 @@
           </button>
         </form>
       </div>
-    </div>
+    </div>{# bc-user-menu #}
+    </div>{# bc-navbar-right #}
   </nav>
 
   <main class="bc-page">
