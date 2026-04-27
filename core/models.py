@@ -47,6 +47,8 @@ class Evento(models.Model):
     notas = models.TextField(blank=True)
     plano_json = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
+    eliminado = models.BooleanField(default=False)
+    fecha_eliminado = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Evento'

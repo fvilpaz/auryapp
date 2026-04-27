@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Papelera — Eventos{% endblock %}
+
+{% block content %}
+
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">🗑️ Papelera de eventos</span>
+    <a href="{% url 'lista_eventos' %}" class="bc-btn bc-btn-secondary">
+      <i class="ti ti-arrow-left"></i> Volver a eventos
+    </a>
+  </div>
+
+  {% if eventos %}
+  <p style="color:var(--color-muted);font-size:13px;margin-bottom:16px;">
+    Los eventos eliminados se guardan aquí. Puedes restaurarlos o eliminarlos definitivamente.
+  </p>
+  <div class="bc-table-wrapper">
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Eliminado</th>
+          <th>Fecha evento</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Personas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for evento in eventos %}
+        <tr>
+          <td style="color:var(--color-muted);font-size:13px;">{{ evento.fecha_eliminado|date:"d M Y H:i" }}</td>
+          <td>{{ evento.fecha|date:"d M Y" }}</td>
+          <td>{{ evento.cliente|default:"—" }}</td>
+          <td>
+            {% if evento.tipo == 'boda' %}
+              <span class="bc-badge bc-badge-blue">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'graduacion' %}
+              <span class="bc-badge bc-badge-green">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'comunion' %}
+              <span class="bc-badge bc-badge-amber">{{ evento.get_tipo_display }}</span>
+            {% elif evento.tipo == 'gala' %}
+              <span class="bc-badge bc-badge-red">{{ evento.get_tipo_display }}</span>
+            {% else %}
+              <span class="bc-badge bc-badge-gray">{{ evento.get_tipo_display }}</span>
+            {% endif %}
+          </td>
+          <td>{{ evento.personas }}</td>
+          <td style="display:flex;gap:8px;align-items:center;">
+            <form method="post" action="{% url 'restaurar_evento' evento.pk %}" style="display:contents;">
+              {% csrf_token %}
+              <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary" title="Restaurar">
+                <i class="ti ti-restore"></i> Restaurar
+              </button>
+            </form>
+            <form method="post" action="{% url 'eliminar_evento_definitivo' evento.pk %}" style="display:contents;"
+                  onsubmit="return confirm('¿Eliminar {{ evento.cliente|default:'este evento' }} definitivamente? Esta acción no se puede deshacer.')">
+              {% csrf_token %}
+              <button type="submit" class="bc-btn bc-btn-sm bc-btn-danger-ghost" title="Eliminar definitivamente">
+                <i class="ti ti-trash-x"></i> Borrar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:48px;color:var(--color-muted);">
+    <i class="ti ti-trash" style="font-size:48px;display:block;margin-bottom:12px;opacity:0.3;"></i>
+    La papelera está vacía
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

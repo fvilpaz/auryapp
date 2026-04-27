@@ -67,10 +67,11 @@ def dashboard(request):
     else:
         saludo = 'Buenas noches'
     espacios = Espacio.objects.filter(activo=True)
-    eventos_proximos = Evento.objects.filter(fecha__gte=hoy).order_by('fecha')[:5]
+    eventos_proximos = Evento.objects.filter(fecha__gte=hoy, eliminado=False).order_by('fecha')[:5]
     total_eventos_mes = Evento.objects.filter(
         fecha__year=hoy.year,
-        fecha__month=hoy.month
+        fecha__month=hoy.month,
+        eliminado=False,
     ).count()
     total_personal = Empleado.objects.filter(activo=True).count()
     empleados_activos = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
@@ -97,7 +98,7 @@ def dashboard(request):
 
     # Próximos 7 días
     en_7_dias = hoy + timezone.timedelta(days=7)
-    eventos_esta_semana = Evento.objects.filter(fecha__gte=hoy, fecha__lte=en_7_dias).count()
+    eventos_esta_semana = Evento.objects.filter(fecha__gte=hoy, fecha__lte=en_7_dias, eliminado=False).count()
 
     # Vacaciones próximas (todas, no rechazadas)
     vacaciones_proximas = SolicitudAusencia.objects.filter(
@@ -167,15 +168,16 @@ def dashboard(request):
 
 @login_required(login_url='/login/')
 def lista_eventos(request):
-    eventos = Evento.objects.all().order_by('fecha')
+    eventos = Evento.objects.filter(eliminado=False).order_by('fecha')
     context = {
         'eventos': eventos,
+        'n_papelera': Evento.objects.filter(eliminado=True).count(),
     }
     return render(request, 'core/eventos.html', context)
 
 @login_required(login_url='/login/')
 def eventos_json(request):
-    eventos = Evento.objects.all()
+    eventos = Evento.objects.filter(eliminado=False)
     data = []
     colores = {
         'boda': '#1a6fc4',
@@ -242,8 +244,31 @@ def editar_evento(request, pk):
 def eliminar_evento(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
     if request.method == 'POST':
-        evento.delete()
+        evento.eliminado = True
+        evento.fecha_eliminado = timezone.now()
+        evento.save(update_fields=['eliminado', 'fecha_eliminado'])
     return redirect('lista_eventos')
+
+@staff_required
+def papelera_eventos(request):
+    eventos = Evento.objects.filter(eliminado=True).order_by('-fecha_eliminado')
+    return render(request, 'core/papelera_eventos.html', {'eventos': eventos})
+
+@staff_required
+def restaurar_evento(request, pk):
+    evento = get_object_or_404(Evento, pk=pk, eliminado=True)
+    if request.method == 'POST':
+        evento.eliminado = False
+        evento.fecha_eliminado = None
+        evento.save(update_fields=['eliminado', 'fecha_eliminado'])
+    return redirect('papelera_eventos')
+
+@staff_required
+def eliminar_evento_definitivo(request, pk):
+    evento = get_object_or_404(Evento, pk=pk, eliminado=True)
+    if request.method == 'POST':
+        evento.delete()
+    return redirect('papelera_eventos')
 
 @login_required(login_url='/login/')
 def detalle_evento(request, pk):

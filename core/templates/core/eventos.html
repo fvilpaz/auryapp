@@ -8,9 +8,16 @@
 <div class="bc-section">
   <div class="bc-section-header">
     <span class="bc-section-header-title">Todos los eventos</span>
-    <a href="{% url 'nuevo_evento' %}" class="bc-btn bc-btn-primary">
-      <i class="ti ti-plus"></i> Nuevo evento
-    </a>
+    <div class="bc-flex bc-gap-8">
+      <a href="{% url 'papelera_eventos' %}" class="bc-btn bc-btn-secondary" title="Papelera">
+        <i class="ti ti-trash"></i>
+        {% if n_papelera %}<span style="color:var(--color-danger);">{{ n_papelera }}</span>{% endif %}
+        Papelera
+      </a>
+      <a href="{% url 'nuevo_evento' %}" class="bc-btn bc-btn-primary">
+        <i class="ti ti-plus"></i> Nuevo evento
+      </a>
+    </div>
   </div>
 
   <div class="bc-table-wrapper">
