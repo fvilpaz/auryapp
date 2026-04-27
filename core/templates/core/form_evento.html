@@ -73,17 +73,20 @@
         </button>
         <a href="{% url 'lista_eventos' %}" class="bc-btn">Cancelar</a>
         {% if evento %}
-        <form method="post" action="{% url 'eliminar_evento' evento.pk %}"
-              onsubmit="return confirm('¿Eliminar este evento?')">
-          {% csrf_token %}
-          <button type="submit" class="bc-btn bc-btn-danger">
-            <i class="ti ti-trash"></i> Eliminar
-          </button>
-        </form>
+        <button type="button" class="bc-btn bc-btn-danger"
+                onclick="if(confirm('¿Eliminar este evento?')) document.getElementById('form-eliminar-evento').submit()">
+          <i class="ti ti-trash"></i> Eliminar
+        </button>
         {% endif %}
       </div>
 
     </form>
+
+    {% if evento %}
+    <form id="form-eliminar-evento" method="post" action="{% url 'eliminar_evento' evento.pk %}" style="display:none">
+      {% csrf_token %}
+    </form>
+    {% endif %}
   </div>
 </div>
 
