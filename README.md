@@ -32,7 +32,8 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 | Base de datos | PostgreSQL (Neon) |
 | Frontend | CSS propio con variables, Tabler Icons, Fabric.js |
 | Servidor | Gunicorn + WhiteNoise |
-| Deploy | Render.com |
+| Deploy | Google Cloud Run |
+| Almacenamiento | Google Cloud Storage |
 | Seguridad | django-axes (bloqueo tras 5 intentos fallidos) |
 
 ---
@@ -72,19 +73,24 @@ python data/turnos.py
 DJANGO_SECRET_KEY=tu_clave_secreta
 DJANGO_DEBUG=false
 DATABASE_URL=postgresql://usuario:password@host/db?sslmode=require
+TZ=Europe/Madrid
+GS_BUCKET_NAME=nombre-del-bucket
 ```
 
 ---
 
-## Despliegue en Render
+## Despliegue en Google Cloud Run
 
-El proyecto incluye `Procfile` configurado:
+El proyecto incluye `Dockerfile` y `deploy.sh`. Las credenciales se guardan en `.env.deploy` (local, nunca en el repositorio).
 
+```bash
+bash deploy.sh
 ```
-web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn beachclub.wsgi
-```
 
-WhiteNoise gestiona los archivos estáticos. No se necesita servidor de ficheros externo.
+- Contenedor Python 3.12 slim
+- Archivos estáticos gestionados por WhiteNoise
+- Archivos de usuario (documentos de eventos) en Google Cloud Storage
+- Base de datos PostgreSQL serverless en Neon (Frankfurt)
 
 ---
 
