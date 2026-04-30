@@ -1,44 +1,46 @@
+🇬🇧 English | 🇪🇸 [Español](README.es.md)
+
 # AuryApp
 
-Aplicación web de gestión integral para beach club. Desarrollada con Django, diseño propio y orientada a uso real en entornos de hostelería y eventos.
+Full-stack Django web app built for a real beach club, actively used in production. Covers event management, staff scheduling, daily operations and more — with a custom design system.
 
-**Desarrollado por [Fernando Vilas Paz](https://github.com/fvilpaz)**
-
----
-
-## Funcionalidades
-
-- **Dashboard** — Resumen del día: clima en vivo, eventos próximos, tareas del día, personal trabajando
-- **Eventos** — Gestión completa de bodas, graduaciones, comuniones, galas y más. Con documentos adjuntos y editor visual de plano de mesas
-- **Plano de mesas** — Editor visual (Fabric.js) para diseñar la distribución de espacios de cada evento
-- **Cuadrante** — Vista semanal de turnos por empleado con drag & drop
-- **Personal** — Fichas de empleados, roles, contratos y alertas de vencimiento
-- **Vacaciones y días sueltos** — Solicitudes, aprobación y seguimiento
-- **Tareas** — Checklists de apertura/cierre por espacio, actualizables en tiempo real
-- **Agenda** — Notas con prioridad (urgente / moderado / normal), resolución y dictado por voz
-- **Pedidos** — Registro de artículos necesarios por punto de venta
-- **Calendario** — Vista mensual de eventos con FullCalendar
-- **Temas** — 6 temas visuales (Claro, Oscuro, Mint, Barbie, Drácula, Cyberpunk)
-- **Registro de usuarios** — Formulario de alta con nombre, apellidos, usuario, email y contraseña
-- **Panel de administración** — Acceso directo al admin de Django desde la navbar (solo staff)
+**Developed by [Fernando Vilas Paz](https://github.com/fvilpaz)**
 
 ---
 
-## Stack técnico
+## Features
 
-| Capa | Tecnología |
-|------|-----------|
+- **Dashboard** — Daily overview: live weather, upcoming events, today's tasks, active staff
+- **Events** — Full event management (weddings, graduations, communions, galas and more) with file attachments and a visual floor plan editor
+- **Floor Plan Editor** — Drag-and-drop visual layout builder (Fabric.js) per event
+- **Schedule** — Weekly shift view per employee with drag & drop
+- **Staff** — Employee profiles, roles, contracts and expiry alerts
+- **Time Off** — Holiday and day-off requests, approval and tracking
+- **Tasks** — Opening/closing checklists per venue, updated in real time
+- **Agenda** — Priority notes (urgent / moderate / normal), resolution and voice dictation
+- **Orders** — Stock tracking per point of sale
+- **Calendar** — Monthly event view with FullCalendar, synced with Events module
+- **Themes** — 6 visual themes (Light, Dark, Mint, Barbie, Dracula, Cyberpunk)
+- **User Registration** — Sign-up form with name, username, email and password
+- **Admin Panel** — Direct access to Django admin from the navbar (staff only)
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
 | Backend | Django 6.0.3 |
-| Base de datos | PostgreSQL (Neon) |
-| Frontend | CSS propio con variables, Tabler Icons, Fabric.js |
-| Servidor | Gunicorn + WhiteNoise |
+| Database | PostgreSQL (Neon) |
+| Frontend | Custom CSS with variables, Tabler Icons, Fabric.js |
+| Server | Gunicorn + WhiteNoise |
 | Deploy | Google Cloud Run |
-| Almacenamiento | Google Cloud Storage |
-| Seguridad | django-axes (bloqueo tras 5 intentos fallidos) |
+| Storage | Google Cloud Storage |
+| Security | django-axes (lockout after 5 failed login attempts) |
 
 ---
 
-## Instalación local
+## Local Setup
 
 ```bash
 git clone https://github.com/fvilpaz/auryapp.git
@@ -54,9 +56,9 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Accede en `http://localhost:8000`
+Access at `http://localhost:8000`
 
-### Datos de ejemplo (opcional)
+### Sample data (optional)
 
 ```bash
 python data/personal.py
@@ -67,43 +69,43 @@ python data/turnos.py
 
 ---
 
-## Variables de entorno (producción)
+## Environment Variables (production)
 
 ```env
-DJANGO_SECRET_KEY=tu_clave_secreta
+DJANGO_SECRET_KEY=your_secret_key
 DJANGO_DEBUG=false
-DATABASE_URL=postgresql://usuario:password@host/db?sslmode=require
+DATABASE_URL=postgresql://user:password@host/db?sslmode=require
 TZ=Europe/Madrid
-GS_BUCKET_NAME=nombre-del-bucket
+GS_BUCKET_NAME=your-bucket-name
 ```
 
 ---
 
-## Despliegue en Google Cloud Run
+## Deployment (Google Cloud Run)
 
-El proyecto incluye `Dockerfile` y `deploy.sh`. Las credenciales se guardan en `.env.deploy` (local, nunca en el repositorio).
+Includes `Dockerfile` and `deploy.sh`. Credentials are stored in `.env.deploy` (local only, never committed).
 
 ```bash
 bash deploy.sh
 ```
 
-- Contenedor Python 3.12 slim
-- Archivos estáticos gestionados por WhiteNoise
-- Archivos de usuario (documentos de eventos) en Google Cloud Storage
-- Base de datos PostgreSQL serverless en Neon (Frankfurt)
+- Python 3.12 slim container
+- Static files served by WhiteNoise
+- User uploads (event documents) stored in Google Cloud Storage
+- Serverless PostgreSQL on Neon (Frankfurt)
 
 ---
 
-## Seguridad
+## Security
 
-- Autenticación obligatoria en todas las rutas (middleware personalizado)
-- Bloqueo automático tras 5 intentos de login fallidos (1 hora de cooldown)
-- Protección CSRF, XSS y clickjacking activadas
-- SSL recomendado en producción
+- Login required on all routes (custom middleware)
+- Automatic lockout after 5 failed login attempts (1-hour cooldown)
+- CSRF, XSS and clickjacking protection enabled
+- SSL enforced in production
 
 ---
 
-## Licencia
+## License
 
-Proyecto privado. Todos los derechos reservados.  
+Private project. All rights reserved.  
 © 2026 Fernando Vilas Paz
