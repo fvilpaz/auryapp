@@ -1,4 +1,6 @@
-🇬🇧 [English](README.md) | 🇪🇸 Español
+<div align="right">
+  <a href="README.md">EN</a> &nbsp;|&nbsp; <a href="README.es.md"><strong>ES</strong></a>
+</div>
 
 # AuryApp
 
