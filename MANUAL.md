@@ -1,217 +1,222 @@
-# Manual de uso — AuryApp
+<div align="right">
+  <img src="https://img.shields.io/badge/EN-1a6fc4?style=flat-square" alt="English">
+  &nbsp;<a href="MANUAL.es.md"><img src="https://img.shields.io/badge/ES-555555?style=flat-square" alt="Español"></a>
+</div>
 
-Guía completa para el uso diario de la aplicación de gestión del Beach Club.
+# User Manual — AuryApp
+
+Complete guide for the daily use of the Beach Club management application.
 
 ---
 
-## Acceso
+## Access
 
-Abre el navegador y entra en la dirección de la app. Introduce tu usuario y contraseña.
+Open your browser and go to the app's URL. Enter your username and password.
 
-> Si introduces mal la contraseña 5 veces seguidas, la cuenta se bloquea durante 1 hora automáticamente.
+> If you enter the wrong password 5 times in a row, the account is automatically locked for 1 hour.
 
-### Crear cuenta nueva
+### Create a new account
 
-Si no tienes cuenta, pulsa **Crear cuenta nueva** en la pantalla de login. Rellena nombre, apellidos, usuario, correo y contraseña. Al registrarte entras directamente a la app.
+If you don't have an account, click **Create new account** on the login screen. Fill in your first name, last name, username, email and password. Once registered, you are taken directly into the app.
 
-> Las cuentas nuevas no tienen permisos de administrador. Un administrador puede elevarlas desde el panel Admin.
+> New accounts do not have administrator permissions. An administrator can grant them from the Admin panel.
 
-El saludo de bienvenida (Buenos días / Buenas tardes / Buenas noches) y el clima se actualizan solos.
+The welcome greeting (Good morning / Good afternoon / Good evening) and the weather update automatically.
 
 ---
 
 ## Dashboard
 
-La pantalla de inicio muestra un resumen del día:
+The home screen shows a summary of the day:
 
-- **Clima** — Temperatura y estado del tiempo en Valencia (se actualiza cada 30 minutos)
-- **Módulos** — Acceso rápido a todas las secciones con el dato más importante de cada una
-- **Puntos de venta** — Estado de cada espacio: quién trabaja hoy y progreso de tareas
-- **Próximos eventos** — Tabla con los eventos de los próximos días
-- **Avisos** — Cumpleaños, vacaciones aprobadas, días sueltos y contratos próximos a vencer
+- **Weather** — Temperature and weather conditions in Valencia (updated every 30 minutes)
+- **Modules** — Quick access to all sections with the most important data from each
+- **Points of sale** — Status of each area: who is working today and task progress
+- **Upcoming events** — Table with events for the next few days
+- **Notices** — Birthdays, approved holidays, single days off and contracts expiring soon
 
-Los módulos del dashboard muestran animaciones con información relevante (notas recientes, trabajadores del día, próximos eventos...). Se actualizan solos cada 10 minutos.
+The dashboard modules display animations with relevant information (recent notes, today's staff, upcoming events...). They update automatically every 10 minutes.
 
 ---
 
-## Temas visuales
+## Visual themes
 
-En la esquina superior derecha, haz clic en tus iniciales para desplegar el menú de usuario. Desde ahí puedes cambiar el tema de la app:
+In the top-right corner, click your initials to open the user menu. From there you can change the app's theme:
 
-| Tema | Estilo |
-|------|--------|
-| Claro | Blanco y azul, predeterminado |
-| Oscuro | Fondo negro, iconos en azul |
-| Mint | Verde menta |
-| Barbie | Rosa |
-| Drácula | Morado oscuro |
-| Cyberpunk | Negro y amarillo |
+| Theme | Style |
+|-------|-------|
+| Light | White and blue, default |
+| Dark | Black background, blue icons |
+| Mint | Mint green |
+| Barbie | Pink |
+| Dracula | Dark purple |
+| Cyberpunk | Black and yellow |
 
-Tu elección se guarda automáticamente para las próximas visitas.
+Your choice is saved automatically for future visits.
 
 ---
 
 ## Agenda
 
-Notas y recordatorios con prioridad. Accede desde el módulo **Agenda** del dashboard.
+Notes and reminders with priority. Access from the **Agenda** module on the dashboard.
 
-### Añadir una nota
+### Add a note
 
-1. Escribe el texto en el campo de texto
-2. Selecciona la prioridad:
-   - **Urgente** — aparece siempre arriba, borde rojo
-   - **Moderado** — borde amarillo
-   - **Normal** — borde verde (por defecto)
-3. Pulsa **Añadir nota** o usa `Ctrl + Enter`
+1. Type the text in the text field
+2. Select the priority:
+   - **Urgent** — always appears at the top, red border
+   - **Moderate** — yellow border
+   - **Normal** — green border (default)
+3. Click **Add note** or use `Ctrl + Enter`
 
-### Dictar por voz
+### Dictate by voice
 
-Pulsa el icono del micrófono y habla. El texto aparece automáticamente en el campo. Funciona en Chrome y Edge.
+Click the microphone icon and speak. The text appears automatically in the field. Works in Chrome and Edge.
 
-### Resolver una nota
+### Resolve a note
 
-Pulsa el icono ✓ en la nota. Desaparece de la lista principal y pasa a la sección **Resueltas recientemente** al fondo, con texto tachado.
+Click the ✓ icon on the note. It disappears from the main list and moves to the **Recently resolved** section at the bottom, with strikethrough text.
 
-### Eliminar una nota
+### Delete a note
 
-Pulsa el icono de papelera. La nota se elimina sin confirmación.
-
----
-
-## Eventos
-
-Gestión de celebraciones: bodas, graduaciones, comuniones, galas, prebodas y otros.
-
-### Ver todos los eventos
-
-Accede desde **Eventos** en el dashboard o en el menú.
-
-### Crear un evento
-
-1. Pulsa **Nuevo evento**
-2. Rellena: cliente, tipo, concepto, fecha, espacios, número de personas y notas
-3. Guarda
-
-### Detalle de un evento
-
-Desde la ficha del evento puedes:
-
-- **Editar** los datos del evento
-- **Subir documentos** (PDF, imágenes, presupuestos...)
-- **Rangos y camareros** — añadir grupos de trabajo (ej: "Salón principal") y asignar camareros con su función
-- **Plano de mesas** — editor visual para diseñar la distribución del espacio
-
-### Plano de mesas (editor visual)
-
-El editor permite diseñar la distribución de mesas y espacios de cada evento.
-
-- **Añadir elementos** — mesas redondas, cuadradas, rectangulares, sillas, barras, escenarios...
-- **Mover elementos** — arrastra con el dedo (móvil/tablet) o con el ratón
-- **Candado** — activa el modo candado para bloquear los elementos y evitar moverlos sin querer al deslizar
-- **Zoom** — pellizca con dos dedos en móvil/tablet para hacer zoom
-- **Guardar** — en escritorio se guarda automáticamente. En móvil pulsa el botón guardar
-- **Exportar** — descarga el plano como imagen PNG o PDF
+Click the trash icon. The note is deleted without confirmation.
 
 ---
 
-## Cuadrante de turnos
+## Events
 
-Vista semanal de todos los empleados y sus turnos.
+Management of celebrations: weddings, graduations, communions, galas, pre-weddings and others.
 
-### Navegar entre semanas
+### View all events
 
-Usa las flechas **←** **→** para moverte semana a semana.
+Access from **Events** on the dashboard or in the menu.
 
-### Asignar un turno
+### Create an event
 
-Haz clic en el día de un empleado y selecciona el tipo de turno (trabajo, libre, vacaciones...).
+1. Click **New event**
+2. Fill in: client, type, concept, date, spaces, number of guests and notes
+3. Save
 
-### Asignar espacio a un empleado
+### Event detail
 
-Desde la ficha del espacio o desde el cuadrante, arrastra el empleado al espacio correspondiente.
+From the event page you can:
 
----
+- **Edit** the event data
+- **Upload documents** (PDFs, images, quotes...)
+- **Shifts and waitstaff** — add work groups (e.g. "Main hall") and assign waiters with their role
+- **Floor plan** — visual editor to design the layout of the space
 
-## Personal
+### Floor plan (visual editor)
 
-Gestión de la plantilla del club.
+The editor lets you design the table and space layout for each event.
 
-### Ficha de empleado
-
-Cada empleado tiene: nombre, apellidos, rol, teléfono, email, fecha de nacimiento, tipo de contrato y fecha de vencimiento (si aplica).
-
-### Alertas de vencimiento
-
-En el dashboard (sección **Vencimientos**) aparecen los contratos que vencen en los próximos días. Los vencidos aparecen en rojo.
-
----
-
-## Vacaciones y días sueltos
-
-### Solicitar ausencia (como empleado)
-
-1. Ve a la ficha del empleado
-2. Pulsa **Nueva solicitud**
-3. Selecciona tipo (vacaciones / día suelto / libre...), fechas y notas opcionales
-4. La solicitud queda en estado **Pendiente**
-
-### Aprobar o rechazar (como admin)
-
-Desde **Vacaciones** o **Días sueltos** en el menú, verás todas las solicitudes pendientes con botones para aprobar o rechazar.
-
-Las solicitudes aprobadas aparecen en el dashboard en la sección **Avisos**.
+- **Add elements** — round tables, square tables, rectangular tables, chairs, bars, stages...
+- **Move elements** — drag with your finger (mobile/tablet) or with the mouse
+- **Lock** — activate lock mode to prevent elements from being moved accidentally while scrolling
+- **Zoom** — pinch with two fingers on mobile/tablet to zoom
+- **Save** — on desktop it saves automatically; on mobile tap the save button
+- **Export** — download the floor plan as a PNG image or PDF
 
 ---
 
-## Tareas
+## Shift schedule
 
-Checklists de apertura y cierre por espacio. Se generan automáticamente cada día.
+Weekly view of all employees and their shifts.
 
-### Marcar una tarea como completada
+### Navigate between weeks
 
-Haz clic en la tarea. Se marca al instante (sin recargar la página). La barra de progreso del espacio se actualiza en el dashboard.
+Use the **←** **→** arrows to move week by week.
 
-### Ver tareas de un espacio
+### Assign a shift
 
-Accede desde **Puntos de venta** en el dashboard o desde **Espacios** en el menú.
+Click on an employee's day and select the shift type (work, day off, holidays...).
 
----
+### Assign a space to an employee
 
-## Pedidos
-
-Registro de artículos necesarios por punto de venta.
-
-### Añadir un artículo
-
-1. Entra en el espacio desde **Pedidos**
-2. Pulsa **Nuevo artículo**
-3. Introduce nombre y cantidad
-
-### Actualizar cantidad
-
-Usa los botones **+** y **−** directamente en la lista. Se guarda al instante.
+From the space page or from the schedule, drag the employee to the corresponding space.
 
 ---
 
-## Calendario
+## Staff
 
-Vista mensual de todos los eventos. Navega con las flechas del mes. Haz clic en un evento para ver su detalle.
+Management of the club's workforce.
 
----
+### Employee profile
 
-## Panel de administración
+Each employee has: first name, last name, role, phone, email, date of birth, contract type and expiry date (if applicable).
 
-Si tu cuenta tiene permisos de staff, aparece el botón **Admin** (con icono de escudo) en la barra superior. Desde ahí puedes gestionar usuarios, grupos y todos los modelos de la app directamente.
+### Expiry alerts
 
----
-
-## Cerrar sesión
-
-Haz clic en tus iniciales (esquina superior derecha) y pulsa **Cerrar sesión**.
+On the dashboard (section **Expiries**) the contracts expiring in the coming days are shown. Expired ones appear in red.
 
 ---
 
-## Soporte
+## Holidays and single days off
 
-Desarrollado por **Fernando Vilas Paz**  
+### Request time off (as an employee)
+
+1. Go to the employee's profile
+2. Click **New request**
+3. Select type (holidays / day off / free day...), dates and optional notes
+4. The request is saved in **Pending** status
+
+### Approve or reject (as admin)
+
+From **Holidays** or **Days off** in the menu, you will see all pending requests with buttons to approve or reject them.
+
+Approved requests appear on the dashboard under **Notices**.
+
+---
+
+## Tasks
+
+Opening and closing checklists per space. Generated automatically every day.
+
+### Mark a task as completed
+
+Click on the task. It is marked instantly (without reloading the page). The progress bar for the space updates on the dashboard.
+
+### View tasks for a space
+
+Access from **Points of sale** on the dashboard or from **Spaces** in the menu.
+
+---
+
+## Orders
+
+Record of items needed per point of sale.
+
+### Add an item
+
+1. Enter the space from **Orders**
+2. Click **New item**
+3. Enter name and quantity
+
+### Update quantity
+
+Use the **+** and **−** buttons directly in the list. It saves instantly.
+
+---
+
+## Calendar
+
+Monthly view of all events. Navigate with the month arrows. Click on an event to see its detail.
+
+---
+
+## Administration panel
+
+If your account has staff permissions, the **Admin** button (with a shield icon) appears in the top bar. From there you can manage users, groups and all the app's models directly.
+
+---
+
+## Log out
+
+Click your initials (top-right corner) and click **Log out**.
+
+---
+
+## Support
+
+Developed by **Fernando Vilas Paz**  
 [GitHub](https://github.com/fvilpaz) · [LinkedIn](https://www.linkedin.com/in/fernando-vilas-paz-1626901a9)
