@@ -1,5 +1,6 @@
 <div align="right">
-  <a href="README.md">EN</a> &nbsp;|&nbsp; <a href="README.es.md"><strong>ES</strong></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/EN-555555?style=flat-square" alt="English"></a>
+  &nbsp;<img src="https://img.shields.io/badge/ES-1a6fc4?style=flat-square" alt="Español">
 </div>
 
 # AuryApp
