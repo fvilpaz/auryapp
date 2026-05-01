@@ -208,7 +208,7 @@
       <div class="bc-flex bc-gap-8 bc-items-center">
         <span class="bc-text-muted" style="font-size:.85rem;">Total: <strong>{{ mes.total|floatformat:"-1" }} h</strong></span>
         {% if mes.pendiente %}
-        <form method="post" action="{% url 'liquidar_mes_horas' empleado.pk %}" onsubmit="return confirm('¿Marcar las horas de {{ mes.fecha_mes|date:\"F Y\" }} como liquidadas?')">
+        <form method="post" action="{% url 'liquidar_mes_horas' empleado.pk %}" onsubmit="return confirm('¿Marcar las horas de {{ mes.fecha_mes|date:"F Y" }} como liquidadas?')">
           {% csrf_token %}
           <input type="hidden" name="año" value="{{ mes.año }}">
           <input type="hidden" name="mes" value="{{ mes.mes }}">
