@@ -11,4 +11,4 @@ RUN DJANGO_SECRET_KEY=build-only DJANGO_DEBUG=false python manage.py collectstat
 
 EXPOSE 8080
 
-CMD gunicorn beachclub.wsgi --bind 0.0.0.0:$PORT
+CMD python manage.py migrate --noinput && gunicorn beachclub.wsgi --bind 0.0.0.0:$PORT
