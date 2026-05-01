@@ -19,6 +19,7 @@
           <th>Rol</th>
           <th>Teléfono</th>
           <th>Email</th>
+          <th>H. extra</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -29,6 +30,13 @@
           <td>{{ empleado.get_rol_display }}</td>
           <td>{{ empleado.telefono|default:"—" }}</td>
           <td>{{ empleado.email|default:"—" }}</td>
+          <td>
+            {% if empleado.horas_pendientes %}
+            <span class="bc-badge bc-badge-amber">{{ empleado.horas_pendientes|floatformat:"-1" }} h</span>
+            {% else %}
+            <span class="bc-text-muted">—</span>
+            {% endif %}
+          </td>
           <td style="display:flex; gap:4px;">
             <a href="{% url 'detalle_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-eye"></i></a>
             <a href="{% url 'editar_empleado' empleado.pk %}" class="bc-btn bc-btn-sm"><i class="ti ti-pencil"></i></a>

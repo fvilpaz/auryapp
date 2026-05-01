@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from datetime import timedelta, date
 from decimal import Decimal
 from datetime import datetime
+from django.db.models import Sum, Q
 from .models import Empleado, Turno, SolicitudAusencia, HoraExtra
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -79,10 +80,10 @@ def cuadrante(request):
 
 @login_required(login_url='/login/')
 def lista_empleados(request):
-    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
-    context = {
-        'empleados': empleados,
-    }
+    empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre').annotate(
+        horas_pendientes=Sum('horas_extra__horas', filter=Q(horas_extra__pagadas=False))
+    )
+    context = {'empleados': empleados}
     return render(request, 'personal/lista_empleados.html', context)
 
 @login_required(login_url='/login/')
