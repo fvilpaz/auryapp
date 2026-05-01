@@ -99,6 +99,24 @@ class Turno(models.Model):
         return f"{self.empleado.nombre} — {self.fecha} — {self.get_estado_display()}"
 
 
+class HoraExtra(models.Model):
+    empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='horas_extra')
+    fecha = models.DateField()
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    motivo = models.CharField(max_length=200)
+    horas = models.DecimalField(max_digits=4, decimal_places=1)
+    pagadas = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Hora extra'
+        verbose_name_plural = 'Horas extra'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.empleado.nombre} — {self.fecha} — {self.horas}h"
+
+
 class SolicitudAusencia(models.Model):
 
     TIPO_CHOICES = [

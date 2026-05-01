@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Empleado, Turno
+from .models import Empleado, Turno, HoraExtra
 
 # Register your models here.
 
@@ -14,3 +14,10 @@ class TurnoAdmin(admin.ModelAdmin):
     list_display = ['empleado', 'fecha', 'hora_inicio', 'hora_fin', 'horas', 'estado', 'espacio']
     list_filter = ['fecha', 'estado', 'espacio']
     ordering = ['-fecha', 'empleado']
+
+@admin.register(HoraExtra)
+class HoraExtraAdmin(admin.ModelAdmin):
+    list_display = ['empleado', 'fecha', 'hora_inicio', 'hora_fin', 'horas', 'motivo', 'pagadas']
+    list_filter = ['pagadas', 'empleado']
+    list_editable = ['pagadas']
+    ordering = ['-fecha']

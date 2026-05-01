@@ -17,4 +17,7 @@ urlpatterns = [
     path('dias-sueltos/', views.lista_dias_sueltos, name='lista_dias_sueltos'),
     path('solicitudes/<int:pk>/aprobar/', views.aprobar_solicitud, name='aprobar_solicitud'),
     path('solicitudes/<int:pk>/rechazar/', views.rechazar_solicitud, name='rechazar_solicitud'),
+    path('empleados/<int:pk>/horas-extra/añadir/', views.añadir_hora_extra, name='añadir_hora_extra'),
+    path('horas-extra/<int:pk>/eliminar/', views.eliminar_hora_extra, name='eliminar_hora_extra'),
+    path('empleados/<int:pk>/horas-extra/liquidar/', views.liquidar_mes_horas, name='liquidar_mes_horas'),
 ]

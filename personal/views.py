@@ -3,7 +3,9 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse
 from datetime import timedelta, date
-from .models import Empleado, Turno, SolicitudAusencia
+from decimal import Decimal
+from datetime import datetime
+from .models import Empleado, Turno, SolicitudAusencia, HoraExtra
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
@@ -89,6 +91,20 @@ def detalle_empleado(request, pk):
     solicitudes = SolicitudAusencia.objects.filter(empleado=empleado).order_by('-fecha_inicio')
     todos_empleados = Empleado.objects.filter(activo=True).order_by('posicion', 'nombre')
     hoy = timezone.now().date()
+
+    horas_qs = HoraExtra.objects.filter(empleado=empleado)
+    total_pendiente = sum(h.horas for h in horas_qs if not h.pagadas)
+    meses_dict = {}
+    for h in horas_qs:
+        key = (h.fecha.year, h.fecha.month)
+        if key not in meses_dict:
+            meses_dict[key] = {'año': h.fecha.year, 'mes': h.fecha.month, 'fecha_mes': date(h.fecha.year, h.fecha.month, 1), 'entradas': [], 'total': Decimal('0'), 'pendiente': Decimal('0')}
+        meses_dict[key]['entradas'].append(h)
+        meses_dict[key]['total'] += h.horas
+        if not h.pagadas:
+            meses_dict[key]['pendiente'] += h.horas
+    meses_horas = sorted(meses_dict.values(), key=lambda x: (x['año'], x['mes']), reverse=True)
+
     context = {
         'empleado': empleado,
         'solicitudes': solicitudes,
@@ -96,6 +112,8 @@ def detalle_empleado(request, pk):
         'todos_empleados': todos_empleados,
         'hoy': hoy,
         'en_30_dias': hoy + timedelta(days=30),
+        'meses_horas': meses_horas,
+        'total_pendiente': total_pendiente,
     }
     return render(request, 'personal/detalle_empleado.html', context)
 
@@ -290,6 +308,48 @@ def lista_dias_sueltos(request):
     tipos = [t for t in SolicitudAusencia.TIPO_CHOICES if t[0] != 'vacaciones']
     context = {'solicitudes': solicitudes, 'titulo': 'Días sueltos', 'empleados': empleados, 'tipos': tipos}
     return render(request, 'personal/lista_ausencias.html', context)
+
+@staff_required
+def añadir_hora_extra(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    if request.method == 'POST':
+        fecha = request.POST.get('fecha')
+        hora_inicio_str = request.POST.get('hora_inicio')
+        hora_fin_str = request.POST.get('hora_fin')
+        motivo = request.POST.get('motivo', '').strip()
+        if fecha and hora_inicio_str and hora_fin_str and motivo:
+            inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
+            fin = datetime.strptime(hora_fin_str, '%H:%M').time()
+            minutos = (datetime.combine(date.today(), fin) - datetime.combine(date.today(), inicio)).total_seconds() / 60
+            if minutos > 0:
+                horas = Decimal(str(round(minutos / 60 * 2) / 2)).quantize(Decimal('0.5'))
+                horas = max(Decimal('0.5'), horas)
+                HoraExtra.objects.create(
+                    empleado=empleado, fecha=fecha,
+                    hora_inicio=inicio, hora_fin=fin,
+                    motivo=motivo, horas=horas,
+                )
+    return redirect('detalle_empleado', pk=pk)
+
+
+@staff_required
+def eliminar_hora_extra(request, pk):
+    hora = get_object_or_404(HoraExtra, pk=pk)
+    empleado_pk = hora.empleado.pk
+    if request.method == 'POST':
+        hora.delete()
+    return redirect('detalle_empleado', pk=empleado_pk)
+
+
+@staff_required
+def liquidar_mes_horas(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    if request.method == 'POST':
+        año = int(request.POST.get('año'))
+        mes = int(request.POST.get('mes'))
+        HoraExtra.objects.filter(empleado=empleado, fecha__year=año, fecha__month=mes, pagadas=False).update(pagadas=True)
+    return redirect('detalle_empleado', pk=pk)
+
 
 @staff_required
 def crear_solicitud(request):

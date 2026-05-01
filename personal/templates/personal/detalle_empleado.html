@@ -157,4 +157,116 @@
   </div>
 </div>
 
+<div class="bc-section">
+  <div class="bc-section-header">
+    <span class="bc-section-header-title">Horas extra</span>
+    {% if total_pendiente %}
+    <span class="bc-badge bc-badge-amber">{{ total_pendiente|floatformat:"-1" }} h pendientes</span>
+    {% else %}
+    <span class="bc-badge bc-badge-green">Al día</span>
+    {% endif %}
+  </div>
+
+  <div class="bc-card-grid bc-grid-2 bc-mb-16">
+    <div class="bc-card">
+      <div class="bc-section-header bc-w-full bc-mb-16">
+        <span class="bc-section-header-title">Registrar</span>
+      </div>
+      <form method="post" action="{% url 'añadir_hora_extra' empleado.pk %}">
+        {% csrf_token %}
+        <div class="bc-form-group">
+          <label>Fecha</label>
+          <input type="date" name="fecha" required>
+        </div>
+        <div class="bc-form-grid bc-mt-10">
+          <div class="bc-form-group">
+            <label>Inicio</label>
+            <input type="time" name="hora_inicio" required>
+          </div>
+          <div class="bc-form-group">
+            <label>Fin</label>
+            <input type="time" name="hora_fin" required>
+          </div>
+        </div>
+        <div class="bc-form-group bc-mt-10">
+          <label>Motivo</label>
+          <input type="text" name="motivo" placeholder="Evento, boda, refuerzo…" required>
+        </div>
+        <div class="bc-btn-row">
+          <button type="submit" class="bc-btn bc-btn-primary">
+            <i class="ti ti-plus"></i> Añadir
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% for mes in meses_horas %}
+  <div class="bc-table-wrapper bc-mb-16">
+    <div class="bc-section-header bc-px-0" style="padding: 0 0 10px 0; border-bottom: 1px solid var(--bc-border); margin-bottom: 8px;">
+      <span style="font-weight:600; text-transform:capitalize;">{{ mes.fecha_mes|date:"F Y" }}</span>
+      <div class="bc-flex bc-gap-8 bc-items-center">
+        <span class="bc-text-muted" style="font-size:.85rem;">Total: <strong>{{ mes.total|floatformat:"-1" }} h</strong></span>
+        {% if mes.pendiente %}
+        <form method="post" action="{% url 'liquidar_mes_horas' empleado.pk %}" onsubmit="return confirm('¿Marcar las horas de {{ mes.fecha_mes|date:\"F Y\" }} como liquidadas?')">
+          {% csrf_token %}
+          <input type="hidden" name="año" value="{{ mes.año }}">
+          <input type="hidden" name="mes" value="{{ mes.mes }}">
+          <button type="submit" class="bc-btn bc-btn-sm bc-btn-primary">
+            <i class="ti ti-check"></i> Liquidar {{ mes.pendiente|floatformat:"-1" }} h
+          </button>
+        </form>
+        {% else %}
+        <span class="bc-badge bc-badge-green" style="font-size:.75rem;">Liquidado</span>
+        {% endif %}
+      </div>
+    </div>
+    <table class="bc-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Horas</th>
+          <th>Motivo</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in mes.entradas %}
+        <tr>
+          <td>{{ h.fecha|date:"d M" }}</td>
+          <td>{{ h.hora_inicio|time:"H:i" }}</td>
+          <td>{{ h.hora_fin|time:"H:i" }}</td>
+          <td><strong>{{ h.horas|floatformat:"-1" }} h</strong></td>
+          <td>{{ h.motivo }}</td>
+          <td>
+            {% if h.pagadas %}
+            <span class="bc-badge bc-badge-green">Liquidada</span>
+            {% else %}
+            <span class="bc-badge bc-badge-amber">Pendiente</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if request.user.is_staff %}
+            <form method="post" action="{% url 'eliminar_hora_extra' h.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar este registro?')">
+              {% csrf_token %}
+              <button type="submit" class="bc-btn bc-btn-sm bc-btn-danger-ghost" title="Eliminar">
+                <i class="ti ti-trash"></i>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% empty %}
+  <p class="bc-text-muted" style="padding: 16px 0;">No hay horas extra registradas.</p>
+  {% endfor %}
+
+</div>
+
 {% endblock %}
