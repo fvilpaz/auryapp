@@ -314,9 +314,12 @@ if (btnCerrarAñadir) {
   });
 }
 
-document.getElementById('a-estado').addEventListener('change', function() {
-  document.getElementById('a-horas-fields').style.display = this.value === 'trabajo' ? '' : 'none';
-});
+var aEstado = document.getElementById('a-estado');
+if (aEstado) {
+  aEstado.addEventListener('change', function() {
+    document.getElementById('a-horas-fields').style.display = this.value === 'trabajo' ? '' : 'none';
+  });
+}
 
 const añadirForm = document.getElementById('añadir-form');
 if (añadirForm) {
