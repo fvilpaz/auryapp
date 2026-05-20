@@ -16,7 +16,7 @@
   <script>
     (function() {
       var h = new Date().getHours();
-      var s = h >= 6 && h < 14 ? 'Buenos días' : h < 21 ? 'Buenas tardes' : 'Buenas noches';
+      var s = h < 6 ? 'Buenas noches' : h < 14 ? 'Buenos días' : h < 21 ? 'Buenas tardes' : 'Buenas noches';
       document.getElementById('saludo-texto').textContent = s + ',';
     })();
   </script>
