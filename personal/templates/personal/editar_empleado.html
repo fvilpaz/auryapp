@@ -64,12 +64,31 @@
         </div>
       </div>
 
+      <div class="bc-form-group bc-mt-12">
+        <label>Horas semanales de contrato</label>
+        <input type="number" name="horas_semana" value="{{ empleado.horas_semana }}" min="1" max="40" style="max-width:100px;">
+      </div>
+
+      <div class="bc-form-group bc-mt-12">
+        <label>Color de turno</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="color" name="color" value="{{ empleado.color }}" style="width:48px;height:36px;border:none;background:none;cursor:pointer;padding:0;">
+          <span id="color-preview" style="flex:1;height:28px;border-radius:6px;border:1px solid #e5e7eb;background:{{ empleado.color }}1a;"></span>
+        </div>
+      </div>
+
       <div class="bc-btn-row">
         <button type="submit" class="bc-btn bc-btn-primary">
           <i class="ti ti-device-floppy"></i> Guardar
         </button>
         <a href="{% url 'lista_empleados' %}" class="bc-btn">Cancelar</a>
       </div>
+
+      <script>
+        document.querySelector('input[name="color"]').addEventListener('input', function() {
+          document.getElementById('color-preview').style.background = this.value + '1a';
+        });
+      </script>
 
     </form>
   </div>

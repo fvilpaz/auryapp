@@ -54,23 +54,21 @@
               data-hora-inicio="{{ cell.turno.hora_inicio|time:'H:i' }}"
               data-hora-fin="{{ cell.turno.hora_fin|time:'H:i' }}"
               data-horas="{{ cell.turno.horas }}"
+              data-color="{{ cell.turno.color }}"
+              data-color-override="{{ cell.turno.color_override }}"
               {% endif %}>
             {% if cell.turno %}
+              {% with c=cell.turno.color %}
               {% if cell.turno.estado == 'trabajo' %}
-                <span class="bc-badge bc-badge-green">{{ cell.turno.hora_inicio|time:"H:i" }}-{{ cell.turno.hora_fin|time:"H:i" }}</span>
-              {% elif cell.turno.estado == 'libre' %}
-                <span class="bc-badge bc-badge-gray">L</span>
+                <span class="bc-badge" style="background:{{ c }}1a;color:{{ c }};border:1px solid {{ c }}40">{{ cell.turno.hora_inicio|time:"H:i" }}-{{ cell.turno.hora_fin|time:"H:i" }}</span>
               {% elif cell.turno.estado == 'vacaciones' %}
-                <span class="bc-badge bc-badge-amber">V</span>
-              {% elif cell.turno.estado == 'inamovible' %}
-                <span class="bc-badge bc-badge-red">LI</span>
-              {% elif cell.turno.estado == 'libre_vacaciones' %}
-                <span class="bc-badge bc-badge-blue">LV</span>
-              {% elif cell.turno.estado == 'finde_largo' %}
-                <span class="bc-badge bc-badge-blue">FL</span>
+                <span class="bc-badge" style="background:{{ c }}1a;color:{{ c }};border:1px solid {{ c }}40">V</span>
               {% elif cell.turno.estado == 'baja' %}
-                <span class="bc-badge bc-badge-red">B</span>
+                <span class="bc-badge" style="background:{{ c }}1a;color:{{ c }};border:1px solid {{ c }}40">B</span>
+              {% else %}
+                <span class="bc-badge" style="background:{{ c }}1a;color:{{ c }};border:1px solid {{ c }}40">L</span>
               {% endif %}
+              {% endwith %}
             {% endif %}
           </td>
           {% endfor %}
@@ -217,6 +215,20 @@
       <input type="number" name="horas" id="f-horas" min="0" max="24">
     </div>
 
+    <div class="bc-form-group bc-mt-12">
+      <label style="display:flex;align-items:center;justify-content:space-between;">
+        Color
+        <button type="button" id="btn-reset-color" class="bc-btn bc-btn-secondary" style="font-size:11px;padding:2px 8px;height:auto;">
+          Auto
+        </button>
+      </label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="color" name="color_override" id="f-color" style="width:48px;height:36px;border:none;background:none;cursor:pointer;padding:0;">
+        <span id="f-color-preview" style="flex:1;height:28px;border-radius:6px;border:1px solid #e5e7eb;transition:background .2s;"></span>
+      </div>
+      <p id="f-color-hint" style="font-size:11px;color:#9ca3af;margin-top:4px;"></p>
+    </div>
+
     <div class="bc-btn-row">
       <button type="submit" class="bc-btn bc-btn-primary">
         <i class="ti ti-device-floppy"></i> Guardar
@@ -241,6 +253,22 @@ const ordenarSheet = document.getElementById('ordenar-sheet');
 const form = document.getElementById('turno-form');
 let editMode = false;
 let activeCell = null;
+
+const EMPLEADO_COLORES = {{ empleado_colores_json|safe }};
+const ESTADO_COLORES = {{ estado_colores_json|safe }};
+
+function getAutoColor(estado, empleadoId) {
+  if (estado === 'trabajo') {
+    return EMPLEADO_COLORES[String(empleadoId)] || '#16a34a';
+  }
+  return ESTADO_COLORES[estado] || '#9ca3af';
+}
+
+function applyColorPreview(hex) {
+  document.getElementById('f-color-preview').style.background = hex + '2a';
+  document.getElementById('f-color-preview').style.borderColor = hex + '80';
+  document.getElementById('f-color').value = hex;
+}
 
 btnEdit.addEventListener('click', function() {
   editMode = !editMode;
@@ -312,20 +340,51 @@ table.addEventListener('click', function(e) {
 });
 
 function openSheet(td) {
+  const estado = td.dataset.estado || 'trabajo';
+  const horas = parseInt(td.dataset.horas) || 0;
+  const override = td.dataset.colorOverride || '';
+  const autoColor = getAutoColor(estado, td.dataset.empleado);
+
   document.getElementById('f-empleado-id').value = td.dataset.empleado;
   document.getElementById('f-fecha').value = td.dataset.fecha;
-  document.getElementById('f-estado').value = td.dataset.estado || 'trabajo';
+  document.getElementById('f-estado').value = estado;
   document.getElementById('f-hora-inicio').value = td.dataset.horaInicio || '';
   document.getElementById('f-hora-fin').value = td.dataset.horaFin || '';
-  document.getElementById('f-horas').value = td.dataset.horas || '';
+  document.getElementById('f-horas').value = horas || '';
   document.getElementById('sheet-title').textContent = td.dataset.nombre + ' — ' + td.dataset.fechaDisplay;
-  toggleHorasFields(td.dataset.estado || 'trabajo');
+
+  applyColorPreview(override || autoColor);
+  document.getElementById('f-color-hint').textContent = override ? 'Color personalizado' : 'Color automático según horas/estado';
+
+  toggleHorasFields(estado);
   overlay.classList.add('open');
   sheet.classList.add('open');
 }
 
 document.getElementById('f-estado').addEventListener('change', function() {
   toggleHorasFields(this.value);
+  if (!document.getElementById('f-color').dataset.manual) {
+    const empId = document.getElementById('f-empleado-id').value;
+    applyColorPreview(getAutoColor(this.value, empId));
+    document.getElementById('f-color-hint').textContent = 'Color automático';
+  }
+});
+
+document.getElementById('f-color').addEventListener('input', function() {
+  this.dataset.manual = '1';
+  document.getElementById('f-color-preview').style.background = this.value + '2a';
+  document.getElementById('f-color-preview').style.borderColor = this.value + '80';
+  document.getElementById('f-color-hint').textContent = 'Color personalizado';
+});
+
+document.getElementById('btn-reset-color').addEventListener('click', function() {
+  const fColor = document.getElementById('f-color');
+  delete fColor.dataset.manual;
+  fColor.value = '';
+  const estado = document.getElementById('f-estado').value;
+  const empId = document.getElementById('f-empleado-id').value;
+  applyColorPreview(getAutoColor(estado, empId));
+  document.getElementById('f-color-hint').textContent = 'Color automático';
 });
 
 function toggleHorasFields(estado) {
@@ -359,23 +418,23 @@ form.addEventListener('submit', function(e) {
     activeCell.dataset.estado = res.estado;
     activeCell.dataset.horaInicio = res.hora_inicio;
     activeCell.dataset.horaFin = res.hora_fin;
-    activeCell.innerHTML = renderBadge(res.estado, res.hora_inicio, res.hora_fin);
+    activeCell.dataset.horas = res.horas;
+    activeCell.dataset.color = res.color;
+    const fColor = document.getElementById('f-color');
+    activeCell.dataset.colorOverride = fColor.dataset.manual ? fColor.value : '';
+    activeCell.innerHTML = renderBadge(res.estado, res.hora_inicio, res.hora_fin, res.color);
     closeSheet();
   });
 });
 
-function renderBadge(estado, hi, hf) {
-  const map = {
-    'trabajo': ['bc-badge-green', hi + '-' + hf],
-    'libre': ['bc-badge-gray', 'L'],
-    'vacaciones': ['bc-badge-amber', 'V'],
-    'inamovible': ['bc-badge-red', 'LI'],
-    'libre_vacaciones': ['bc-badge-blue', 'LV'],
-    'finde_largo': ['bc-badge-blue', 'FL'],
-    'baja': ['bc-badge-red', 'B'],
-  };
-  const [cls, txt] = map[estado] || ['bc-badge-gray', '?'];
-  return `<span class="bc-badge ${cls}">${txt}</span>`;
+function renderBadge(estado, hi, hf, color) {
+  const txt = estado === 'trabajo' ? (hi + '-' + hf)
+            : estado === 'vacaciones' ? 'V'
+            : estado === 'baja' ? 'B'
+            : 'L';
+  const empId = activeCell ? activeCell.dataset.empleado : '';
+  const c = color || getAutoColor(estado, empId);
+  return `<span class="bc-badge" style="background:${c}1a;color:${c};border:1px solid ${c}40">${txt}</span>`;
 }
 </script>
 {% endblock %}

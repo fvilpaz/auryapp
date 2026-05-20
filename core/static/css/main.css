@@ -1088,13 +1088,30 @@ a.bc-link-plain:hover { opacity: 0.7; }
   margin: 0 auto 16px;
 }
 
+/* Cuadrante — celda con turno */
+td.turno-filled {
+  padding: 0;
+  transition: filter 0.1s;
+}
+td.turno-filled .turno-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 36px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 2px;
+}
+
 /* Cuadrante edit mode */
 .cuadrante-edit-mode td.editable {
   cursor: pointer;
-  transition: background 0.1s;
+  transition: filter 0.1s;
 }
-.cuadrante-edit-mode td.editable:hover {
-  background: rgba(26, 111, 196, 0.08);
+.cuadrante-edit-mode td.turno-filled:hover {
+  filter: brightness(0.88);
 }
 
 @media (max-width: 480px) and (orientation: portrait) {

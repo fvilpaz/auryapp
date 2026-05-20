@@ -16,8 +16,12 @@ empleados = [
     {'nombre': 'Inma',     'apellidos': '', 'rol': 'camarero',     'telefono': '', 'email': ''},
     {'nombre': 'Laura',    'apellidos': '', 'rol': 'camarero',     'telefono': '', 'email': ''},
     {'nombre': 'Vane',     'apellidos': '', 'rol': 'camarero',     'telefono': '', 'email': ''},
-    {'nombre': 'Arlen',    'apellidos': '', 'rol': 'camarero',     'telefono': '', 'email': ''},
-    {'nombre': 'Sergio',   'apellidos': '', 'rol': 'camarero',     'telefono': '', 'email': ''},
+    {'nombre': 'Arlen',    'apellidos': '', 'rol': 'camarero',        'telefono': '', 'email': ''},
+    {'nombre': 'Sergio',   'apellidos': '', 'rol': 'camarero',        'telefono': '', 'email': ''},
+    {'nombre': 'Jhonatan', 'apellidos': '', 'rol': 'segundo_maitre',  'telefono': '', 'email': ''},
+    {'nombre': 'Jessica',  'apellidos': '', 'rol': 'camarero',        'telefono': '', 'email': ''},
+    {'nombre': 'Paula',    'apellidos': '', 'rol': 'camarero',        'telefono': '', 'email': ''},
+    {'nombre': 'Laura M.', 'apellidos': '', 'rol': 'camarero',        'telefono': '', 'email': ''},
 ]
 
 for e in empleados:

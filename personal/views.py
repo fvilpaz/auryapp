@@ -49,16 +49,16 @@ def cuadrante(request):
     rows = []
     for empleado in empleados:
         cells = []
-        horas_total = 0
         for dia in dias:
             turno = turno_map.get((empleado.id, dia))
-            if turno and turno.estado == 'trabajo':
-                horas_total += turno.horas
             cells.append({'dia': dia, 'turno': turno})
-        rows.append({'empleado': empleado, 'cells': cells, 'horas_total': horas_total})
+        rows.append({'empleado': empleado, 'cells': cells, 'horas_total': empleado.horas_semana})
 
     ids_con_turno = {t.empleado.id for t in turnos}
     empleados_disponibles = [e for e in empleados if e.id not in ids_con_turno]
+
+    import json
+    empleado_colores = {str(e.id): e.color for e in empleados}
 
     context = {
         'dias': dias,
@@ -70,6 +70,8 @@ def cuadrante(request):
         'estados': Turno.ESTADO_CHOICES,
         'empleados_disponibles': empleados_disponibles,
         'todos_empleados': empleados,
+        'empleado_colores_json': json.dumps(empleado_colores),
+        'estado_colores_json': json.dumps(Turno.ESTADO_COLORES),
     }
     return render(request, 'personal/cuadrante.html', context)
 
@@ -134,6 +136,13 @@ def editar_empleado(request, pk):
         empleado.fecha_nacimiento = request.POST.get('fecha_nacimiento') or None
         empleado.tipo_contrato = request.POST.get('tipo_contrato', '')
         empleado.fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
+        color = request.POST.get('color', '').strip()
+        if color and color.startswith('#') and len(color) == 7:
+            empleado.color = color
+        try:
+            empleado.horas_semana = int(request.POST.get('horas_semana', 40))
+        except (ValueError, TypeError):
+            pass
         if empleado.nombre and empleado.rol:
             empleado.save()
             return redirect('lista_empleados')
@@ -152,6 +161,7 @@ def guardar_turno(request):
         hora_inicio = request.POST.get('hora_inicio') or None
         hora_fin = request.POST.get('hora_fin') or None
         horas = request.POST.get('horas', 0) or 0
+        color_override = request.POST.get('color_override', '').strip()
 
         empleado = get_object_or_404(Empleado, pk=empleado_id)
         turno, _ = Turno.objects.update_or_create(
@@ -162,6 +172,7 @@ def guardar_turno(request):
                 'hora_inicio': hora_inicio,
                 'hora_fin': hora_fin,
                 'horas': horas,
+                'color_override': color_override,
             }
         )
         return JsonResponse({
@@ -170,6 +181,8 @@ def guardar_turno(request):
             'estado': turno.estado,
             'hora_inicio': turno.hora_inicio.strftime('%H:%M') if turno.hora_inicio else '',
             'hora_fin': turno.hora_fin.strftime('%H:%M') if turno.hora_fin else '',
+            'horas': turno.horas,
+            'color': turno.color,
         })
     return JsonResponse({'ok': False}, status=405)
 

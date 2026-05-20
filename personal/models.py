@@ -31,6 +31,8 @@ class Empleado(models.Model):
     posicion = models.PositiveIntegerField(default=0)
     tipo_contrato = models.CharField(max_length=20, choices=CONTRATO_CHOICES, blank=True)
     fecha_vencimiento = models.DateField(null=True, blank=True)
+    color = models.CharField(max_length=7, default='#16a34a')
+    horas_semana = models.PositiveIntegerField(default=40)
 
     class Meta:
         verbose_name = 'Empleado'
@@ -53,6 +55,24 @@ class Turno(models.Model):
         ('baja', 'Baja'),
     ]
 
+    # Color automático para trabajo según horas trabajadas
+    TRABAJO_COLORES = {
+        8: '#16a34a',
+        7: '#22c55e',
+        6: '#ec4899',
+        5: '#f97316',
+    }
+    TRABAJO_COLOR_DEFAULT = '#14b8a6'
+
+    ESTADO_COLORES = {
+        'libre':            '#7030a0',   # morado
+        'inamovible':       '#ff9300',   # naranja
+        'vacaciones':       '#ffc000',   # amarillo/ámbar
+        'libre_vacaciones': '#f97316',   # naranja claro (distinto del rosa de Inma)
+        'finde_largo':      '#a855f7',   # violeta (distinto de todo)
+        'baja':             '#ff0000',   # rojo
+    }
+
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='turnos')
     fecha = models.DateField()
     hora_inicio = models.TimeField(null=True, blank=True)
@@ -60,6 +80,15 @@ class Turno(models.Model):
     horas = models.PositiveIntegerField(default=0)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='trabajo')
     espacio = models.ForeignKey(Espacio, on_delete=models.SET_NULL, null=True, blank=True, related_name='turnos')
+    color_override = models.CharField(max_length=7, blank=True)
+
+    @property
+    def color(self):
+        if self.color_override:
+            return self.color_override
+        if self.estado == 'trabajo':
+            return self.empleado.color
+        return self.ESTADO_COLORES.get(self.estado, '#9ca3af')
 
     class Meta:
         verbose_name = 'Turno'
