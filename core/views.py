@@ -449,7 +449,8 @@ def guardar_plano(request, pk):
             data = _json.loads(request.body)
             nuevo_plano = data.get('plano', {})
 
-            # Preservar _info (carnes, pescados, etc.) si el canvas no lo trae
+            # _info (carnes, pescados, rangos...) solo lo gestiona editar_mesas,
+            # nunca el auto-guardado del canvas — siempre se restaura desde BD
             MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
             if evento.plano_json and nuevo_plano.get('objects'):
                 try:
@@ -457,10 +458,10 @@ def guardar_plano(request, pk):
                     info_map = {
                         o.get('_etiqueta', ''): o['_info']
                         for o in existing.get('objects', [])
-                        if o.get('_tipo') in MESA_TIPOS and o.get('_info')
+                        if o.get('_tipo') in MESA_TIPOS and '_info' in o
                     }
                     for o in nuevo_plano['objects']:
-                        if o.get('_tipo') in MESA_TIPOS and '_info' not in o:
+                        if o.get('_tipo') in MESA_TIPOS:
                             etiqueta = o.get('_etiqueta', '')
                             if etiqueta in info_map:
                                 o['_info'] = info_map[etiqueta]
