@@ -1234,23 +1234,32 @@ function fitToViewport() {
     canvas.loadFromJSON(stored, function() {
       canvas.backgroundColor = ''; // transparente → cuadrícula visible
       canvas.renderAll();
+      // Restaurar _info desde el JSON original (Fabric no siempre lo preserva en grupos)
+      var infoMap = {};
+      (stored.objects || []).forEach(function(o) {
+        if (o._etiqueta && o._info) infoMap[o._etiqueta] = o._info;
+      });
       // Sincronizar _etiqueta con el texto visual real (corrige bug de rename antiguo)
       canvas.getObjects().forEach(function(o) {
         if (o.type !== 'group') return;
         var textos = o.getObjects('text');
         if (textos.length > 0) {
-          var textoVisual = textos[textos.length - 1].text; // el último text es la etiqueta
+          var textoVisual = textos[textos.length - 1].text;
           if (textoVisual && textoVisual !== o._etiqueta) {
             o._etiqueta = textoVisual;
           }
         }
+        // Restaurar _info si Fabric no lo recuperó bien
+        if (o._etiqueta && infoMap[o._etiqueta]) {
+          o._info = infoMap[o._etiqueta];
+        }
       });
       canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
-      setModoMover(false);  // siempre arranca bloqueado — pulsa "Mover" para editar
+      setModoMover(false);
       if (ES_MOVIL) { fitToViewport(); }
       recalcularContadores();
       snapshot();
-      guardarPlano(); // persiste la sincronización de nombres
+      guardarPlano();
     });
   } else {
     setModoMover(false);  // plano vacío — también arranca bloqueado
