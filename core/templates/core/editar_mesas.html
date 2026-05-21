@@ -9,10 +9,8 @@
       <span class="bc-section-header-title">Editar mesas</span>
       <p class="bc-text-muted bc-text-sm bc-mt-4">{{ evento.cliente }} &middot; {{ evento.fecha|date:"d M Y" }}</p>
     </div>
-    <div class="bc-flex bc-gap-8">
-      <button form="form-mesas" type="submit" class="bc-btn bc-btn-primary bc-btn-sm">
-        <i class="ti ti-device-floppy"></i> Guardar cambios
-      </button>
+    <div class="bc-flex bc-gap-8 bc-flex-center">
+      <span id="mesas-save-status" class="bc-text-xs bc-text-muted"></span>
       <a href="{% url 'detalle_evento' evento.pk %}" class="bc-btn bc-btn-secondary bc-btn-sm">
         <i class="ti ti-arrow-left"></i> Volver al plano
       </a>
@@ -20,62 +18,107 @@
   </div>
 
   {% if mesas %}
-  <form method="post" id="form-mesas">
-    {% csrf_token %}
-    <div class="bc-table-wrapper">
-      <table class="bc-table bc-editar-mesas-tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Rango</th>
-            <th>Pax</th>
-            <th>Carne</th>
-            <th>Pescado</th>
-            <th>Veg.</th>
-            <th>Infantil</th>
-            <th>Celíacos</th>
-            <th>Alérgicos</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in mesas %}
-          <tr>
-            <td>
-              <input type="text" name="mesa_{{ forloop.index0 }}_nombre"
-                     value="{{ m.etiqueta }}" class="bc-editar-input bc-editar-input-nombre" required>
-            </td>
-            <td>
-              <select name="mesa_{{ forloop.index0 }}_rango" class="bc-editar-input">
-                <option value="">—</option>
-                {% for r in rangos %}
-                <option value="{{ r.nombre }}" {% if m.rango == r.nombre %}selected{% endif %}>{{ r.nombre }}</option>
-                {% endfor %}
-              </select>
-            </td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_pax"     value="{{ m.pax }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_carne"   value="{{ m.carne }}"    min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_pescado" value="{{ m.pescado }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_veg"     value="{{ m.veg }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_infantil" value="{{ m.infantil }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_celiaco" value="{{ m.celiaco }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="number" name="mesa_{{ forloop.index0 }}_alergico" value="{{ m.alergico }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
-            <td><input type="text"   name="mesa_{{ forloop.index0 }}_notas"   value="{{ m.notas }}"           class="bc-editar-input bc-editar-input-notas"></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="bc-section-body" style="padding-top:0;">
-      <button type="submit" class="bc-btn bc-btn-primary bc-btn-sm">
-        <i class="ti ti-device-floppy"></i> Guardar cambios
-      </button>
-    </div>
-  </form>
+  <div class="bc-table-wrapper">
+    <table class="bc-table bc-editar-mesas-tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Rango</th>
+          <th>Pax</th>
+          <th>Carne</th>
+          <th>Pescado</th>
+          <th>Veg.</th>
+          <th>Infantil</th>
+          <th>Celíacos</th>
+          <th>Alérgicos</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody id="mesas-tbody">
+        {% for m in mesas %}
+        <tr data-etiqueta="{{ m.etiqueta }}">
+          <td><input type="text"   data-field="nombre"   value="{{ m.etiqueta }}" class="bc-editar-input bc-editar-input-nombre"></td>
+          <td>
+            <select data-field="rango" class="bc-editar-input">
+              <option value="">—</option>
+              {% for r in rangos %}
+              <option value="{{ r.nombre }}" {% if m.rango == r.nombre %}selected{% endif %}>{{ r.nombre }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="number" data-field="pax"      value="{{ m.pax }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="carne"    value="{{ m.carne }}"    min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="pescado"  value="{{ m.pescado }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="veg"      value="{{ m.veg }}"      min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="infantil" value="{{ m.infantil }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="celiaco"  value="{{ m.celiaco }}"  min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="number" data-field="alergico" value="{{ m.alergico }}" min="0" class="bc-editar-input bc-editar-input-num"></td>
+          <td><input type="text"   data-field="notas"    value="{{ m.notas }}"           class="bc-editar-input bc-editar-input-notas"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
   <div class="bc-section-body">
     <p class="bc-text-muted">No hay mesas en el plano todavía.</p>
   </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  var CSRF    = '{{ csrf_token }}';
+  var INFO_URL = '{% url "guardar_info_mesa" evento.pk %}';
+  var saveStatus = document.getElementById('mesas-save-status');
+  var saveTimer = null;
+
+  function setSaveStatus(s) {
+    var map = { saving: '⏳ Guardando…', saved: '✓ Guardado', unsaved: '● Sin guardar', error: '✗ Error' };
+    saveStatus.textContent = map[s] || '';
+  }
+
+  function guardarFila(row) {
+    var etiqueta    = row.dataset.etiqueta;
+    var nuevoNombre = (row.querySelector('[data-field="nombre"]').value || '').trim() || etiqueta;
+    var info = {
+      rango:    row.querySelector('[data-field="rango"]').value,
+      pax:      parseInt(row.querySelector('[data-field="pax"]').value)      || 0,
+      carne:    parseInt(row.querySelector('[data-field="carne"]').value)    || 0,
+      pescado:  parseInt(row.querySelector('[data-field="pescado"]').value)  || 0,
+      veg:      parseInt(row.querySelector('[data-field="veg"]').value)      || 0,
+      infantil: parseInt(row.querySelector('[data-field="infantil"]').value) || 0,
+      celiaco:  parseInt(row.querySelector('[data-field="celiaco"]').value)  || 0,
+      alergico: parseInt(row.querySelector('[data-field="alergico"]').value) || 0,
+      notas:    row.querySelector('[data-field="notas"]').value,
+    };
+    setSaveStatus('saving');
+    fetch(INFO_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+      body: JSON.stringify({ etiqueta: etiqueta, nuevo_nombre: nuevoNombre, info: info }),
+    }).then(function(r) {
+      if (r.ok && nuevoNombre !== etiqueta) row.dataset.etiqueta = nuevoNombre;
+      setSaveStatus(r.ok ? 'saved' : 'error');
+    }).catch(function() { setSaveStatus('error'); });
+  }
+
+  document.querySelectorAll('#mesas-tbody tr').forEach(function(row) {
+    row.querySelectorAll('input, select, textarea').forEach(function(el) {
+      el.addEventListener('change', function() {
+        setSaveStatus('unsaved');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(function() { guardarFila(row); }, 1000);
+      });
+      el.addEventListener('input', function() {
+        setSaveStatus('unsaved');
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(function() { guardarFila(row); }, 1000);
+      });
+    });
+  });
+})();
+</script>
 {% endblock %}

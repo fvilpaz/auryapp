@@ -110,11 +110,57 @@ Desde la ficha del evento puedes:
 
 El editor permite diseñar la distribución de mesas y espacios de cada evento.
 
-- **Añadir elementos** — mesas redondas, cuadradas, rectangulares, sillas, barras, escenarios...
+#### Añadir elementos
+
+Usa los botones de la barra superior para añadir objetos al canvas:
+
+| Elemento | Descripción |
+|----------|-------------|
+| Mesa redonda | Mesa circular con etiqueta |
+| Mesa rectangular | Mesa rectangular con etiqueta |
+| Cóctel | Mesa alta de cóctel |
+| Escenario | Zona de escenario (único) |
+| Barra | Barra del local (única) |
+| DJ | Zona de DJ (única) |
+| TV | Televisión (única) |
+| Altavoz | Altavoz de ambiente |
+| Zona | Área con nombre libre (textbox) |
+| Columna | Columna estructural |
+| Planta | Elemento de decoración vegetal |
+| Entrada invitados | Acceso de invitados (único) |
+| Salida invitados | Salida de invitados (única) |
+| Entrada camareros | Acceso del personal de servicio (único) |
+| Salida camareros | Salida del personal de servicio (única) |
+| Texto | Texto libre editable |
+
+#### Añadir en lote
+
+Pulsa **Añadir lote** para colocar varias mesas a la vez. Elige el tipo, la cantidad y la disposición:
+- **Horizontal** — fila de izquierda a derecha
+- **Vertical** — columna de arriba a abajo
+- **Círculo** — distribuidas en círculo alrededor del punto donde hagas clic
+
+#### Información de mesa
+
+Haz clic en una mesa para seleccionarla. Se abre el **panel Info** a la derecha con los campos:
+- Nombre, rango, número de pax, carne, pescado, vegetariano, infantil, celíacos, alérgicos y notas
+
+Los cambios se guardan al instante al pulsar fuera del campo o al cerrar el panel.
+
+#### Editar todas las mesas
+
+Pulsa **Editar mesas** (desde el detalle del evento) para ver todas las mesas del plano en una tabla. Cada fila tiene los mismos campos que el panel Info del plano. Los cambios se guardan automáticamente fila a fila (sin botón de guardar).
+
+#### Otras acciones
+
 - **Mover elementos** — arrastra con el dedo (móvil/tablet) o con el ratón
+- **Redimensionar** — arrastra las esquinas del objeto seleccionado
+- **Cambiar color** — selecciona el objeto y usa el selector de color en la barra superior
+- **Eliminar** — selecciona y pulsa la tecla `Supr` o el botón de la papelera
+- **Deshacer / Rehacer** — botones ↩ ↪ en la barra superior
 - **Candado** — activa el modo candado para bloquear los elementos y evitar moverlos sin querer al deslizar
-- **Zoom** — pellizca con dos dedos en móvil/tablet para hacer zoom
-- **Guardar** — en escritorio se guarda automáticamente. En móvil pulsa el botón guardar
+- **Zoom** — pellizca con dos dedos en móvil/tablet o usa la rueda del ratón
+- **Guardar** — se guarda automáticamente al modificar cualquier elemento
 - **Exportar** — descarga el plano como imagen PNG o PDF
 
 ---
@@ -129,7 +175,21 @@ Usa las flechas **←** **→** para moverte semana a semana.
 
 ### Asignar un turno
 
-Haz clic en el día de un empleado y selecciona el tipo de turno (trabajo, libre, vacaciones...).
+Haz clic en el día de un empleado y selecciona el tipo de turno.
+
+### Colores de turno
+
+Cada tipo de turno tiene un color distinto en el cuadrante:
+
+| Estado | Color |
+|--------|-------|
+| Trabajo | Color del empleado (verde por defecto) |
+| Libre | Morado |
+| Inamovible | Naranja |
+| Vacaciones | Amarillo |
+| Libre + vacaciones | Naranja claro |
+| Fin de semana largo | Lila |
+| Baja | Rojo |
 
 ### Asignar espacio a un empleado
 
@@ -144,6 +204,11 @@ Gestión de la plantilla del club.
 ### Ficha de empleado
 
 Cada empleado tiene: nombre, apellidos, rol, teléfono, email, fecha de nacimiento, tipo de contrato y fecha de vencimiento (si aplica).
+
+Campos adicionales relevantes para el cuadrante:
+
+- **Color** — color que representa al empleado en el cuadrante cuando trabaja (verde por defecto)
+- **Horas semanales** — horas de contrato (40 o 30); se usa para calcular disponibilidad
 
 ### Alertas de vencimiento
 

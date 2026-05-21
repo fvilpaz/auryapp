@@ -16,6 +16,7 @@ urlpatterns = [
     path('eventos/camareros/<int:camarero_pk>/editar/', views.editar_camarero, name='editar_camarero'),
     path('eventos/camareros/<int:camarero_pk>/eliminar/', views.eliminar_camarero, name='eliminar_camarero'),
     path('eventos/<int:pk>/plano/guardar/', views.guardar_plano, name='guardar_plano'),
+    path('eventos/<int:pk>/plano/guardar_info/', views.guardar_info_mesa, name='guardar_info_mesa'),
     path('eventos/<int:pk>/documentos/subir/', views.subir_documento, name='subir_documento'),
     path('eventos/documentos/<int:doc_pk>/eliminar/', views.eliminar_documento, name='eliminar_documento'),
     path('eventos/papelera/', views.papelera_eventos, name='papelera_eventos'),

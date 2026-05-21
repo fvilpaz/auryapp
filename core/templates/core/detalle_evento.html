@@ -319,8 +319,10 @@
         <i class="ti ti-door-enter"></i> Accesos <i class="ti ti-chevron-down" style="font-size:11px;"></i>
       </button>
       <div class="bc-toolbar-dropdown" data-for="accesos">
-        <button class="bc-btn bc-btn-sm" data-add="entrada"><i class="ti ti-door-enter"></i> Entrada</button>
-        <button class="bc-btn bc-btn-sm" data-add="salida"><i class="ti ti-door-exit"></i> Salida</button>
+        <button class="bc-btn bc-btn-sm" data-add="entrada"><i class="ti ti-door-enter"></i> Entrada inv.</button>
+        <button class="bc-btn bc-btn-sm" data-add="salida"><i class="ti ti-door-exit"></i> Salida inv.</button>
+        <button class="bc-btn bc-btn-sm" data-add="entrada-cam"><i class="ti ti-door-enter"></i> Entrada camareros</button>
+        <button class="bc-btn bc-btn-sm" data-add="salida-cam"><i class="ti ti-door-exit"></i> Salida camareros</button>
       </div>
     </div>
 
@@ -447,6 +449,7 @@
           <option value="fila">Fila horizontal →</option>
           <option value="columna">Columna vertical ↓</option>
           <option value="grid">Cuadrícula</option>
+          <option value="circular">Círculo ○</option>
         </select>
       </div>
       <div class="bc-form-group" id="lote-cols-wrap" style="display:none;">
@@ -585,6 +588,8 @@ const COLOR_DEFECTO = {
   'planta':       '#16a34a',
   'entrada':      '#10b981',
   'salida':       '#ef4444',
+  'entrada-cam':  '#f97316',
+  'salida-cam':   '#1e40af',
   'coctel':       '#3b82f6',
   'dj':           '#f97316',
   'tv':           '#1e3a5f',
@@ -597,9 +602,10 @@ const BASE_NOMBRE = {
   'escenario': 'Escenario', 'barra': 'Barra', 'zona': 'Área',
   'coctel': 'Cóctel',
   'columna': '', 'planta': '', 'entrada': 'Entrada', 'salida': 'Salida',
+  'entrada-cam': 'Entrada camareros', 'salida-cam': 'Salida camareros',
   'dj': 'DJ', 'tv': 'T.V', 'altavoz': '', 'texto': 'Texto',
 };
-const TIPO_UNICO = ['escenario','barra','entrada','salida','dj','tv','texto'];
+const TIPO_UNICO = ['escenario','barra','entrada','salida','entrada-cam','salida-cam','dj','tv','texto'];
 const contadores = {};
 
 function siguienteNombre(tipo) {
@@ -852,11 +858,11 @@ function crearGrupo(tipo, etiqueta, color) {
     objs.push(new fabric.Ellipse({ rx: 7, ry: 4, fill: '#fff', opacity: 0.6, angle:  40, left: 16, top: 10 }));
     gx = cx - 16; gy = cy - 16;
 
-  } else if (tipo === 'entrada' || tipo === 'salida') {
+  } else if (tipo === 'entrada' || tipo === 'salida' || tipo === 'entrada-cam' || tipo === 'salida-cam') {
     const [w, h] = [72, 46];
     objs.push(new fabric.Rect({ width: w, height: h, fill: color, rx: 4, left: 0, top: 0 }));
-    // Flecha →  para entrada, ← para salida
-    const d = tipo === 'entrada' ? 1 : -1;
+    const esDerecha = (tipo === 'entrada' || tipo === 'entrada-cam');
+    const d = esDerecha ? 1 : -1;
     const ax = w/2, ay = h/2;
     objs.push(new fabric.Polygon(
       [{x: ax - 10*d, y: ay - 7}, {x: ax + 10*d, y: ay}, {x: ax - 10*d, y: ay + 7}],
@@ -895,26 +901,29 @@ PALETA_COLORES.forEach(function(c) {
   sw.style.background = c;
   sw.dataset.color = c;
   sw.addEventListener('click', function() {
-    if (!selectedObj) return;
-    const tipo = selectedObj._tipo;
-    if (tipo === 'zona') {
-      selectedObj.set({ fill: c, backgroundColor: hex2rgba(c, 0.14) });
-    } else if (tipo === 'texto') {
-      selectedObj.set({ fill: c });
-    } else {
-      selectedObj.getObjects().forEach(function(o) {
-        if (o._main) {
-          o.set('fill', c);
-        } else if (['mesa-redonda','mesa-rect'].includes(tipo) && (o.type === 'circle' || o.type === 'rect')) {
-          o.set('fill', colorSilla(c));
-        }
-      });
-    }
-    selectedObj._color = c;
+    const objs = canvas.getActiveObjects().slice();
+    if (!objs.length) return;
+    objs.forEach(function(obj) {
+      const tipo = obj._tipo;
+      if (tipo === 'zona') {
+        obj.set({ fill: c, backgroundColor: hex2rgba(c, 0.14) });
+      } else if (tipo === 'texto') {
+        obj.set({ fill: c });
+      } else if (obj.getObjects) {
+        obj.getObjects().forEach(function(o) {
+          if (o._main) {
+            o.set('fill', c);
+          } else if (['mesa-redonda','mesa-rect'].includes(tipo) && (o.type === 'circle' || o.type === 'rect')) {
+            o.set('fill', colorSilla(c));
+          }
+        });
+      }
+      obj._color = c;
+    });
     canvas.renderAll();
-    // Marcar swatch activo
     swatchWrap.querySelectorAll('.bc-plano-swatch').forEach(s => s.classList.remove('active'));
     sw.classList.add('active');
+    snapshot();
   });
   swatchWrap.appendChild(sw);
 });
@@ -926,8 +935,9 @@ function mostrarColorbar(obj) {
   swatchWrap.querySelectorAll('.bc-plano-swatch').forEach(function(s) {
     s.classList.toggle('active', s.dataset.color === colorActual);
   });
-  // Mostrar botón Info solo para mesas
-  btnAbrirInfo.style.display = MESA_TIPOS.includes(obj._tipo) ? '' : 'none';
+  // Mostrar botón Info solo para una única mesa seleccionada
+  const multiSel = canvas.getActiveObjects().length > 1;
+  btnAbrirInfo.style.display = (!multiSel && MESA_TIPOS.includes(obj._tipo)) ? '' : 'none';
 }
 
 canvas.on('selection:created',  function(e) { mostrarColorbar(e.selected[0]); });
@@ -990,18 +1000,28 @@ renameInput.addEventListener('keydown', function(e) {
 renameInput.addEventListener('blur', aplicarRename);
 
 // ── Eliminar ─────────────────────────────────────────────────────────────
-document.getElementById('btn-eliminar-elemento').addEventListener('click', function() {
+function eliminarSeleccion() {
   const active = canvas.getActiveObject();
-  if (active) { canvas.remove(active); canvas.renderAll(); }
-});
+  if (!active) return;
+  if (active.type === 'activeSelection') {
+    const objs = active.getObjects().slice();
+    canvas.discardActiveObject();
+    objs.forEach(function(obj) { canvas.remove(obj); });
+  } else {
+    canvas.remove(active);
+  }
+  canvas.renderAll();
+  snapshot();
+}
+
+document.getElementById('btn-eliminar-elemento').addEventListener('click', eliminarSeleccion);
 
 // Supr / Delete elimina del canvas solo si el foco no está en un campo de texto
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Delete' && e.key !== 'Backspace') return;
   const tag = document.activeElement ? document.activeElement.tagName : '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement === renameInput) return;
-  const active = canvas.getActiveObject();
-  if (active) { canvas.remove(active); canvas.renderAll(); }
+  eliminarSeleccion();
 });
 
 // ── Info panel por mesa ───────────────────────────────────────────────────
@@ -1034,15 +1054,14 @@ function cerrarInfoPanel() {
 function guardarInfoPanel() {
   if (!infoTarget) return;
 
-  // Guardar nombre (renombrar mesa desde el panel)
+  const etiquetaOrig = infoTarget._etiqueta;
   const nuevoNombre = document.getElementById('info-nombre').value.trim();
-  if (nuevoNombre && nuevoNombre !== infoTarget._etiqueta) {
+  if (nuevoNombre && nuevoNombre !== etiquetaOrig) {
     infoTarget.getObjects('text').forEach(function(t) { t.set('text', nuevoNombre); });
     infoTarget._etiqueta = nuevoNombre;
     canvas.renderAll();
   }
 
-  // Guardar info de menú/restricciones
   const info = {};
   infoFields.forEach(function(f) {
     const el = document.getElementById('info-' + f);
@@ -1050,8 +1069,15 @@ function guardarInfoPanel() {
     info[f] = el.type === 'number' ? (parseInt(el.value) || 0) : el.value;
   });
   infoTarget._info = info;
+
+  // _info se guarda por su propio endpoint; guardar_plano nunca toca _info
+  fetch(INFO_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify({ etiqueta: etiquetaOrig, nuevo_nombre: infoTarget._etiqueta, info: info }),
+  }).catch(function() {});
+
   snapshot();
-  guardarPlano(); // guardado inmediato desde el panel
 }
 
 // Listeners del panel
@@ -1115,6 +1141,20 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); document.getElementById('btn-redo').click(); }
 });
 
+// Al terminar de escalar un grupo, corregir la distorsión del texto
+canvas.on('object:modified', function(e) {
+  const obj = e.target;
+  if (!obj || obj.type !== 'group') return;
+  const sx = obj.scaleX || 1;
+  const sy = obj.scaleY || 1;
+  if (Math.abs(sx - sy) < 0.001) return; // escala uniforme, no hay distorsión
+  const u = Math.sqrt(sx * sy); // escala uniforme equivalente
+  obj.getObjects('text').forEach(function(t) {
+    t.set({ scaleX: u / sx, scaleY: u / sy });
+  });
+  canvas.renderAll();
+});
+
 // Guardar snapshot en cada cambio relevante
 ['object:added','object:modified','object:removed'].forEach(function(ev) {
   canvas.on(ev, snapshot);
@@ -1123,6 +1163,7 @@ document.addEventListener('keydown', function(e) {
 // ── Guardar / Cargar ──────────────────────────────────────────────────────
 const CSRF = '{{ csrf_token }}';
 const SAVE_URL = '{% url "guardar_plano" evento.pk %}';
+const INFO_URL = '{% url "guardar_info_mesa" evento.pk %}';
 const saveStatus = document.getElementById('plano-save-status');
 let saveTimer = null;
 
@@ -1234,31 +1275,23 @@ function fitToViewport() {
     canvas.loadFromJSON(stored, function() {
       canvas.backgroundColor = ''; // transparente → cuadrícula visible
       canvas.renderAll();
-      // Restaurar _info desde el JSON original (Fabric no siempre lo preserva en grupos)
-      var infoMap = {};
-      (stored.objects || []).forEach(function(o) {
-        if (o._etiqueta && o._info) infoMap[o._etiqueta] = o._info;
-      });
       // Sincronizar _etiqueta con el texto visual real (corrige bug de rename antiguo)
       canvas.getObjects().forEach(function(o) {
         if (o.type !== 'group') return;
         var textos = o.getObjects('text');
         if (textos.length > 0) {
-          var textoVisual = textos[textos.length - 1].text;
+          var textoVisual = textos[textos.length - 1].text; // el último text es la etiqueta
           if (textoVisual && textoVisual !== o._etiqueta) {
             o._etiqueta = textoVisual;
           }
         }
-        // Restaurar _info si Fabric no lo recuperó bien
-        if (o._etiqueta && infoMap[o._etiqueta]) {
-          o._info = infoMap[o._etiqueta];
-        }
       });
       canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
-      setModoMover(false);
+      setModoMover(false);  // siempre arranca bloqueado — pulsa "Mover" para editar
       if (ES_MOVIL) { fitToViewport(); }
       recalcularContadores();
       snapshot();
+      guardarPlano(); // persiste la sincronización de nombres (_info la preserva el servidor)
     });
   } else {
     setModoMover(false);  // plano vacío — también arranca bloqueado
@@ -1325,24 +1358,48 @@ const LOTE_TAMS = {
 // Mostrar/ocultar campo columnas según disposición
 document.getElementById('lote-disposicion').addEventListener('change', function() {
   document.getElementById('lote-cols-wrap').style.display = this.value === 'grid' ? '' : 'none';
+  document.getElementById('lote-cantidad').max = this.value === 'circular' ? 30 : 50;
 });
 
 let loteConfig = null; // config pendiente de click-to-place
 
 function colocarLote(ox, oy) {
-  const { tipo, cant, cols, tam, gap } = loteConfig;
-  let col = 0, row = 0;
-  for (let i = 0; i < cant; i++) {
-    const etiqueta = siguienteNombre(tipo);
-    const color    = COLOR_DEFECTO[tipo] || '#3b82f6';
-    const obj      = crearGrupo(tipo, etiqueta, color);
-    if (!obj) continue;
-    obj._color = color;
-    obj.set({ left: ox + col * (tam.w + gap), top: oy + row * (tam.h + gap) });
-    canvas.add(obj);
-    col++;
-    if (col >= cols) { col = 0; row++; }
+  const { tipo, cant, cols, tam, gap, disp } = loteConfig;
+
+  if (disp === 'circular') {
+    // Radio mínimo para que los elementos no se solapen
+    const radio = Math.max(
+      (tam.w + gap) * cant / (2 * Math.PI),
+      tam.w
+    );
+    for (let i = 0; i < cant; i++) {
+      const angulo = (2 * Math.PI * i / cant) - Math.PI / 2; // empieza arriba
+      const etiqueta = siguienteNombre(tipo);
+      const color    = COLOR_DEFECTO[tipo] || '#3b82f6';
+      const obj      = crearGrupo(tipo, etiqueta, color);
+      if (!obj) continue;
+      obj._color = color;
+      obj.set({
+        left: ox + radio * Math.cos(angulo) - tam.w / 2,
+        top:  oy + radio * Math.sin(angulo) - tam.h / 2,
+      });
+      canvas.add(obj);
+    }
+  } else {
+    let col = 0, row = 0;
+    for (let i = 0; i < cant; i++) {
+      const etiqueta = siguienteNombre(tipo);
+      const color    = COLOR_DEFECTO[tipo] || '#3b82f6';
+      const obj      = crearGrupo(tipo, etiqueta, color);
+      if (!obj) continue;
+      obj._color = color;
+      obj.set({ left: ox + col * (tam.w + gap), top: oy + row * (tam.h + gap) });
+      canvas.add(obj);
+      col++;
+      if (col >= cols) { col = 0; row++; }
+    }
   }
+
   canvas.renderAll();
   snapshot();
   loteConfig = null;
@@ -1366,7 +1423,7 @@ document.getElementById('btn-lote-ok').addEventListener('click', function() {
              : disp === 'fila'    ? cant
              : 1;
 
-  loteConfig = { tipo, cant, cols, tam, gap };
+  loteConfig = { tipo, cant, cols, tam, gap, disp };
   modalLote.style.display = 'none';
   // Cursor de crosshair para indicar modo colocación
   document.getElementById('plano-canvas').style.cursor = 'crosshair';

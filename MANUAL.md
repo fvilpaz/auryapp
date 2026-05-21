@@ -110,11 +110,57 @@ From the event page you can:
 
 The editor lets you design the table and space layout for each event.
 
-- **Add elements** — round tables, square tables, rectangular tables, chairs, bars, stages...
+#### Add elements
+
+Use the toolbar buttons at the top to add objects to the canvas:
+
+| Element | Description |
+|---------|-------------|
+| Round table | Circular table with label |
+| Rectangular table | Rectangular table with label |
+| Cocktail | Tall cocktail table |
+| Stage | Stage area (unique) |
+| Bar | Venue bar (unique) |
+| DJ | DJ booth (unique) |
+| TV | Television (unique) |
+| Speaker | Ambient speaker |
+| Zone | Named area (free textbox) |
+| Column | Structural column |
+| Plant | Decorative plant element |
+| Guest entrance | Guest access point (unique) |
+| Guest exit | Guest exit point (unique) |
+| Staff entrance | Service staff access (unique) |
+| Staff exit | Service staff exit (unique) |
+| Text | Free editable text |
+
+#### Add in batch
+
+Click **Add batch** to place multiple tables at once. Choose the type, quantity and arrangement:
+- **Horizontal** — row from left to right
+- **Vertical** — column from top to bottom
+- **Circle** — arranged in a circle around the point where you click
+
+#### Table information
+
+Click on a table to select it. The **Info panel** opens on the right with fields for:
+name, range, number of guests, meat, fish, vegetarian, children, coeliacs, allergies and notes.
+
+Changes are saved instantly when you click outside the field or close the panel.
+
+#### Edit all tables
+
+Click **Edit tables** (from the event detail page) to see all the floor plan's tables in a single table view. Each row has the same fields as the Info panel. Changes save automatically row by row (no save button needed).
+
+#### Other actions
+
 - **Move elements** — drag with your finger (mobile/tablet) or with the mouse
+- **Resize** — drag the corners of the selected object
+- **Change colour** — select the object and use the colour picker in the toolbar
+- **Delete** — select and press `Del` or the trash button
+- **Undo / Redo** — ↩ ↪ buttons in the toolbar
 - **Lock** — activate lock mode to prevent elements from being moved accidentally while scrolling
-- **Zoom** — pinch with two fingers on mobile/tablet to zoom
-- **Save** — on desktop it saves automatically; on mobile tap the save button
+- **Zoom** — pinch with two fingers on mobile/tablet or use the mouse wheel
+- **Save** — saves automatically whenever an element is modified
 - **Export** — download the floor plan as a PNG image or PDF
 
 ---
@@ -129,7 +175,21 @@ Use the **←** **→** arrows to move week by week.
 
 ### Assign a shift
 
-Click on an employee's day and select the shift type (work, day off, holidays...).
+Click on an employee's day and select the shift type.
+
+### Shift colours
+
+Each shift type has a distinct colour in the schedule:
+
+| State | Colour |
+|-------|--------|
+| Work | Employee's colour (green by default) |
+| Day off | Purple |
+| Immovable | Orange |
+| Holidays | Yellow |
+| Day off + holidays | Light orange |
+| Long weekend | Lilac |
+| Sick leave | Red |
 
 ### Assign a space to an employee
 
@@ -144,6 +204,11 @@ Management of the club's workforce.
 ### Employee profile
 
 Each employee has: first name, last name, role, phone, email, date of birth, contract type and expiry date (if applicable).
+
+Additional fields relevant to the schedule:
+
+- **Colour** — the colour that represents the employee in the schedule when working (green by default)
+- **Weekly hours** — contract hours (40 or 30); used to calculate availability
 
 ### Expiry alerts
 

@@ -336,6 +336,7 @@ def editar_mesas(request, pk):
     MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
     rangos = evento.rangos.all()
 
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if request.method == 'POST':
         if evento.plano_json:
             try:
@@ -365,7 +366,10 @@ def editar_mesas(request, pk):
                 evento.plano_json = _json.dumps(data)
                 evento.save(update_fields=['plano_json'])
             except Exception:
-                pass
+                if is_ajax:
+                    return JsonResponse({'ok': False, 'error': 'Error al guardar'}, status=400)
+        if is_ajax:
+            return JsonResponse({'ok': True})
         return redirect('detalle_evento', pk=pk)
 
     # GET — extraer mesas con sus datos actuales
@@ -447,32 +451,58 @@ def guardar_plano(request, pk):
     if request.method == 'POST':
         try:
             data = _json.loads(request.body)
-            nuevo_plano = data.get('plano', {})
-
-            # _info (carnes, pescados, rangos...) solo lo gestiona editar_mesas,
-            # nunca el auto-guardado del canvas — siempre se restaura desde BD
-            MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
-            if evento.plano_json and nuevo_plano.get('objects'):
+            nuevo = data.get('plano', {})
+            # guardar_plano solo guarda estructura del canvas — _info lo gestionan
+            # guardar_info_mesa y editar_mesas, así que siempre se preserva desde BD
+            if evento.plano_json:
                 try:
-                    existing = _json.loads(evento.plano_json)
-                    info_map = {
-                        o.get('_etiqueta', ''): o['_info']
-                        for o in existing.get('objects', [])
-                        if o.get('_tipo') in MESA_TIPOS and '_info' in o
+                    viejo = _json.loads(evento.plano_json)
+                    info_db = {
+                        o.get('_etiqueta'): o.get('_info')
+                        for o in viejo.get('objects', [])
+                        if o.get('_etiqueta') and o.get('_info') is not None
                     }
-                    for o in nuevo_plano['objects']:
-                        if o.get('_tipo') in MESA_TIPOS:
-                            etiqueta = o.get('_etiqueta', '')
-                            if etiqueta in info_map:
-                                o['_info'] = info_map[etiqueta]
+                    for o in nuevo.get('objects', []):
+                        etiqueta = o.get('_etiqueta')
+                        if etiqueta and etiqueta in info_db:
+                            o['_info'] = info_db[etiqueta]
                 except Exception:
                     pass
-
-            evento.plano_json = _json.dumps(nuevo_plano)
+            evento.plano_json = _json.dumps(nuevo)
             evento.save(update_fields=['plano_json'])
             return JsonResponse({'ok': True})
         except Exception:
             return JsonResponse({'ok': False, 'error': 'Error al guardar el plano'}, status=400)
+    return JsonResponse({'ok': False}, status=405)
+
+@staff_required
+def guardar_info_mesa(request, pk):
+    """Guarda _info (pax, carne, pescado…) de una mesa concreta. Solo este endpoint y
+    editar_mesas pueden modificar _info; guardar_plano nunca la toca."""
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == 'POST':
+        try:
+            data = _json.loads(request.body)
+            etiqueta_orig = data.get('etiqueta', '')
+            nuevo_nombre  = data.get('nuevo_nombre', etiqueta_orig) or etiqueta_orig
+            info          = data.get('info', {})
+            MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
+            if evento.plano_json and etiqueta_orig:
+                plano = _json.loads(evento.plano_json)
+                for o in plano.get('objects', []):
+                    if o.get('_tipo') in MESA_TIPOS and o.get('_etiqueta') == etiqueta_orig:
+                        if nuevo_nombre != etiqueta_orig:
+                            o['_etiqueta'] = nuevo_nombre
+                            for sub in o.get('objects', []):
+                                if sub.get('type') == 'text':
+                                    sub['text'] = nuevo_nombre
+                        o['_info'] = info
+                        break
+                evento.plano_json = _json.dumps(plano)
+                evento.save(update_fields=['plano_json'])
+            return JsonResponse({'ok': True})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
     return JsonResponse({'ok': False}, status=405)
 
 _EXTENSIONES_PERMITIDAS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg', '.gif', '.webp'}
