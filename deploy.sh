@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-cd /home/nando/code/github/auryapp
+cd /home/fvilpaz/Data/coding/github/auryapp
 
 if [ ! -f .env.deploy ]; then
   echo "ERROR: falta el archivo .env.deploy con las credenciales"
