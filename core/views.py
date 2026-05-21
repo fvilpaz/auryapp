@@ -447,7 +447,27 @@ def guardar_plano(request, pk):
     if request.method == 'POST':
         try:
             data = _json.loads(request.body)
-            evento.plano_json = _json.dumps(data.get('plano', {}))
+            nuevo_plano = data.get('plano', {})
+
+            # Preservar _info (carnes, pescados, etc.) si el canvas no lo trae
+            MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel']
+            if evento.plano_json and nuevo_plano.get('objects'):
+                try:
+                    existing = _json.loads(evento.plano_json)
+                    info_map = {
+                        o.get('_etiqueta', ''): o['_info']
+                        for o in existing.get('objects', [])
+                        if o.get('_tipo') in MESA_TIPOS and o.get('_info')
+                    }
+                    for o in nuevo_plano['objects']:
+                        if o.get('_tipo') in MESA_TIPOS and '_info' not in o:
+                            etiqueta = o.get('_etiqueta', '')
+                            if etiqueta in info_map:
+                                o['_info'] = info_map[etiqueta]
+                except Exception:
+                    pass
+
+            evento.plano_json = _json.dumps(nuevo_plano)
             evento.save(update_fields=['plano_json'])
             return JsonResponse({'ok': True})
         except Exception:
