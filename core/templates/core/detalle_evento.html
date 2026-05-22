@@ -1197,37 +1197,31 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); document.getElementById('btn-redo').click(); }
 });
 
-// Al terminar de escalar, corregir distorsión de texto en grupos, zona e IText
+// Al terminar de escalar, corregir distorsión de texto
 canvas.on('object:modified', function(e) {
   const obj = e.target;
   if (!obj) return;
   const sx = obj.scaleX || 1;
   const sy = obj.scaleY || 1;
-  if (Math.abs(sx - sy) < 0.001) return; // escala uniforme, no hay distorsión
+
+  if (obj.type === 'textbox' && obj._tipo === 'zona') {
+    // Zona: el contenedor se adapta pero el fontSize nunca cambia
+    if (sx === 1 && sy === 1) return;
+    obj.set({ width: Math.round(obj.width * sx), scaleX: 1, scaleY: 1 });
+    canvas.renderAll();
+    return;
+  }
+
+  if (Math.abs(sx - sy) < 0.001) return; // escala uniforme — sin distorsión en los demás
   if (obj.type === 'group') {
     const u = Math.sqrt(sx * sy);
     obj.getObjects('text').forEach(function(t) {
       t.set({ scaleX: u / sx, scaleY: u / sy });
     });
     canvas.renderAll();
-  } else if (obj.type === 'textbox' && obj._tipo === 'zona') {
-    // Bake escala en width y fontSize (media geométrica = sin distorsión, igual que grupos)
-    const u = Math.sqrt(sx * sy);
-    obj.set({
-      width: Math.round(obj.width * sx),
-      fontSize: Math.round(obj.fontSize * u),
-      scaleX: 1,
-      scaleY: 1,
-    });
-    canvas.renderAll();
   } else if (obj.type === 'i-text' && obj._tipo === 'texto') {
-    // IText: ajustar fontSize con media geométrica y resetear escala
     const u = Math.sqrt(sx * sy);
-    obj.set({
-      fontSize: Math.round(obj.fontSize * u),
-      scaleX: 1,
-      scaleY: 1,
-    });
+    obj.set({ fontSize: Math.round(obj.fontSize * u), scaleX: 1, scaleY: 1 });
     canvas.renderAll();
   }
 });
