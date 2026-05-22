@@ -617,8 +617,14 @@ function siguienteNombre(tipo) {
   return base + ' ' + n;
 }
 
+let pendingPlaceTipo = null;
+
 document.querySelectorAll('[data-add]').forEach(function(btn) {
-  btn.addEventListener('click', function() { añadirElemento(this.dataset.add); });
+  btn.addEventListener('click', function() {
+    cerrarDropdowns();
+    pendingPlaceTipo = this.dataset.add;
+    document.getElementById('plano-canvas').style.cursor = 'crosshair';
+  });
 });
 
 // ── Modo mover / selección ────────────────────────────────────────────────
@@ -686,8 +692,8 @@ document.addEventListener('keydown', function(e) {
 
 // Bloquear objetos nuevos si estamos en modo selección
 const _añadirElementoOrig = añadirElemento;
-function añadirElemento(tipo) {
-  _añadirElementoOrig(tipo);
+function añadirElemento(tipo, px, py) {
+  _añadirElementoOrig(tipo, px, py);
   if (!modoMover) {
     const obj = canvas.getActiveObject();
     if (obj) aplicarBloqueo(obj, true);
@@ -716,9 +722,9 @@ function mkLabel(txt, cx, cy, size, col) {
   });
 }
 
-function crearGrupo(tipo, etiqueta, color) {
-  const cx = canvas.getWidth()  / 2 + (Math.random() - 0.5) * 140;
-  const cy = canvas.getHeight() / 2 + (Math.random() - 0.5) * 120;
+function crearGrupo(tipo, etiqueta, color, px, py) {
+  const cx = px !== undefined ? px : canvas.getWidth()  / 2 + (Math.random() - 0.5) * 140;
+  const cy = py !== undefined ? py : canvas.getHeight() / 2 + (Math.random() - 0.5) * 120;
   const objs = [];
   let gx, gy;
 
@@ -875,10 +881,10 @@ function crearGrupo(tipo, etiqueta, color) {
   return new fabric.Group(objs, { left: gx, top: gy, _tipo: tipo, _etiqueta: etiqueta });
 }
 
-function añadirElemento(tipo) {
+function añadirElemento(tipo, px, py) {
   const etiqueta = siguienteNombre(tipo);
   const color = COLOR_DEFECTO[tipo] || '#3b82f6';
-  const obj = crearGrupo(tipo, etiqueta, color);
+  const obj = crearGrupo(tipo, etiqueta, color, px, py);
   if (obj) {
     obj._color = color;
     canvas.add(obj);
@@ -1000,7 +1006,11 @@ function aplicarRename() {
 
 renameInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') aplicarRename();
-  if (e.key === 'Escape') { renameInput.style.display = 'none'; renameTarget = null; }
+  if (e.key === 'Escape') {
+    renameInput.style.display = 'none'; renameTarget = null;
+    pendingPlaceTipo = null;
+    document.getElementById('plano-canvas').style.cursor = '';
+  }
 });
 renameInput.addEventListener('blur', aplicarRename);
 
@@ -1492,6 +1502,14 @@ function colocarLote(ox, oy) {
 
 // Click en canvas para colocar lote
 canvas.on('mouse:down', function(opt) {
+  if (pendingPlaceTipo) {
+    const tipo = pendingPlaceTipo;
+    pendingPlaceTipo = null;
+    document.getElementById('plano-canvas').style.cursor = '';
+    const p = canvas.getPointer(opt.e);
+    añadirElemento(tipo, p.x, p.y);
+    return;
+  }
   if (!loteConfig) return;
   const p = canvas.getPointer(opt.e);
   colocarLote(p.x, p.y);
