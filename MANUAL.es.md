@@ -15,6 +15,8 @@ Abre el navegador y entra en la dirección de la app. Introduce tu usuario y con
 
 > Si introduces mal la contraseña 5 veces seguidas, la cuenta se bloquea durante 1 hora automáticamente.
 
+> La sesión se cierra automáticamente al cerrar el navegador y caduca tras 8 horas de inactividad.
+
 ### Crear cuenta nueva
 
 Si no tienes cuenta, pulsa **Crear cuenta nueva** en la pantalla de login. Rellena nombre, apellidos, usuario, correo y contraseña. Al registrarte entras directamente a la app.
@@ -112,7 +114,7 @@ El editor permite diseñar la distribución de mesas y espacios de cada evento.
 
 #### Añadir elementos
 
-Usa los botones de la barra superior para añadir objetos al canvas:
+Pulsa un botón de la barra de herramientas para entrar en modo colocación — el cursor cambia a **cruz**. Luego haz clic en el canvas donde quieras colocar el elemento. Pulsa `Escape` para cancelar sin colocar nada.
 
 | Elemento | Descripción |
 |----------|-------------|
@@ -124,7 +126,7 @@ Usa los botones de la barra superior para añadir objetos al canvas:
 | DJ | Zona de DJ (única) |
 | TV | Televisión (única) |
 | Altavoz | Altavoz de ambiente |
-| Zona | Área con nombre libre (textbox) |
+| Zona | Área con nombre redimensionable (recuadro de color con etiqueta) |
 | Columna | Columna estructural |
 | Planta | Elemento de decoración vegetal |
 | Entrada invitados | Acceso de invitados (único) |
@@ -145,23 +147,36 @@ Pulsa **Añadir lote** para colocar varias mesas a la vez. Elige el tipo, la can
 Haz clic en una mesa para seleccionarla. Se abre el **panel Info** a la derecha con los campos:
 - Nombre, rango, número de pax, carne, pescado, vegetariano, infantil, celíacos, alérgicos y notas
 
+El número de pax también se muestra como etiqueta directamente debajo de la mesa en el canvas, actualizado en tiempo real.
+
 Los cambios se guardan al instante al pulsar fuera del campo o al cerrar el panel.
 
 #### Editar todas las mesas
 
 Pulsa **Editar mesas** (desde el detalle del evento) para ver todas las mesas del plano en una tabla. Cada fila tiene los mismos campos que el panel Info del plano. Los cambios se guardan automáticamente fila a fila (sin botón de guardar).
 
+#### Selección múltiple
+
+Mantén `Shift` y haz clic en varios elementos, o arrastra un rectángulo de selección para seleccionar varios a la vez. Con varios elementos seleccionados:
+- **Eliminar** (tecla `Supr` o botón papelera) los borra todos a la vez
+- **Selector de color** aplica el nuevo color a todos los elementos seleccionados a la vez
+
+#### Etiquetas de entradas y salidas
+
+Las etiquetas de entradas y salidas de invitados y camareros se muestran siempre en horizontal debajo del elemento, independientemente de cómo esté girado.
+
 #### Otras acciones
 
 - **Mover elementos** — arrastra con el dedo (móvil/tablet) o con el ratón
 - **Redimensionar** — arrastra las esquinas del objeto seleccionado
 - **Cambiar color** — selecciona el objeto y usa el selector de color en la barra superior
+- **Renombrar** — doble clic en cualquier elemento para cambiarle el nombre
 - **Eliminar** — selecciona y pulsa la tecla `Supr` o el botón de la papelera
 - **Deshacer / Rehacer** — botones ↩ ↪ en la barra superior
 - **Candado** — activa el modo candado para bloquear los elementos y evitar moverlos sin querer al deslizar
 - **Zoom** — pellizca con dos dedos en móvil/tablet o usa la rueda del ratón
 - **Guardar** — se guarda automáticamente al modificar cualquier elemento
-- **Exportar** — descarga el plano como imagen PNG o PDF
+- **Exportar** — descarga el plano como imagen PNG o PDF (con etiquetas y badges de pax incluidos)
 
 ---
 

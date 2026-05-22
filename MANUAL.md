@@ -15,6 +15,8 @@ Open your browser and go to the app's URL. Enter your username and password.
 
 > If you enter the wrong password 5 times in a row, the account is automatically locked for 1 hour.
 
+> The session closes automatically when you close the browser, and expires after 8 hours of inactivity regardless.
+
 ### Create a new account
 
 If you don't have an account, click **Create new account** on the login screen. Fill in your first name, last name, username, email and password. Once registered, you are taken directly into the app.
@@ -112,7 +114,7 @@ The editor lets you design the table and space layout for each event.
 
 #### Add elements
 
-Use the toolbar buttons at the top to add objects to the canvas:
+Click a toolbar button to enter placement mode — the cursor changes to a **crosshair**. Then click anywhere on the canvas to place the element at that exact position. Press `Escape` to cancel without placing.
 
 | Element | Description |
 |---------|-------------|
@@ -124,7 +126,7 @@ Use the toolbar buttons at the top to add objects to the canvas:
 | DJ | DJ booth (unique) |
 | TV | Television (unique) |
 | Speaker | Ambient speaker |
-| Zone | Named area (free textbox) |
+| Zone | Named resizable area (coloured box with label) |
 | Column | Structural column |
 | Plant | Decorative plant element |
 | Guest entrance | Guest access point (unique) |
@@ -145,23 +147,36 @@ Click **Add batch** to place multiple tables at once. Choose the type, quantity 
 Click on a table to select it. The **Info panel** opens on the right with fields for:
 name, range, number of guests, meat, fish, vegetarian, children, coeliacs, allergies and notes.
 
+The number of guests is also shown as a badge directly below the table on the canvas, updated in real time.
+
 Changes are saved instantly when you click outside the field or close the panel.
 
 #### Edit all tables
 
 Click **Edit tables** (from the event detail page) to see all the floor plan's tables in a single table view. Each row has the same fields as the Info panel. Changes save automatically row by row (no save button needed).
 
+#### Multi-selection
+
+Hold `Shift` and click multiple elements, or drag a selection rectangle to select several at once. With multiple elements selected:
+- **Delete** (`Del` key or trash button) removes all of them at once
+- **Colour swatch** applies the new colour to all selected elements at once
+
+#### Entrance and exit labels
+
+The labels for guest and staff entrances/exits are always displayed horizontally below the element, regardless of how the element is rotated.
+
 #### Other actions
 
 - **Move elements** — drag with your finger (mobile/tablet) or with the mouse
 - **Resize** — drag the corners of the selected object
 - **Change colour** — select the object and use the colour picker in the toolbar
+- **Rename** — double-click any element to rename it
 - **Delete** — select and press `Del` or the trash button
 - **Undo / Redo** — ↩ ↪ buttons in the toolbar
 - **Lock** — activate lock mode to prevent elements from being moved accidentally while scrolling
 - **Zoom** — pinch with two fingers on mobile/tablet or use the mouse wheel
 - **Save** — saves automatically whenever an element is modified
-- **Export** — download the floor plan as a PNG image or PDF
+- **Export** — download the floor plan as a PNG image or PDF (labels and pax badges included)
 
 ---
 

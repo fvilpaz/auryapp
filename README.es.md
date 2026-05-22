@@ -15,7 +15,7 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 
 - **Dashboard** — Resumen del día: clima en vivo, eventos próximos, tareas del día, personal trabajando
 - **Eventos** — Gestión completa de bodas, graduaciones, comuniones, galas y más. Con documentos adjuntos y editor visual de plano de mesas
-- **Plano de mesas** — Editor visual (Fabric.js) para diseñar la distribución de espacios de cada evento
+- **Plano de mesas** — Editor visual (Fabric.js) para diseñar la distribución de espacios de cada evento. Colocación por clic, selección múltiple con borrado y cambio de color en bloque, badge de pax en cada mesa, etiquetas de entradas/salidas siempre horizontales
 - **Cuadrante** — Vista semanal de turnos por empleado con drag & drop
 - **Personal** — Fichas de empleados, roles, contratos y alertas de vencimiento
 - **Vacaciones y días sueltos** — Solicitudes, aprobación y seguimiento
@@ -103,8 +103,11 @@ bash deploy.sh
 
 - Autenticación obligatoria en todas las rutas (middleware personalizado)
 - Bloqueo automático tras 5 intentos de login fallidos (1 hora de cooldown)
+- Sesión expira al cerrar el navegador y tras 8 horas máximo
 - Protección CSRF, XSS y clickjacking activadas
-- SSL recomendado en producción
+- Cabeceras Content Security Policy (CSP), HSTS, Referrer-Policy y Permissions-Policy
+- Validación de subida de ficheros: whitelist de extensiones + comprobación de magic bytes
+- SSL obligatorio en producción
 
 ---
 

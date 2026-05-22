@@ -15,7 +15,7 @@ Full-stack Django web app built for a real beach club, actively used in producti
 
 - **Dashboard** — Daily overview: live weather, upcoming events, today's tasks, active staff
 - **Events** — Full event management (weddings, graduations, communions, galas and more) with file attachments and a visual floor plan editor
-- **Floor Plan Editor** — Drag-and-drop visual layout builder (Fabric.js) per event
+- **Floor Plan Editor** — Drag-and-drop visual layout builder (Fabric.js) per event. Click-to-place elements, multi-select with bulk delete and colour change, pax badge on each table, entrance/exit labels always horizontal
 - **Schedule** — Weekly shift view per employee with drag & drop
 - **Staff** — Employee profiles, roles, contracts and expiry alerts
 - **Time Off** — Holiday and day-off requests, approval and tracking
@@ -103,7 +103,10 @@ bash deploy.sh
 
 - Login required on all routes (custom middleware)
 - Automatic lockout after 5 failed login attempts (1-hour cooldown)
+- Session expires on browser close and after 8 hours maximum
 - CSRF, XSS and clickjacking protection enabled
+- Content Security Policy (CSP), HSTS, Referrer-Policy and Permissions-Policy headers
+- File upload validation: extension whitelist + magic bytes check
 - SSL enforced in production
 
 ---
