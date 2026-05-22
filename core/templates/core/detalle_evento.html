@@ -773,17 +773,17 @@ function crearGrupo(tipo, etiqueta, color) {
     gx = cx - w/2; gy = cy - h/2;
 
   } else if (tipo === 'zona') {
-    // Textbox nativo — editable directamente con doble clic, redimensionable
-    return new fabric.Textbox(etiqueta || 'Área', {
-      left: cx - 120, top: cy - 55,
-      width: 240,
-      fontSize: 22, fontWeight: '700',
-      fontFamily: 'system-ui, sans-serif',
-      fill: color, textAlign: 'center',
-      backgroundColor: hex2rgba(color, 0.14),
-      padding: 28,
-      _tipo: 'zona', _etiqueta: etiqueta, _color: color,
+    const [w, h] = [240, 110];
+    const bgRect = new fabric.Rect({
+      width: w, height: h,
+      fill: hex2rgba(color, 0.14),
+      stroke: color, strokeWidth: 1.5,
+      rx: 6, left: 0, top: 0,
     });
+    bgRect._main = true;
+    objs.push(bgRect);
+    objs.push(mkLabel(etiqueta || 'Área', w/2, h/2, 22, color));
+    gx = cx - w/2; gy = cy - h/2;
 
   // ── Mesa cóctel (círculo medio, anillo exterior) ──
   } else if (tipo === 'coctel') {
@@ -904,7 +904,13 @@ PALETA_COLORES.forEach(function(c) {
     if (!objs.length) return;
     objs.forEach(function(obj) {
       const tipo = obj._tipo;
-      if (tipo === 'zona') {
+      if (tipo === 'zona' && obj.getObjects) {
+        obj.getObjects().forEach(function(o) {
+          if (o._main) { o.set({ fill: hex2rgba(c, 0.14), stroke: c }); }
+          else if (o.type === 'text') { o.set({ fill: c }); }
+        });
+      } else if (tipo === 'zona') {
+        // backward compat: vieja zona textbox
         obj.set({ fill: c, backgroundColor: hex2rgba(c, 0.14) });
       } else if (tipo === 'texto') {
         obj.set({ fill: c });
@@ -954,7 +960,7 @@ let renameTarget = null;
 canvas.on('mouse:dblclick', function(opt) {
   const obj = opt.target;
   if (!obj) return;
-  // Textbox (zona) e IText (texto libre): edición nativa
+  // Vieja zona textbox (backward compat) e IText (texto libre): edición nativa
   if (obj.type === 'textbox' || obj.type === 'i-text') {
     obj.enterEditing();
     obj.selectAll();
