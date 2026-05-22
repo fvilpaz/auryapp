@@ -1051,7 +1051,16 @@ function drawOverlays(ctx, m) {
       var pax = (o._info && o._info.pax) || 0;
       if (pax) {
         var c = o.getCenterPoint();
-        var dy = o._tipo === 'mesa-redonda' ? 47 : (o._tipo === 'coctel' ? 32 : 36);
+        var dy;
+        if (o._tipo === 'mesa-rect') {
+          // Calcular borde inferior real según rotación (hw=45, hh=40 incluye sillas)
+          var angle = ((o.angle || 0) % 360) * Math.PI / 180;
+          var hw = 45 * (o.scaleX || 1);
+          var hh = 40 * (o.scaleY || 1);
+          dy = Math.abs(hw * Math.sin(angle)) + Math.abs(hh * Math.cos(angle)) + 10;
+        } else {
+          dy = o._tipo === 'mesa-redonda' ? 47 : 32; // redonda y cóctel son simétricas
+        }
         ctx.font = 'bold 13px system-ui, sans-serif';
         dibujarBadge(ctx, pax + ' Pax', c.x, c.y + dy, o._color || '#3b82f6');
       }
@@ -1188,18 +1197,38 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); document.getElementById('btn-redo').click(); }
 });
 
-// Al terminar de escalar un grupo, corregir la distorsión del texto
+// Al terminar de escalar, corregir distorsión de texto en grupos, zona e IText
 canvas.on('object:modified', function(e) {
   const obj = e.target;
-  if (!obj || obj.type !== 'group') return;
+  if (!obj) return;
   const sx = obj.scaleX || 1;
   const sy = obj.scaleY || 1;
   if (Math.abs(sx - sy) < 0.001) return; // escala uniforme, no hay distorsión
-  const u = Math.sqrt(sx * sy); // escala uniforme equivalente
-  obj.getObjects('text').forEach(function(t) {
-    t.set({ scaleX: u / sx, scaleY: u / sy });
-  });
-  canvas.renderAll();
+  if (obj.type === 'group') {
+    const u = Math.sqrt(sx * sy);
+    obj.getObjects('text').forEach(function(t) {
+      t.set({ scaleX: u / sx, scaleY: u / sy });
+    });
+    canvas.renderAll();
+  } else if (obj.type === 'textbox' && obj._tipo === 'zona') {
+    // Bake scaleX en width y scaleY en fontSize para evitar distorsión
+    obj.set({
+      width: Math.round(obj.width * sx),
+      fontSize: Math.round(obj.fontSize * sy),
+      scaleX: 1,
+      scaleY: 1,
+    });
+    canvas.renderAll();
+  } else if (obj.type === 'i-text' && obj._tipo === 'texto') {
+    // IText: ajustar fontSize con media geométrica y resetear escala
+    const u = Math.sqrt(sx * sy);
+    obj.set({
+      fontSize: Math.round(obj.fontSize * u),
+      scaleX: 1,
+      scaleY: 1,
+    });
+    canvas.renderAll();
+  }
 });
 
 // Guardar snapshot en cada cambio relevante
