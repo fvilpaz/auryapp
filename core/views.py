@@ -507,6 +507,25 @@ def guardar_info_mesa(request, pk):
 
 _EXTENSIONES_PERMITIDAS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg', '.gif', '.webp'}
 _TAMANO_MAXIMO = 10 * 1024 * 1024  # 10 MB
+# Firmas de fichero (magic bytes) permitidas — evita que un .html renombrado a .pdf entre
+_MAGIC_BYTES = {
+    b'%PDF':          '.pdf',
+    b'\x89PNG':       '.png',
+    b'\xff\xd8\xff':  '.jpg',
+    b'GIF8':          '.gif',
+    b'RIFF':          '.webp',  # RIFF....WEBP
+    b'PK\x03\x04':   '.docx',  # zip (docx, xlsx)
+    b'\xd0\xcf\x11':  '.doc',  # OLE2 (doc, xls)
+}
+
+def _magic_ok(archivo, ext):
+    header = archivo.read(8)
+    archivo.seek(0)
+    for sig in _MAGIC_BYTES:
+        if header.startswith(sig):
+            return True
+    # doc/xls/txt sin firma fuerte: aceptar si la extensión ya pasó el whitelist
+    return ext in {'.doc', '.xls', '.xlsx', '.docx'}
 
 @staff_required
 def subir_documento(request, pk):
@@ -515,7 +534,7 @@ def subir_documento(request, pk):
         archivo = request.FILES['archivo']
         import os as _os
         ext = _os.path.splitext(archivo.name)[1].lower()
-        if ext not in _EXTENSIONES_PERMITIDAS or archivo.size > _TAMANO_MAXIMO:
+        if ext not in _EXTENSIONES_PERMITIDAS or archivo.size > _TAMANO_MAXIMO or not _magic_ok(archivo, ext):
             return redirect('detalle_evento', pk=pk)
         nombre = request.POST.get('nombre', '').strip() or archivo.name
         EventoDocumento.objects.create(evento=evento, archivo=archivo, nombre=nombre)

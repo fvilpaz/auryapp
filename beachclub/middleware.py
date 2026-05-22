@@ -23,4 +23,12 @@ class LoginRequeridoMiddleware:
             "connect-src 'self' https://cdn.jsdelivr.net https://api.open-meteo.com; "
             "frame-ancestors 'none';"
         )
+        # HSTS: fuerza HTTPS durante 1 año (solo en producción)
+        from django.conf import settings as _s
+        if not _s.DEBUG:
+            response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        # Controla qué URL se filtra al salir de la app hacia links externos
+        response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        # Deshabilita acceso a cámara, micro y geolocalización explícitamente
+        response['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=()'
         return response
