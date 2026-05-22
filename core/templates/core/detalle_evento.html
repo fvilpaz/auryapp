@@ -868,7 +868,6 @@ function crearGrupo(tipo, etiqueta, color) {
       [{x: ax - 10*d, y: ay - 7}, {x: ax + 10*d, y: ay}, {x: ax - 10*d, y: ay + 7}],
       { fill: 'rgba(255,255,255,0.8)', left: 0, top: 0 }
     ));
-    objs.push(mkLabel(etiqueta, w/2, h + 10, 9, color));
     gx = cx - w/2; gy = cy - h/2;
 
   } else { return null; }
@@ -1025,7 +1024,55 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ── Info panel por mesa ───────────────────────────────────────────────────
-const MESA_TIPOS = ['mesa-redonda', 'mesa-rect', 'coctel'];
+const MESA_TIPOS   = ['mesa-redonda', 'mesa-rect', 'coctel'];
+const ACCESO_TIPOS = ['entrada', 'salida', 'entrada-cam', 'salida-cam'];
+
+function dibujarBadge(ctx, txt, x, y, color) {
+  var tw = ctx.measureText(txt).width;
+  var pw = tw + 14, ph = 17, pr = 8;
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.beginPath();
+  ctx.roundRect(x - pw / 2, y - ph / 2, pw, ph, pr);
+  ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillText(txt, x, y);
+}
+
+// Dibuja todos los overlays sobre un ctx dado (reutilizable en after:render y en export)
+function drawOverlays(ctx, m) {
+  m = m || 1;
+  var vpt = canvas.viewportTransform;
+  ctx.save();
+  ctx.transform(vpt[0]*m, vpt[1]*m, vpt[2]*m, vpt[3]*m, vpt[4]*m, vpt[5]*m);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  canvas.getObjects().forEach(function(o) {
+    if (MESA_TIPOS.includes(o._tipo)) {
+      var pax = (o._info && o._info.pax) || 0;
+      if (pax) {
+        var c = o.getCenterPoint();
+        var dy = o._tipo === 'mesa-redonda' ? 47 : (o._tipo === 'coctel' ? 32 : 36);
+        ctx.font = 'bold 13px system-ui, sans-serif';
+        dibujarBadge(ctx, pax + ' Pax', c.x, c.y + dy, o._color || '#3b82f6');
+      }
+    }
+    if (ACCESO_TIPOS.includes(o._tipo) && o._etiqueta) {
+      // Calcular el borde inferior del bounding box en coordenadas del canvas
+      // usando getCenterPoint (fiable) + geometría de rotación
+      var c = o.getCenterPoint();
+      var angle = ((o.angle || 0) % 360) * Math.PI / 180;
+      var hw = 36 * (o.scaleX || 1); // semiancho del rect 72px
+      var hh = 23 * (o.scaleY || 1); // semialto del rect 46px
+      var boundHalfH = Math.abs(hw * Math.sin(angle)) + Math.abs(hh * Math.cos(angle));
+      ctx.font = 'bold 11px system-ui, sans-serif';
+      dibujarBadge(ctx, o._etiqueta, c.x, c.y + boundHalfH + 10, o._color || '#10b981');
+    }
+  });
+  ctx.restore();
+}
+
+canvas.on('after:render', function() { drawOverlays(canvas.contextContainer); });
+
 const infoPanel  = document.getElementById('info-panel');
 const btnAbrirInfo = document.getElementById('btn-abrir-info');
 let infoTarget = null;
@@ -1286,6 +1333,11 @@ function fitToViewport() {
           }
         }
       });
+      // Ocultar labels de acceso existentes — ahora se dibujan como overlay
+      canvas.getObjects().forEach(function(o) {
+        if (!ACCESO_TIPOS.includes(o._tipo)) return;
+        o.getObjects('text').forEach(function(t) { t.set('opacity', 0); });
+      });
       canvas.getObjects().forEach(function(o) { aplicarBloqueo(o, true); });
       setModoMover(false);  // siempre arranca bloqueado — pulsa "Mover" para editar
       if (ES_MOVIL) { fitToViewport(); }
@@ -1468,9 +1520,12 @@ const previewImg   = document.getElementById('preview-img');
 const SLUG = '{{ evento.cliente|slugify }}';
 
 function canvasToDataURL() {
+  const m = 2;
   canvas.setBackgroundColor('#ffffff', function() {});
   canvas.renderAll();
-  const url = canvas.toDataURL({ format: 'png', multiplier: 2 });
+  const el = canvas.toCanvasElement(m);
+  drawOverlays(el.getContext('2d'), m);
+  const url = el.toDataURL('image/png');
   canvas.setBackgroundColor('', function() {});
   canvas.renderAll();
   return url;
