@@ -1205,9 +1205,9 @@ canvas.on('object:modified', function(e) {
   const sy = obj.scaleY || 1;
 
   if (obj.type === 'textbox' && obj._tipo === 'zona') {
-    // Zona: el contenedor se adapta pero el fontSize nunca cambia
-    if (sx === 1 && sy === 1) return;
-    obj.set({ width: Math.round(obj.width * sx), scaleX: 1, scaleY: 1 });
+    // Solo bake scaleX en width para quitar distorsión horizontal; scaleY se deja intacto
+    if (sx === 1) return;
+    obj.set({ width: Math.round(obj.width * sx), scaleX: 1 });
     canvas.renderAll();
     return;
   }
