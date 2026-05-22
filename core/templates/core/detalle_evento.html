@@ -1211,9 +1211,11 @@ canvas.on('object:modified', function(e) {
     });
     canvas.renderAll();
   } else if (obj.type === 'textbox' && obj._tipo === 'zona') {
-    // Bake scaleX en width; el texto no cambia de tamaño
+    // Bake escala en width y fontSize (media geométrica = sin distorsión, igual que grupos)
+    const u = Math.sqrt(sx * sy);
     obj.set({
       width: Math.round(obj.width * sx),
+      fontSize: Math.round(obj.fontSize * u),
       scaleX: 1,
       scaleY: 1,
     });
