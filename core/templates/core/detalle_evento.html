@@ -1205,9 +1205,11 @@ canvas.on('object:modified', function(e) {
   const sy = obj.scaleY || 1;
 
   if (obj.type === 'textbox' && obj._tipo === 'zona') {
-    // Solo bake scaleX en width para quitar distorsión horizontal; scaleY se deja intacto
-    if (sx === 1) return;
-    obj.set({ width: Math.round(obj.width * sx), scaleX: 1 });
+    // Bake scaleX→width y scaleY→padding: el contenedor cambia de tamaño, el texto no
+    if (sx === 1 && sy === 1) return;
+    const textH = obj.height - 2 * (obj.padding || 0);
+    const newPadding = Math.max(8, Math.round(((obj.height * sy) - textH) / 2));
+    obj.set({ width: Math.round(obj.width * sx), padding: newPadding, scaleX: 1, scaleY: 1 });
     canvas.renderAll();
     return;
   }
