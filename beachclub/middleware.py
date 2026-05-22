@@ -30,5 +30,5 @@ class LoginRequeridoMiddleware:
         # Controla qué URL se filtra al salir de la app hacia links externos
         response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         # Deshabilita acceso a cámara, micro y geolocalización explícitamente
-        response['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=()'
+        response['Permissions-Policy'] = 'geolocation=(), camera=()'
         return response
