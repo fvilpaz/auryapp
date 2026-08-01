@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
 from django import forms
+from django.conf import settings as _settings
 
 # ── Weather cache (module-level, 30-min TTL) ──────────────────────────────────
 _weather_cache = {'data': None, 'ts': 0}
@@ -35,9 +36,11 @@ def _get_weather():
     if _weather_cache['data'] and (_time.time() - _weather_cache['ts'] < 1800):
         return _weather_cache['data']
     try:
-        url = ('https://api.open-meteo.com/v1/forecast'
-               '?latitude=39.47&longitude=-0.38'
-               '&current=temperature_2m,weather_code&timezone=auto')
+        lat = _settings.CLUB_LATITUDE
+        lon = _settings.CLUB_LONGITUDE
+        url = (f'https://api.open-meteo.com/v1/forecast'
+               f'?latitude={lat}&longitude={lon}'
+               f'&current=temperature_2m,weather_code&timezone=auto')
         with _urlopen(url, timeout=8) as resp:
             d = _json.loads(resp.read())
         temp = round(d['current']['temperature_2m'])
@@ -143,6 +146,7 @@ def dashboard(request):
     context = {
         'saludo': saludo,
         'weather': weather,
+        'club_city': _settings.CLUB_CITY,
         'resumen_espacios': resumen_espacios,
         'total_espacios': espacios.count(),
         'eventos_proximos': eventos_proximos,
