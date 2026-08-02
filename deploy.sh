@@ -9,5 +9,5 @@ fi
 
 source .env.deploy
 
-gcloud run deploy auryapp --source . --region europe-west1 --allow-unauthenticated \
-  --set-env-vars="DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY},DJANGO_DEBUG=false,DATABASE_URL=${DATABASE_URL},TZ=Europe/Madrid,GS_BUCKET_NAME=auryapp-media"
+gcloud run deploy auryapp --project auryapp-prod --source . --region europe-west1 --allow-unauthenticated \
+  --set-env-vars="DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY},DJANGO_DEBUG=false,DATABASE_URL=${DATABASE_URL},TZ=Europe/Madrid,GS_BUCKET_NAME=auryapp-media,CLUB_LATITUDE=${CLUB_LATITUDE},CLUB_LONGITUDE=${CLUB_LONGITUDE},CLUB_CITY=${CLUB_CITY}"

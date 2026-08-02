@@ -16,7 +16,8 @@ from django import forms
 from django.conf import settings as _settings
 
 # ── Weather cache (module-level, 30-min TTL) ──────────────────────────────────
-_weather_cache = {'data': None, 'ts': 0}
+_weather_cache    = {'data': None, 'ts': 0}
+_forecast_cache   = {'data': None, 'ts': 0}
 
 _WEATHER_CODES = [
     (0,  '☀️',  'Despejado'),
@@ -56,7 +57,55 @@ def _get_weather():
     _weather_cache = {'data': result, 'ts': _time.time()}
     return result
 
+def _code_to_emoji_desc(code):
+    for max_code, em, tx in _WEATHER_CODES:
+        if code <= max_code:
+            return em, tx
+    return '🌡️', ''
+
+def _get_forecast():
+    """Previsión horaria próximas 6h. Cached 30 min."""
+    global _forecast_cache
+    if _forecast_cache['data'] and (_time.time() - _forecast_cache['ts'] < 1800):
+        return _forecast_cache['data']
+    try:
+        lat = _settings.CLUB_LATITUDE
+        lon = _settings.CLUB_LONGITUDE
+        url = (f'https://api.open-meteo.com/v1/forecast'
+               f'?latitude={lat}&longitude={lon}'
+               f'&hourly=temperature_2m,weather_code,windspeed_10m,precipitation_probability'
+               f'&forecast_days=1&timezone=auto')
+        with _urlopen(url, timeout=8) as resp:
+            d = _json.loads(resp.read())
+        times   = d['hourly']['time']
+        temps   = d['hourly']['temperature_2m']
+        codes   = d['hourly']['weather_code']
+        winds   = d['hourly']['windspeed_10m']
+        rains   = d['hourly']['precipitation_probability']
+        now_h   = _time.localtime().tm_hour
+        hours   = []
+        for i, t in enumerate(times):
+            h = int(t[11:13])
+            if h >= now_h and len(hours) < 6:
+                emoji, _ = _code_to_emoji_desc(codes[i])
+                hours.append({
+                    'hour':  f'{h:02d}h',
+                    'emoji': emoji,
+                    'temp':  round(temps[i]),
+                    'wind':  round(winds[i]),
+                    'rain':  rains[i],
+                })
+        result = hours
+    except Exception:
+        result = []
+    _forecast_cache = {'data': result, 'ts': _time.time()}
+    return result
+
 staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/login/')
+
+@login_required(login_url='/login/')
+def weather_forecast(request):
+    return JsonResponse({'hours': _get_forecast()})
 
 @login_required(login_url='/login/')
 def dashboard(request):

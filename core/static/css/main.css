@@ -699,7 +699,7 @@ a.bc-link-plain:hover { opacity: 0.7; }
   align-items: center;
   gap: 6px;
 }
-.bc-btn-primary { background: var(--color-primary); color: #fff; }
+.bc-btn-primary { background: var(--color-primary); color: var(--color-primary-text); }
 .bc-btn-primary:hover { opacity: 0.88; }
 .bc-btn-secondary { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
 .bc-btn-secondary:hover { background: var(--color-bg); }
@@ -1925,21 +1925,41 @@ form { margin: 0; }
   padding: 28px var(--page-padding) 24px;
 }
 /* ── Widget del tiempo ── */
+.bc-weather-wrap.bc-forecast-open .bc-weather { border-radius: var(--radius-lg) 0 0 var(--radius-lg); border-right: none; }
 .bc-weather {
-  margin-left: auto;
+  align-self: stretch;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   background: var(--color-surface);
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 12px 18px;
+  padding: 8px 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .bc-weather-anim { font-size: 36px; line-height: 1; }
-.bc-weather-data { display: flex; flex-direction: column; gap: 2px; }
+.bc-weather-data { display: flex; flex-direction: column; gap: 4px; }
 .bc-weather-temp { font-size: 22px; font-weight: 600; color: var(--color-text); line-height: 1; }
-.bc-weather-desc { font-size: 11px; color: var(--color-muted); }
+.bc-weather-desc { font-size: 12px; font-weight: 500; color: var(--color-muted); }
+.bc-weather-city { font-family: inherit; font-size: 13px; font-weight: 600; color: var(--color-text); letter-spacing: 0.01em; }
+.bc-weather-main { display: flex; align-items: center; gap: 6px; }
+.bc-weather-forecast-btn { margin-top: 8px; width: 100%; text-align: center; justify-content: center; }
+.bc-weather-wrap { margin-left: auto; display: flex; flex-direction: row; align-items: stretch; gap: 0; }
+.bc-forecast-panel {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-left: none;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.bc-forecast-hours { display: flex; gap: 8px; }
+.bc-forecast-hour { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 44px; }
+.bc-forecast-h    { font-size: 11px; font-weight: 600; color: var(--color-muted); }
+.bc-forecast-icon { font-size: 20px; line-height: 1; }
+.bc-forecast-temp { font-size: 13px; font-weight: 600; color: var(--color-text); }
+.bc-forecast-wind { font-size: 10px; color: var(--color-muted); }
+.bc-forecast-rain { font-size: 10px; color: var(--color-primary); }
 .bc-w-icon { display: inline-block; }
 /* Sol — giro lento */
 @keyframes bc-sun-spin { to { transform: rotate(360deg); } }
@@ -1972,19 +1992,22 @@ form { margin: 0; }
   90%,97%     { transform: scale(1.15); opacity: 0.7; }
 }
 .bc-w-storm { animation: bc-storm-flash 2s ease-in-out infinite; display: inline-block; }
-/* En móvil portrait el weather baja bajo el saludo en vez de ocultarse */
+/* En móvil el widget ocupa ancho completo y el panel se despliega abajo */
 @media (max-width: 480px) {
-  .bc-dashboard-hero {
-    flex-wrap: wrap;
-    gap: 10px;
+  .bc-dashboard-hero { flex-wrap: wrap; gap: 10px; }
+  .bc-weather-wrap { margin-left: 0; width: 100%; flex-direction: column; order: 3; }
+  .bc-weather-wrap.bc-forecast-open .bc-weather {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-right: 0.5px solid var(--color-border);
+    border-bottom: none;
   }
-  .bc-weather {
-    order: 3;          /* va después de imagen y saludo               */
-    width: 100%;
-    margin-left: 0;
-    padding: 10px 14px;
-    gap: 10px;
+  .bc-forecast-panel {
+    border-left: 0.5px solid var(--color-border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow-x: auto;
   }
+  .bc-weather { width: 100%; }
   .bc-weather-anim { font-size: 26px; }
   .bc-weather-temp { font-size: 18px; }
 }

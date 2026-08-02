@@ -22,14 +22,20 @@
   </script>
 
   {% if weather.temp is not None %}
-  <div class="bc-weather">
-    <div class="bc-weather-anim">
-      <span class="bc-w-icon {% if weather.desc == 'Despejado' or weather.desc == 'Casi despejado' %}bc-w-sun{% elif weather.desc == 'Lluvia' or weather.desc == 'Llovizna' or weather.desc == 'Chubascos' %}bc-w-rain{% elif weather.desc == 'Nieve' %}bc-w-snow{% elif weather.desc == 'Niebla' %}bc-w-fog{% elif weather.desc == 'Tormenta' %}bc-w-storm{% else %}bc-w-cloud{% endif %}" style="font-size:32px;line-height:1">{{ weather.emoji }}</span>
+  <div class="bc-weather-wrap">
+    <div class="bc-weather">
+      <div class="bc-weather-data">
+        <div class="bc-weather-city">{{ club_city }}</div>
+        <div class="bc-weather-main">
+          <span class="bc-w-icon {% if weather.desc == 'Despejado' or weather.desc == 'Casi despejado' %}bc-w-sun{% elif weather.desc == 'Lluvia' or weather.desc == 'Llovizna' or weather.desc == 'Chubascos' %}bc-w-rain{% elif weather.desc == 'Nieve' %}bc-w-snow{% elif weather.desc == 'Niebla' %}bc-w-fog{% elif weather.desc == 'Tormenta' %}bc-w-storm{% else %}bc-w-cloud{% endif %}" style="font-size:28px;line-height:1">{{ weather.emoji }}</span>
+          <span class="bc-weather-temp">{{ weather.temp }}°</span>
+        </div>
+        <div class="bc-weather-desc">{{ weather.desc }}</div>
+        <button class="bc-btn bc-btn-primary bc-btn-xs bc-weather-forecast-btn" onclick="bcToggleForecast(this)">Previsión</button>
+      </div>
     </div>
-    <div class="bc-weather-data">
-      <div class="bc-weather-temp">{{ weather.temp }}°</div>
-      <div class="bc-weather-desc">{{ weather.desc }}</div>
-      <div class="bc-text-xs bc-text-muted">{{ club_city }}</div>
+    <div class="bc-forecast-panel" style="display:none">
+      <div class="bc-forecast-hours"></div>
     </div>
   </div>
   {% endif %}
@@ -360,5 +366,46 @@
 
     setTimeout(siguiente, 3000);
   })();
+</script>
+<script>
+function bcLoadForecast(wrap) {
+  const panel = wrap.querySelector('.bc-forecast-panel');
+  const hours = panel.querySelector('.bc-forecast-hours');
+  wrap.classList.add('bc-forecast-open');
+  panel.style.display = '';
+  if (hours.dataset.loaded) return;
+  hours.innerHTML = '<span class="bc-text-muted bc-text-xs">Cargando…</span>';
+  fetch('{% url "weather_forecast" %}')
+    .then(r => r.json())
+    .then(data => {
+      hours.dataset.loaded = '1';
+      hours.innerHTML = data.hours.map(h => `
+        <div class="bc-forecast-hour">
+          <div class="bc-forecast-h">${h.hour}</div>
+          <div class="bc-forecast-icon">${h.emoji}</div>
+          <div class="bc-forecast-temp">${h.temp}°</div>
+          <div class="bc-forecast-wind">${h.wind} km/h</div>
+          <div class="bc-forecast-rain">${h.rain}%</div>
+        </div>`).join('');
+    })
+    .catch(() => { hours.innerHTML = '<span class="bc-text-muted bc-text-xs">No disponible</span>'; });
+}
+
+function bcToggleForecast(btn) {
+  const wrap  = btn.closest('.bc-weather-wrap');
+  const panel = wrap.querySelector('.bc-forecast-panel');
+  if (panel.style.display !== 'none') {
+    panel.style.display = 'none';
+    wrap.classList.remove('bc-forecast-open');
+  } else {
+    bcLoadForecast(wrap);
+  }
+}
+
+// Abrir por defecto al cargar
+document.addEventListener('DOMContentLoaded', function() {
+  const wrap = document.querySelector('.bc-weather-wrap');
+  if (wrap) bcLoadForecast(wrap);
+});
 </script>
 {% endblock %}
