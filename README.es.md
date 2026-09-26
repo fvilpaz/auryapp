@@ -7,7 +7,7 @@
 
 Aplicación web de gestión integral para beach club. Desarrollada con Django, diseño propio y orientada a uso real en entornos de hostelería y eventos.
 
-**Desarrollado por [Fernando Vilas Paz](https://github.com/fvilpaz)**
+**Desarrollado por [Fernando Vilas Paz](https://github.com/fvilpaz)** · [CV](https://fvilpaz.github.io/cv/)
 
 ---
 

@@ -7,7 +7,7 @@
 
 Full-stack Django web app built for a real beach club, actively used in production. Covers event management, staff scheduling, daily operations and more — with a custom design system.
 
-**Developed by [Fernando Vilas Paz](https://github.com/fvilpaz)**
+**Developed by [Fernando Vilas Paz](https://github.com/fvilpaz)** · [CV](https://fvilpaz.github.io/cv/)
 
 ---
 
