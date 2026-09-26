@@ -105,8 +105,8 @@ TZ=Europe/Madrid
 GS_BUCKET_NAME=your-bucket-name
 
 # Location for the weather widget (optional, these are the defaults)
-CLUB_LATITUDE=39.47
-CLUB_LONGITUDE=-0.38
+CLUB_LATITUDE=36.5746174
+CLUB_LONGITUDE=-4.5814719
 CLUB_CITY=Benalmádena
 ```
 

@@ -168,6 +168,6 @@ AXES_RESET_ON_SUCCESS = True    # resetea el contador al hacer login correcto
 AXES_LOCKOUT_TEMPLATE = 'registration/bloqueado.html'
 
 # ── Localización del club (para el widget de clima) ──────────────────────────
-CLUB_LATITUDE  = float(os.environ.get('CLUB_LATITUDE',  '39.47'))
-CLUB_LONGITUDE = float(os.environ.get('CLUB_LONGITUDE', '-0.38'))
+CLUB_LATITUDE  = float(os.environ.get('CLUB_LATITUDE',  '36.5746174'))
+CLUB_LONGITUDE = float(os.environ.get('CLUB_LONGITUDE', '-4.5814719'))
 CLUB_CITY      = os.environ.get('CLUB_CITY', 'Benalmádena')
