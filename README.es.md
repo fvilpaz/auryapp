@@ -109,7 +109,8 @@ Sin `DATABASE_URL` la app usa `db.sqlite3` en local.
 El proyecto incluye `Dockerfile` y `deploy.sh`. Las credenciales se guardan en `.env.deploy` (local, nunca en el repositorio).
 
 ```bash
-bash deploy.sh
+bash deploy.sh      # Linux / WSL
+deploy.bat          # Windows (ejecuta deploy.sh dentro de WSL)
 ```
 
 - Contenedor Python 3.12 slim

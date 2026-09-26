@@ -218,6 +218,10 @@ Antes de añadir un estilo nuevo, buscar si ya existe. Clases frecuentes:
 bash deploy.sh
 ```
 
+Desde Windows: `deploy.bat` (lanza el mismo `deploy.sh` dentro de WSL Arch). El script trabaja en su propia
+carpeta, así que sirve en cualquier equipo sin rutas fijas. Las variables del clima (`CLUB_*`) solo se envían si
+están en `.env.deploy`; con `--update-env-vars`, si no se envían, Cloud Run conserva las que ya tenía.
+
 Usa `gcloud run deploy --source .` — despliega el directorio actual, no requiere commit. Variables de entorno desde `.env.deploy` (no commitear, en `.gitignore`).
 
 Al arrancar, el contenedor ejecuta `python manage.py migrate --noinput` contra Neon y luego gunicorn:
