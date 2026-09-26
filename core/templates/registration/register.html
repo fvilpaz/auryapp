@@ -19,6 +19,13 @@
         <p class="bc-login-subtitle">Beach Club · Gestión interna</p>
       </div>
 
+      {% if creado %}
+      <div class="bc-login-error" style="color:var(--color-success,#16a34a);border-color:currentColor;background:transparent;">
+        <i class="ti ti-circle-check"></i>
+        Cuenta <strong>{{ creado.username }}</strong> creada. Ya puede iniciar sesión.
+      </div>
+      {% endif %}
+
       {% if form.errors %}
       <div class="bc-login-error">
         <i class="ti ti-alert-circle"></i>
@@ -101,8 +108,7 @@
       </form>
 
       <div class="bc-login-footer">
-        <span class="bc-login-footer-text">¿Ya tienes cuenta?</span>
-        <a href="{% url 'login' %}" class="bc-login-footer-link">Inicia sesión</a>
+        <a href="{% url 'dashboard' %}" class="bc-login-footer-link"><i class="ti ti-arrow-left"></i> Volver a la app</a>
       </div>
 
       <div class="bc-login-credit">

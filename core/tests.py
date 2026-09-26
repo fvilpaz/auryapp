@@ -143,3 +143,46 @@ class GuardarInfoMesaTests(TestCase):
         resp = c.post(self._url(), data='{}', content_type='application/json')
         self.assertRedirects(resp, f'/login/?next={self._url()}',
                              fetch_redirect_response=False)
+
+
+class RegistroTests(TestCase):
+    """El registro ya no es público: solo staff crea cuentas."""
+
+    DATOS = {
+        'first_name': 'Nuevo', 'last_name': 'Usuario', 'username': 'nuevo',
+        'email': 'nuevo@example.com', 'password1': 'Clave-segura-123', 'password2': 'Clave-segura-123',
+    }
+
+    def setUp(self):
+        self.url = reverse('registro')
+
+    def test_anonimo_no_puede_registrarse(self):
+        resp = Client().post(self.url, self.DATOS)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp['Location'].startswith('/login/'))
+        self.assertFalse(User.objects.filter(username='nuevo').exists())
+
+    def test_usuario_no_staff_no_puede_registrar(self):
+        normal = User.objects.create_user('normal', password='x')
+        c = Client()
+        c.force_login(normal)
+        resp = c.post(self.url, self.DATOS)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp['Location'].startswith('/login/'))
+        self.assertFalse(User.objects.filter(username='nuevo').exists())
+
+    def test_staff_crea_cuenta_sin_perder_su_sesion(self):
+        staff = User.objects.create_user('staff', password='x', is_staff=True)
+        c = Client()
+        c.force_login(staff)
+        resp = c.post(self.url, self.DATOS)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'nuevo')
+        nuevo = User.objects.get(username='nuevo')
+        self.assertFalse(nuevo.is_staff)
+        self.assertEqual(int(c.session['_auth_user_id']), staff.pk)
+
+    def test_login_no_enlaza_al_registro(self):
+        resp = Client().get('/login/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, self.url)

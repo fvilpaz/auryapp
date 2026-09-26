@@ -26,7 +26,7 @@ Full-stack Django web app built for a real beach club, actively used in producti
 - **Orders** — Stock tracking per point of sale
 - **Calendar** — Monthly event view with FullCalendar, synced with Events module
 - **Themes** — 6 visual themes (Light, Dark, Mint, Barbie, Dracula, Cyberpunk)
-- **User Registration** — Sign-up form with name, username, email and password
+- **User Accounts** — Only staff can create new accounts (name, username, email and password) at `/registro/`; there is no public sign-up
 - **Admin Panel** — Direct access to Django admin from the navbar (staff only)
 
 ---

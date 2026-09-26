@@ -811,15 +811,16 @@ class RegistroForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         fields = ('first_name', 'last_name', 'username', 'email', 'password1', 'password2')
 
+@staff_required
 def registro(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+    # Solo staff crea cuentas nuevas. No se inicia sesión con la cuenta creada:
+    # quien la crea sigue con su propia sesión.
+    creado = None
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('dashboard')
+            creado = form.save()
+            form = RegistroForm()
     else:
         form = RegistroForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form, 'creado': creado})

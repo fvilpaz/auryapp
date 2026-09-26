@@ -26,7 +26,7 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 - **Pedidos** — Registro de artículos necesarios por punto de venta
 - **Calendario** — Vista mensual de eventos con FullCalendar, sincronizado con el módulo de Eventos
 - **Temas** — 6 temas visuales (Claro, Oscuro, Mint, Barbie, Drácula, Cyberpunk)
-- **Registro de usuarios** — Formulario de alta con nombre, apellidos, usuario, email y contraseña
+- **Alta de usuarios** — Solo staff crea cuentas nuevas (nombre, apellidos, usuario, email y contraseña) desde `/registro/`; no hay registro público
 - **Panel de administración** — Acceso directo al admin de Django desde la navbar (solo staff)
 
 ---
