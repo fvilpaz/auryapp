@@ -232,6 +232,11 @@ Usa `gcloud run deploy --source .` — despliega el directorio actual, no requie
 Al arrancar, el contenedor ejecuta `python manage.py migrate --noinput` contra Neon y luego gunicorn:
 no hace falta migrar producción a mano.
 
+Antes de desplegar, `deploy.sh` guarda una copia de producción en `backups/` (`exportar_copia`, 3 intentos:
+Neon se archiva por inactividad y la primera conexión puede fallar). Si falla, no despliega (`SIN_COPIA=1` la salta).
+Requiere `venv/` en ese equipo. **`DATABASE_URL` y `DJANGO_SECRET_KEY` no se envían** a Cloud Run (conserva las
+suyas); solo con `ENVIAR_CREDENCIALES=1`. Motivo: un `.env.deploy` desactualizado dejaría la web sin base de datos.
+
 ---
 
 ## Historial de decisiones importantes

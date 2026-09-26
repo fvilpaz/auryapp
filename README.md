@@ -123,6 +123,8 @@ bash deploy.sh      # Linux / WSL
 deploy.bat          # Windows (runs deploy.sh inside WSL)
 ```
 
+- **Automatic backup before every deploy**: saves the production JSON to `backups/` (ignored by git and Docker); if it still fails after 3 attempts, nothing is deployed. Needs the project's `venv` on that machine (`python -m venv venv && venv/bin/pip install -r requirements.txt`). To skip it: `SIN_COPIA=1 bash deploy.sh`
+- `DATABASE_URL` and `DJANGO_SECRET_KEY` are **not sent** to Cloud Run: the existing ones are kept. To change them on purpose: `ENVIAR_CREDENCIALES=1 bash deploy.sh`
 - Python 3.12 slim container
 - Migrations run automatically on container start (`migrate --noinput`)
 - Static files served by WhiteNoise

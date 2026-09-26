@@ -25,7 +25,15 @@ if ! command -v gcloud >/dev/null && [ -x "$HOME/google-cloud-sdk/bin/gcloud" ];
 fi
 command -v gcloud >/dev/null || { echo "ERROR: no encuentro gcloud"; exit 1; }
 
-ENV_VARS="DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY},DJANGO_DEBUG=false,DATABASE_URL=${DATABASE_URL},TZ=Europe/Madrid,GS_BUCKET_NAME=auryapp-media"
+ENV_VARS="DJANGO_DEBUG=false,TZ=Europe/Madrid,GS_BUCKET_NAME=auryapp-media"
+
+# DATABASE_URL y DJANGO_SECRET_KEY NO se envían: Cloud Run conserva las que ya tiene (y que funcionan).
+# Así un .env.deploy desactualizado en algún equipo no puede dejar la web sin base de datos ni
+# cerrar la sesión de todos. Para cambiarlas a propósito: ENVIAR_CREDENCIALES=1 bash deploy.sh
+if [ "${ENVIAR_CREDENCIALES:-}" = "1" ]; then
+  echo "AVISO: se envían DATABASE_URL y DJANGO_SECRET_KEY de .env.deploy a Cloud Run"
+  ENV_VARS="${ENV_VARS},DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY},DATABASE_URL=${DATABASE_URL}"
+fi
 
 # Clima: solo se envían si están en .env.deploy. Con --update-env-vars, si no se envían,
 # Cloud Run conserva los valores que ya tenía (p. ej. los puestos desde el otro equipo).
@@ -40,7 +48,16 @@ if [ "${SIN_COPIA:-}" != "1" ]; then
   PY=venv/bin/python
   [ -x "$PY" ] || PY=python3
   echo "Copia de seguridad de producción antes de desplegar..."
-  if ! DATABASE_URL="$DATABASE_URL" "$PY" manage.py exportar_copia --carpeta backups; then
+  # Hasta 3 intentos: si Neon está archivada por inactividad, la primera conexión puede fallar
+  copia_ok=0
+  for intento in 1 2 3; do
+    # PGCONNECT_TIMEOUT: si la base no responde, el intento falla a los 15 s en vez de quedarse colgado
+    if DATABASE_URL="$DATABASE_URL" PGCONNECT_TIMEOUT=15 "$PY" manage.py exportar_copia --carpeta backups; then
+      copia_ok=1; break
+    fi
+    [ "$intento" -lt 3 ] && { echo "Intento $intento fallido; reintento en 15 s..."; sleep 15; }
+  done
+  if [ "$copia_ok" != "1" ]; then
     echo "ERROR: la copia de seguridad ha fallado; NO se despliega."
     exit 1
   fi
