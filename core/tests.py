@@ -269,3 +269,59 @@ class IconosTests(TestCase):
         c.force_login(staff)
         resp = c.get(reverse('dashboard'))
         self.assertContains(resp, 'img/icons/favicon-32')
+
+
+class PwaTests(TestCase):
+    """Manifest y service worker: públicos, sin caché y con la versión del despliegue."""
+
+    def test_manifest_publico_y_valido(self):
+        from django.contrib.staticfiles import finders
+        resp = Client().get('/manifest.webmanifest')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'application/manifest+json')
+        data = json.loads(resp.content)
+        self.assertEqual(data['start_url'], '/')
+        self.assertEqual(data['display'], 'standalone')
+        tamaños = {i['sizes'] for i in data['icons']}
+        self.assertTrue({'192x192', '512x512'} <= tamaños)
+        self.assertIn('maskable', {i['purpose'] for i in data['icons']})
+        for icono in data['icons']:
+            ruta = icono['src'].replace('/static/', '', 1)
+            self.assertIsNotNone(finders.find(ruta), f'no existe {ruta}')
+
+    def test_service_worker_publico_sin_cache_y_versionado(self):
+        from django.contrib.staticfiles import finders
+        from . import pwa
+        resp = Client().get('/sw.js')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('javascript', resp['Content-Type'])
+        self.assertIn('no-cache', resp['Cache-Control'])
+        js = resp.content.decode()
+        self.assertIn(f'const VERSION = "{pwa.VERSION}";', js)
+        for ruta in pwa.PRECACHE:
+            self.assertIsNotNone(finders.find(ruta), f'precache apunta a un fichero que no existe: {ruta}')
+            self.assertIn(f'"/static/{ruta}"', js)
+
+    def test_la_version_sale_de_k_revision(self):
+        import importlib, os
+        from . import pwa
+        antes = os.environ.get('K_REVISION')
+        try:
+            os.environ['K_REVISION'] = 'auryapp-00042-abc'
+            importlib.reload(pwa)
+            self.assertEqual(pwa.VERSION, 'auryapp-00042-abc')
+        finally:
+            if antes is None:
+                os.environ.pop('K_REVISION', None)
+            else:
+                os.environ['K_REVISION'] = antes
+            importlib.reload(pwa)
+
+    def test_paginas_enlazan_manifest_y_registran_sw(self):
+        resp = Client().get('/login/')
+        self.assertContains(resp, 'rel="manifest"')
+        self.assertContains(resp, "register('/sw.js')")
+        staff = User.objects.create_user('staff', password='x', is_staff=True)
+        c = Client()
+        c.force_login(staff)
+        self.assertContains(c.get(reverse('dashboard')), 'rel="manifest"')

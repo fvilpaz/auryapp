@@ -77,6 +77,7 @@ Si aparece en más de un sitio, cambiar TODOS o no cambiar nada.
 | `personal/views.py` | Cuadrante, turnos, empleados, horas extra | personal/models.py |
 | `personal/tests.py` | Tests de horas extra | personal/views.py, personal/urls.py |
 | `core/tests.py` | Tests de `guardar_plano`, `guardar_info_mesa` (regresión de `_info`), registro y copia | core/views.py |
+| `core/pwa.py` + `core/templates/core/sw.js` | Manifest (`/manifest.webmanifest`) y service worker (`/sw.js`), públicos. **Reglas:** el HTML nunca se cachea (datos personales y siempre la última versión); `/static/` va red primero con `cache:'no-cache'`; la versión sale de `K_REVISION` (cambia sola en cada deploy, no tocar a mano); nunca forzar recargas (se perdería lo que se esté editando, p. ej. el plano) | `_iconos.html` registra el SW |
 | `core/templates/core/_iconos.html` | Favicon, apple-touch-icon y theme-color. Incluido en base.html y en las páginas con `<head>` propio (login, registro, bloqueado) | `core/static/img/icons/` |
 | `core/backup.py` | Copia de seguridad JSON (`construir_copia`). **Modelo nuevo → añadirlo a `MODELOS`** en orden de dependencias | todos los models.py |
 | `core/management/commands/exportar_copia.py` | `manage.py exportar_copia --carpeta X` | core/backup.py |

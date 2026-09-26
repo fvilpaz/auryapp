@@ -23,6 +23,7 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.templatetags.static import static as static_url
 from core.views import registro
+from core import pwa
 
 def logout_view(request):
     auth_logout(request)
@@ -36,6 +37,9 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     # Los navegadores piden /favicon.ico por su cuenta (pública en el middleware)
     path('favicon.ico', favicon_view),
+    # PWA/TWA: en la raíz para que el service worker controle toda la app (públicas en el middleware)
+    path('manifest.webmanifest', pwa.manifest, name='manifest'),
+    path('sw.js', pwa.service_worker, name='service_worker'),
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', logout_view, name='logout'),

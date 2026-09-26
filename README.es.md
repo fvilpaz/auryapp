@@ -29,6 +29,7 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 - **Alta de usuarios** — Solo staff crea cuentas nuevas (nombre, apellidos, usuario, email y contraseña) desde el menú de usuario → *Crear cuenta*; no hay registro público
 - **Copia de seguridad** — Menú de usuario → *Descargar copia* (solo staff): un JSON con todos los datos (eventos con sus planos de mesas y el detalle de cada mesa, empleados, turnos, horas extra, ausencias, tareas, agenda y pedidos) y los usuarios **sin contraseñas**. Los documentos adjuntos de eventos están en Cloud Storage: la copia guarda su referencia, no el fichero
 - **Panel de administración** — Acceso directo al admin de Django desde la navbar (solo staff)
+- **App instalable (PWA)** — Se instala en el móvil como una app (icono "BC", pantalla completa). Cada despliegue se ve al momento sin borrar datos ni reinstalar: las páginas nunca se guardan en caché y el service worker cambia de versión solo en cada despliegue (`K_REVISION` de Cloud Run). Sin conexión muestra un aviso
 
 ---
 

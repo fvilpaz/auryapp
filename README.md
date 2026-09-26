@@ -29,6 +29,7 @@ Full-stack Django web app built for a real beach club, actively used in producti
 - **User Accounts** — Only staff can create new accounts (name, username, email and password) from the user menu → *Crear cuenta*; there is no public sign-up
 - **Backup** — User menu → *Descargar copia* (staff only): a JSON with all app data (events with their floor plans and per-table details, staff, shifts, overtime, time off, tasks, agenda and orders) and the users **without passwords**. Event attachments live in Cloud Storage: the backup keeps their reference, not the file
 - **Admin Panel** — Direct access to Django admin from the navbar (staff only)
+- **Installable app (PWA)** — Installs on the phone like a native app ("BC" icon, full screen). Every deploy shows up immediately with no data clearing or reinstalling: pages are never cached and the service worker version changes automatically on each deploy (Cloud Run's `K_REVISION`). Shows a notice when offline
 
 ---
 
