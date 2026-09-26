@@ -13,11 +13,13 @@ Full-stack Django web app built for a real beach club, actively used in producti
 
 ## Features
 
-- **Dashboard** — Daily overview: live weather, upcoming events, today's tasks, active staff
-- **Events** — Full event management (weddings, graduations, communions, galas and more) with file attachments and a visual floor plan editor
+- **Dashboard** — Daily overview: live weather with a 6-hour forecast, upcoming events, today's tasks, active staff
+- **Events** — Full event management (weddings, graduations, communions, galas and more) with file attachments, a visual floor plan editor, staff ranges and assigned waiters, and a recycle bin to restore deleted events
 - **Floor Plan Editor** — Drag-and-drop visual layout builder (Fabric.js) per event. Click-to-place elements, multi-select with bulk delete and colour change, pax badge on each table, entrance/exit labels always horizontal
-- **Schedule** — Weekly shift view per employee with drag & drop
+- **Schedule** — Weekly shift view per employee, with a colour per employee, contract hours and custom ordering
 - **Staff** — Employee profiles, roles, contracts and expiry alerts
+- **Overtime** — Per-employee overtime log (rounded to the half hour), grouped by month, monthly settlement and pending hours shown in the staff list
+- **Venues** — Assign staff to each venue for the day
 - **Time Off** — Holiday and day-off requests, approval and tracking
 - **Tasks** — Opening/closing checklists per venue, updated in real time
 - **Agenda** — Priority notes (urgent / moderate / normal), resolution and voice dictation
@@ -34,7 +36,7 @@ Full-stack Django web app built for a real beach club, actively used in producti
 | Layer | Technology |
 |-------|-----------|
 | Backend | Django 6.0.3 |
-| Database | PostgreSQL (Neon) |
+| Database | PostgreSQL (Neon) in production · SQLite locally |
 | Frontend | Custom CSS with variables, Tabler Icons, Fabric.js |
 | Server | Gunicorn + WhiteNoise |
 | Deploy | Google Cloud Run |
@@ -70,6 +72,17 @@ python data/tareas.py
 python data/turnos.py
 ```
 
+> The `data/` scripts have the project path hard-coded (`sys.path.insert(...)`): adjust it if you clone elsewhere.
+> `data/import_turnos.py` imports the Excel file `data/turnos.xlsx` (not in the repo, confidential data) and needs `pip install openpyxl`.
+
+### Tests
+
+```bash
+python manage.py test
+```
+
+Uses an in-memory database: `db.sqlite3` is not touched.
+
 ---
 
 ## Environment Variables (production)
@@ -80,7 +93,14 @@ DJANGO_DEBUG=false
 DATABASE_URL=postgresql://user:password@host/db?sslmode=require
 TZ=Europe/Madrid
 GS_BUCKET_NAME=your-bucket-name
+
+# Location for the weather widget (optional, these are the defaults)
+CLUB_LATITUDE=39.47
+CLUB_LONGITUDE=-0.38
+CLUB_CITY=Benalmádena
 ```
+
+Without `DATABASE_URL` the app uses a local `db.sqlite3`.
 
 ---
 
@@ -93,6 +113,7 @@ bash deploy.sh
 ```
 
 - Python 3.12 slim container
+- Migrations run automatically on container start (`migrate --noinput`)
 - Static files served by WhiteNoise
 - User uploads (event documents) stored in Google Cloud Storage
 - Serverless PostgreSQL on Neon (Frankfurt)

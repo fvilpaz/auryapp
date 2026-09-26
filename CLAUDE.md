@@ -57,7 +57,8 @@ Si aparece en más de un sitio, cambiar TODOS o no cambiar nada.
 - **Frontend**: Fabric.js 5.3.1 (canvas interactivo) · CSS propio (clases `bc-*`)
 - **Infra**: Google Cloud Run · proyecto `auryapp-prod` · región `europe-west1` · dominio `aury-op.com`
 - **Deploy**: `bash deploy.sh` — sube el directorio actual con `gcloud run deploy --source .`
-- **Migraciones en prod**: `DATABASE_URL="..." ~/.pyenv/versions/3.12.12/bin/python manage.py migrate`
+- **Migraciones en prod**: automáticas — el contenedor ejecuta `migrate --noinput` al arrancar (ver `Dockerfile`)
+- **Tests**: `python manage.py test` (usa BD en memoria, no toca `db.sqlite3`)
 
 ---
 
@@ -71,8 +72,10 @@ Si aparece en más de un sitio, cambiar TODOS o no cambiar nada.
 | `core/templates/core/detalle_evento.html` | Plano Fabric.js — TODA la lógica del canvas está aquí | guardar_plano, guardar_info_mesa, editar_mesas, resumen_mesas |
 | `core/templates/core/editar_mesas.html` | Tabla de mesas con autosave | guardar_info_mesa (AJAX directo) |
 | `core/templates/core/resumen_mesas.html` | Vista solo lectura del resumen | plano_json de la BD |
-| `personal/models.py` | Empleado (color, horas_semana), Turno (color_override) | migraciones en `personal/migrations/` |
-| `personal/views.py` | Cuadrante, turnos, empleados | personal/models.py |
+| `personal/models.py` | Empleado (color, horas_semana), Turno (color_override), HoraExtra | migraciones en `personal/migrations/` |
+| `personal/views.py` | Cuadrante, turnos, empleados, horas extra | personal/models.py |
+| `personal/tests.py` | Tests de horas extra | personal/views.py, personal/urls.py |
+| `core/tests.py` | Tests de `guardar_plano` y `guardar_info_mesa` (regresión de `_info`) | core/views.py |
 | `beachclub/urls.py` | URLs raíz (logout, robots.txt, includes) | core/urls.py, personal/urls.py |
 | `deploy.sh` | Deploy a Cloud Run | .env.deploy (no commitear) |
 
@@ -187,8 +190,15 @@ Antes de añadir un estilo nuevo, buscar si ya existe. Clases frecuentes:
 1. Editar el modelo en `models.py`
 2. `python manage.py makemigrations`
 3. `python manage.py migrate` (local)
-4. En producción: `DATABASE_URL="..." ~/.pyenv/versions/3.12.12/bin/python manage.py migrate`
-5. Campos nuevos: siempre `default=` o `null=True` para no romper filas existentes
+4. `python manage.py test`
+5. En producción se aplica sola en el siguiente deploy (el contenedor ejecuta `migrate` al arrancar).
+   Si la migración falla, la revisión nueva no arranca y Cloud Run sigue sirviendo la anterior.
+6. Campos nuevos: siempre `default=` o `null=True` para no romper filas existentes
+7. **Migraciones destructivas** (borrar/renombrar columnas o tablas, `RunPython` que modifique datos):
+   crear antes una rama en Neon como copia de seguridad instantánea.
+8. **Dos ramas de migraciones** (dos `000N_` que dependen de la misma anterior, p. ej. al juntar ramas de git):
+   NO renumerar una migración ya aplicada en alguna BD; crear una de unión con
+   `python manage.py makemigrations <app> --merge`. Ejemplo: `personal/0008_merge_hora_extra_y_colores.py`.
 
 ---
 
@@ -197,7 +207,8 @@ Antes de añadir un estilo nuevo, buscar si ya existe. Clases frecuentes:
 - **Colores de estado** en `ESTADO_COLORES` (`personal/models.py`): `libre`=#7030a0, `inamovible`=#ff9300, `vacaciones`=#ffc000, `libre_vacaciones`=#f97316, `finde_largo`=#a855f7, `baja`=#ff0000
 - **Color de trabajo**: usa `empleado.color` (verde #16a34a por defecto, rosa #ec4899 para Inma)
 - **`horas_semana`**: horas de contrato (40 o 30), no horas calculadas
-- **Orden cuadrante**: campo `posicion` en `Empleado`
+- **Orden cuadrante**: campo `posicion` en `Empleado` (se edita en el panel "Ordenar" del cuadrante, no hay drag & drop)
+- **Horas extra** (`HoraExtra`): se redondean a la media hora más cercana (mínimo 0,5 h); fin anterior al inicio o sin motivo → no se crea. Añadir/eliminar/liquidar solo staff y solo por POST. "Liquidar" marca como pagadas las pendientes de un mes.
 
 ---
 
@@ -208,6 +219,9 @@ bash deploy.sh
 ```
 
 Usa `gcloud run deploy --source .` — despliega el directorio actual, no requiere commit. Variables de entorno desde `.env.deploy` (no commitear, en `.gitignore`).
+
+Al arrancar, el contenedor ejecuta `python manage.py migrate --noinput` contra Neon y luego gunicorn:
+no hace falta migrar producción a mano.
 
 ---
 

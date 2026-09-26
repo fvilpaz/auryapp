@@ -13,11 +13,13 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 
 ## Funcionalidades
 
-- **Dashboard** — Resumen del día: clima en vivo, eventos próximos, tareas del día, personal trabajando
-- **Eventos** — Gestión completa de bodas, graduaciones, comuniones, galas y más. Con documentos adjuntos y editor visual de plano de mesas
+- **Dashboard** — Resumen del día: clima en vivo con previsión de las próximas 6 horas, eventos próximos, tareas del día, personal trabajando
+- **Eventos** — Gestión completa de bodas, graduaciones, comuniones, galas y más. Con documentos adjuntos, editor visual de plano de mesas, rangos y camareros asignados, y papelera para restaurar eventos borrados
 - **Plano de mesas** — Editor visual (Fabric.js) para diseñar la distribución de espacios de cada evento. Colocación por clic, selección múltiple con borrado y cambio de color en bloque, badge de pax en cada mesa, etiquetas de entradas/salidas siempre horizontales
-- **Cuadrante** — Vista semanal de turnos por empleado con drag & drop
+- **Cuadrante** — Vista semanal de turnos por empleado, con color propio por empleado, horas de contrato y orden personalizable
 - **Personal** — Fichas de empleados, roles, contratos y alertas de vencimiento
+- **Horas extra** — Registro por empleado (redondeo a la media hora), agrupadas por mes, liquidación mensual y horas pendientes visibles en la lista de empleados
+- **Espacios** — Asignación de empleados a cada espacio del día
 - **Vacaciones y días sueltos** — Solicitudes, aprobación y seguimiento
 - **Tareas** — Checklists de apertura/cierre por espacio, actualizables en tiempo real
 - **Agenda** — Notas con prioridad (urgente / moderado / normal), resolución y dictado por voz
@@ -34,7 +36,7 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 | Capa | Tecnología |
 |------|-----------|
 | Backend | Django 6.0.3 |
-| Base de datos | PostgreSQL (Neon) |
+| Base de datos | PostgreSQL (Neon) en producción · SQLite en local |
 | Frontend | CSS propio con variables, Tabler Icons, Fabric.js |
 | Servidor | Gunicorn + WhiteNoise |
 | Deploy | Google Cloud Run |
@@ -70,6 +72,17 @@ python data/tareas.py
 python data/turnos.py
 ```
 
+> Los scripts de `data/` tienen la ruta del proyecto escrita dentro (`sys.path.insert(...)`): ajústala si clonas en otra carpeta.
+> `data/import_turnos.py` importa el Excel `data/turnos.xlsx` (no está en el repositorio, datos confidenciales) y necesita `pip install openpyxl`.
+
+### Tests
+
+```bash
+python manage.py test
+```
+
+Usa una base de datos en memoria: no toca `db.sqlite3`.
+
 ---
 
 ## Variables de entorno (producción)
@@ -80,7 +93,14 @@ DJANGO_DEBUG=false
 DATABASE_URL=postgresql://usuario:password@host/db?sslmode=require
 TZ=Europe/Madrid
 GS_BUCKET_NAME=nombre-del-bucket
+
+# Ubicación para el widget del clima (opcionales, estos son los valores por defecto)
+CLUB_LATITUDE=39.47
+CLUB_LONGITUDE=-0.38
+CLUB_CITY=Benalmádena
 ```
+
+Sin `DATABASE_URL` la app usa `db.sqlite3` en local.
 
 ---
 
@@ -93,6 +113,7 @@ bash deploy.sh
 ```
 
 - Contenedor Python 3.12 slim
+- Las migraciones se aplican solas al arrancar el contenedor (`migrate --noinput`)
 - Archivos estáticos gestionados por WhiteNoise
 - Archivos de usuario (documentos de eventos) en Google Cloud Storage
 - Base de datos PostgreSQL serverless en Neon (Frankfurt)
