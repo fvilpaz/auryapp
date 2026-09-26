@@ -59,6 +59,7 @@ Si aparece en más de un sitio, cambiar TODOS o no cambiar nada.
 - **Deploy**: `bash deploy.sh` — sube el directorio actual con `gcloud run deploy --source .`
 - **Migraciones en prod**: automáticas — el contenedor ejecuta `migrate --noinput` al arrancar (ver `Dockerfile`)
 - **Tests**: `python manage.py test` (usa BD en memoria, no toca `db.sqlite3`)
+- **Estáticos**: los originales están en `<app>/static/`. `staticfiles/` la genera `collectstatic` (el `Dockerfile` lo ejecuta al construir); no está en git ni debe estarlo
 
 ---
 
