@@ -25,3 +25,5 @@ class Command(BaseCommand):
         self.stdout.write(f'Copia guardada en {destino} ({total} registros, {len(copia["usuarios"])} usuarios)')
         for etiqueta, n in copia['conteo'].items():
             self.stdout.write(f'  {etiqueta}: {n}')
+        for etiqueta in copia['omitidos']:
+            self.stdout.write(self.style.WARNING(f'  {etiqueta}: OMITIDO (la tabla aún no existe en esta BD)'))

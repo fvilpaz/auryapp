@@ -9,6 +9,7 @@ import json
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db import connection
 from django.db.migrations.recorder import MigrationRecorder
 from django.utils import timezone
 
@@ -31,9 +32,16 @@ CAMPOS_USUARIO = ['username', 'first_name', 'last_name', 'email',
 
 
 def construir_copia():
-    datos = {}
+    # Una tabla que aún no existe en esa BD (p. ej. producción antes de aplicar la
+    # migración que la crea) se omite y se anota. Cualquier otro error se propaga:
+    # mejor que la copia falle a que salga incompleta sin avisar.
+    tablas = set(connection.introspection.table_names())
+    datos, omitidos = {}, []
     for modelo in MODELOS:
         etiqueta = modelo._meta.label  # p. ej. 'core.Evento'
+        if modelo._meta.db_table not in tablas:
+            omitidos.append(etiqueta)
+            continue
         datos[etiqueta] = serializers.serialize('python', modelo.objects.order_by('pk'))
 
     migraciones = {}
@@ -49,6 +57,7 @@ def construir_copia():
         'migraciones': migraciones,
         'usuarios': list(User.objects.order_by('pk').values(*CAMPOS_USUARIO)),
         'conteo': {etiqueta: len(filas) for etiqueta, filas in datos.items()},
+        'omitidos': omitidos,
         'datos': datos,
     }
 
