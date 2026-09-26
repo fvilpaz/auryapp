@@ -8,3 +8,4 @@ data/turnos.xlsx
 .env.deploy
 *.log
 staticfiles/
+backups/

@@ -33,6 +33,19 @@ for v in CLUB_LATITUDE CLUB_LONGITUDE CLUB_CITY; do
   [ -n "${!v}" ] && ENV_VARS="${ENV_VARS},${v}=${!v}"
 done
 
+# Copia de seguridad de PRODUCCIÓN antes de desplegar (el contenedor nuevo migra al arrancar).
+# Se guarda en backups/ (ignorada por git y por Docker). Si la copia falla, no se despliega.
+# Para desplegar sin copia (solo si sabes lo que haces): SIN_COPIA=1 bash deploy.sh
+if [ "${SIN_COPIA:-}" != "1" ]; then
+  PY=venv/bin/python
+  [ -x "$PY" ] || PY=python3
+  echo "Copia de seguridad de producción antes de desplegar..."
+  if ! DATABASE_URL="$DATABASE_URL" "$PY" manage.py exportar_copia --carpeta backups; then
+    echo "ERROR: la copia de seguridad ha fallado; NO se despliega."
+    exit 1
+  fi
+fi
+
 echo "Desplegando desde: $(pwd)"
 gcloud run deploy auryapp --project auryapp-prod --source . --region europe-west1 --allow-unauthenticated \
   --update-env-vars="${ENV_VARS}"

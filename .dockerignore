@@ -6,3 +6,4 @@ __pycache__/
 *.log
 .git/
 db.sqlite3
+backups/
