@@ -247,3 +247,25 @@ class ExportarCopiaTests(TestCase):
         from .backup import MODELOS
         todos = {m for app in ('core', 'personal', 'tareas') for m in apps.get_app_config(app).get_models()}
         self.assertEqual(todos - set(MODELOS), set(), 'Modelos que faltan en core/backup.py MODELOS')
+
+
+class IconosTests(TestCase):
+    """El favicon debe verse también sin sesión (login) y /favicon.ico no puede ir al login."""
+
+    def test_favicon_ico_publico(self):
+        resp = Client().get('/favicon.ico')
+        self.assertEqual(resp.status_code, 301)
+        self.assertIn('img/icons/favicon', resp['Location'])
+        self.assertFalse(resp['Location'].startswith('/login/'))
+
+    def test_login_enlaza_iconos(self):
+        resp = Client().get('/login/')
+        self.assertContains(resp, 'img/icons/favicon-32')
+        self.assertContains(resp, 'apple-touch-icon')
+
+    def test_app_enlaza_iconos(self):
+        staff = User.objects.create_user('staff', password='x', is_staff=True)
+        c = Client()
+        c.force_login(staff)
+        resp = c.get(reverse('dashboard'))
+        self.assertContains(resp, 'img/icons/favicon-32')

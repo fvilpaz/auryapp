@@ -21,14 +21,21 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views, logout as auth_logout
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
+from django.templatetags.static import static as static_url
 from core.views import registro
 
 def logout_view(request):
     auth_logout(request)
     return redirect('login')
 
+def favicon_view(request):
+    # La URL del estático se resuelve en cada petición, no al importar urls.py
+    return redirect(static_url('img/icons/favicon.ico'), permanent=True)
+
 urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    # Los navegadores piden /favicon.ico por su cuenta (pública en el middleware)
+    path('favicon.ico', favicon_view),
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', logout_view, name='logout'),
