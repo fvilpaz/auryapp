@@ -40,4 +40,5 @@ urlpatterns = [
     path('pedidos/articulo/<int:pk>/eliminar/', views.eliminar_articulo, name='eliminar_articulo'),
     path('pedidos/articulo/<int:pk>/cantidad/', views.actualizar_cantidad, name='actualizar_cantidad'),
     path('weather/forecast/', views.weather_forecast, name='weather_forecast'),
+    path('copia/exportar/', views.exportar_copia, name='exportar_copia'),
 ]

@@ -39,6 +39,12 @@
         <a href="/admin/" class="bc-user-menu-item bc-user-menu-admin">
           <i class="ti ti-shield-check"></i> Admin
         </a>
+        <a href="{% url 'registro' %}" class="bc-user-menu-item">
+          <i class="ti ti-user-plus"></i> Crear cuenta
+        </a>
+        <a href="{% url 'exportar_copia' %}" class="bc-user-menu-item">
+          <i class="ti ti-download"></i> Descargar copia
+        </a>
         {% endif %}
         <form method="post" action="{% url 'logout' %}" style="display:contents;">
           {% csrf_token %}

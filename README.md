@@ -26,7 +26,8 @@ Full-stack Django web app built for a real beach club, actively used in producti
 - **Orders** — Stock tracking per point of sale
 - **Calendar** — Monthly event view with FullCalendar, synced with Events module
 - **Themes** — 6 visual themes (Light, Dark, Mint, Barbie, Dracula, Cyberpunk)
-- **User Accounts** — Only staff can create new accounts (name, username, email and password) at `/registro/`; there is no public sign-up
+- **User Accounts** — Only staff can create new accounts (name, username, email and password) from the user menu → *Crear cuenta*; there is no public sign-up
+- **Backup** — User menu → *Descargar copia* (staff only): a JSON with all app data (events with their floor plans and per-table details, staff, shifts, overtime, time off, tasks, agenda and orders) and the users **without passwords**. Event attachments live in Cloud Storage: the backup keeps their reference, not the file
 - **Admin Panel** — Direct access to Django admin from the navbar (staff only)
 
 ---
@@ -80,6 +81,14 @@ python data/turnos.py
 ```bash
 python manage.py test
 ```
+
+### Backup from the terminal
+
+```bash
+python manage.py exportar_copia --carpeta path/to/folder
+```
+
+Saves `auryapp-YYYY-MM-DD.json` from the database `DATABASE_URL` points to (SQLite if unset).
 
 Uses an in-memory database: `db.sqlite3` is not touched.
 

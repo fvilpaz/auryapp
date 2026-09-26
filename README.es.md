@@ -26,7 +26,8 @@ Aplicación web de gestión integral para beach club. Desarrollada con Django, d
 - **Pedidos** — Registro de artículos necesarios por punto de venta
 - **Calendario** — Vista mensual de eventos con FullCalendar, sincronizado con el módulo de Eventos
 - **Temas** — 6 temas visuales (Claro, Oscuro, Mint, Barbie, Drácula, Cyberpunk)
-- **Alta de usuarios** — Solo staff crea cuentas nuevas (nombre, apellidos, usuario, email y contraseña) desde `/registro/`; no hay registro público
+- **Alta de usuarios** — Solo staff crea cuentas nuevas (nombre, apellidos, usuario, email y contraseña) desde el menú de usuario → *Crear cuenta*; no hay registro público
+- **Copia de seguridad** — Menú de usuario → *Descargar copia* (solo staff): un JSON con todos los datos (eventos con sus planos de mesas y el detalle de cada mesa, empleados, turnos, horas extra, ausencias, tareas, agenda y pedidos) y los usuarios **sin contraseñas**. Los documentos adjuntos de eventos están en Cloud Storage: la copia guarda su referencia, no el fichero
 - **Panel de administración** — Acceso directo al admin de Django desde la navbar (solo staff)
 
 ---
@@ -80,6 +81,14 @@ python data/turnos.py
 ```bash
 python manage.py test
 ```
+
+### Copia de seguridad desde la terminal
+
+```bash
+python manage.py exportar_copia --carpeta ruta/destino
+```
+
+Guarda `auryapp-AAAA-MM-DD.json` de la base a la que apunte `DATABASE_URL` (SQLite si no está definida).
 
 Usa una base de datos en memoria: no toca `db.sqlite3`.
 

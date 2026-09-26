@@ -824,3 +824,13 @@ def registro(request):
     else:
         form = RegistroForm()
     return render(request, 'registration/register.html', {'form': form, 'creado': creado})
+
+
+# ── Copia de seguridad ─────────────────────────────────────────────────────────
+@staff_required
+def exportar_copia(request):
+    from django.http import HttpResponse
+    from .backup import construir_copia, copia_a_json, nombre_fichero
+    resp = HttpResponse(copia_a_json(construir_copia()), content_type='application/json; charset=utf-8')
+    resp['Content-Disposition'] = f'attachment; filename="{nombre_fichero()}"'
+    return resp

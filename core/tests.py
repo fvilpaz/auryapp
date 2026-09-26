@@ -186,3 +186,64 @@ class RegistroTests(TestCase):
         resp = Client().get('/login/')
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, self.url)
+
+
+class ExportarCopiaTests(TestCase):
+    """La copia incluye todos los datos (planos con _info incluidos) y nunca contraseñas."""
+
+    def setUp(self):
+        self.url = reverse('exportar_copia')
+        self.staff = User.objects.create_user('staff', password='x', is_staff=True)
+        self.evento = _evento()
+        self.evento.plano_json = _plano_con_info('Mesa 1', {'pax': 8, 'alergias': 'nueces'})
+        self.evento.save()
+
+    def _descargar(self):
+        c = Client()
+        c.force_login(self.staff)
+        return c.get(self.url)
+
+    def test_staff_descarga_json_con_cabecera(self):
+        resp = self._descargar()
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('attachment; filename="auryapp-', resp['Content-Disposition'])
+        data = json.loads(resp.content)
+        self.assertEqual(data['schema'], 'auryapp')
+        self.assertEqual(data['version'], 1)
+        self.assertIn('0001_initial', data['migraciones']['core'])
+
+    def test_incluye_plano_con_info_y_espacios(self):
+        data = json.loads(self._descargar().content)
+        eventos = data['datos']['core.Evento']
+        self.assertEqual(len(eventos), 1)
+        plano = json.loads(eventos[0]['fields']['plano_json'])
+        self.assertEqual(plano['objects'][0]['_info']['alergias'], 'nueces')
+        self.assertEqual(len(eventos[0]['fields']['espacios']), 1)
+        self.assertEqual(data['conteo']['core.Espacio'], 1)
+
+    def test_usuarios_sin_contrasena(self):
+        resp = self._descargar()
+        data = json.loads(resp.content)
+        self.assertEqual([u['username'] for u in data['usuarios']], ['staff'])
+        self.assertNotIn('password', data['usuarios'][0])
+        self.assertNotIn(self.staff.password, resp.content.decode())
+
+    def test_no_staff_no_puede_descargar(self):
+        normal = User.objects.create_user('normal', password='x')
+        c = Client()
+        c.force_login(normal)
+        resp = c.get(self.url)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp['Location'].startswith('/login/'))
+
+    def test_anonimo_no_puede_descargar(self):
+        resp = Client().get(self.url)
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp['Location'].startswith('/login/'))
+
+    def test_la_copia_incluye_todos_los_modelos_de_la_app(self):
+        """Si se crea un modelo nuevo y no se añade a backup.MODELOS, sus datos no irían en la copia."""
+        from django.apps import apps
+        from .backup import MODELOS
+        todos = {m for app in ('core', 'personal', 'tareas') for m in apps.get_app_config(app).get_models()}
+        self.assertEqual(todos - set(MODELOS), set(), 'Modelos que faltan en core/backup.py MODELOS')
