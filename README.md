@@ -135,7 +135,7 @@ deploy.bat          # Windows (runs deploy.sh inside WSL)
 
 - Login required on all routes (custom middleware)
 - Automatic lockout after 5 failed login attempts (1-hour cooldown)
-- Session expires on browser close and after 8 hours maximum
+- Session survives closing the installed app and expires after 7 days of inactivity (each use renews it)
 - CSRF, XSS and clickjacking protection enabled
 - Content Security Policy (CSP), HSTS, Referrer-Policy and Permissions-Policy headers
 - File upload validation: extension whitelist + magic bytes check

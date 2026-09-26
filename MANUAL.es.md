@@ -15,7 +15,7 @@ Abre el navegador y entra en la dirección de la app. Introduce tu usuario y con
 
 > Si introduces mal la contraseña 5 veces seguidas, la cuenta se bloquea durante 1 hora automáticamente.
 
-> La sesión se cierra automáticamente al cerrar el navegador y caduca tras 8 horas de inactividad.
+> La sesión se mantiene aunque cierres la app o el navegador, y caduca tras 7 días sin usarla. Para salir antes, usa *Cerrar sesión* en el menú de usuario.
 
 ### Crear cuenta nueva
 

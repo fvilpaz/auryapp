@@ -325,3 +325,17 @@ class PwaTests(TestCase):
         c = Client()
         c.force_login(staff)
         self.assertContains(c.get(reverse('dashboard')), 'rel="manifest"')
+
+
+class SesionTests(TestCase):
+    """App instalada: la sesión no muere al cerrar la app y dura 7 días desde el último uso."""
+
+    def test_cookie_de_sesion_persistente_7_dias_y_renovada_en_cada_uso(self):
+        staff = User.objects.create_user('staff', password='x', is_staff=True)
+        c = Client()
+        c.force_login(staff)
+        resp = c.get(reverse('dashboard'))
+        self.assertEqual(resp.status_code, 200)
+        cookie = resp.cookies.get('sessionid')
+        self.assertIsNotNone(cookie, 'cada petición debe renovar la cookie de sesión')
+        self.assertEqual(int(cookie['max-age']), 7 * 24 * 3600)

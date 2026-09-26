@@ -15,7 +15,7 @@ Open your browser and go to the app's URL. Enter your username and password.
 
 > If you enter the wrong password 5 times in a row, the account is automatically locked for 1 hour.
 
-> The session closes automatically when you close the browser, and expires after 8 hours of inactivity regardless.
+> The session stays open even if you close the app or the browser, and expires after 7 days without use. To leave earlier, use *Cerrar sesión* in the user menu.
 
 ### Create a new account
 

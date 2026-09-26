@@ -135,7 +135,7 @@ deploy.bat          # Windows (ejecuta deploy.sh dentro de WSL)
 
 - Autenticación obligatoria en todas las rutas (middleware personalizado)
 - Bloqueo automático tras 5 intentos de login fallidos (1 hora de cooldown)
-- Sesión expira al cerrar el navegador y tras 8 horas máximo
+- Sesión que sobrevive a cerrar la app instalada y caduca tras 7 días sin usarla (cada uso renueva el plazo)
 - Protección CSRF, XSS y clickjacking activadas
 - Cabeceras Content Security Policy (CSP), HSTS, Referrer-Policy y Permissions-Policy
 - Validación de subida de ficheros: whitelist de extensiones + comprobación de magic bytes
